@@ -9,27 +9,108 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
-    public function index()
+    // List all user orders
+    public function index(Request $request)
     {
-        $orders = Order::with(['items.book', 'payment'])
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->paginate(10);
+        $query = Order::with(['items.book'])
+            ->where('user_id', Auth::id());
+
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->latest()->paginate(10);
 
         return view('orders.index', compact('orders'));
     }
 
+    // Show order detail
     public function show($orderNumber)
     {
-        $order = Order::with(['items.book', 'payment'])
+        $order = Order::with(['items.book'])
             ->where('user_id', Auth::id())
             ->where('order_number', $orderNumber)
             ->firstOrFail();
 
         return view('orders.show', compact('order'));
+    }
+
+    // Upload payment proof (for bank transfer)
+    public function uploadPaymentProof(Request $request, $orderNumber)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('order_number', $orderNumber)
+            ->firstOrFail();
+
+        // Check if can upload
+        if (!$order->canUploadPaymentProof()) {
+            return redirect()->back()
+                ->with('error', 'Tidak dapat upload bukti pembayaran untuk pesanan ini');
+        }
+
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Delete old payment proof if exists
+        if ($order->payment_proof) {
+            Storage::disk('public')->delete($order->payment_proof);
+        }
+
+        // Store new payment proof
+        $path = $request->file('payment_proof')->store('payment-proofs', 'public');
+
+        $order->update([
+            'payment_proof' => $path,
+            'payment_status' => Order::PAYMENT_PAID,
+            'status' => Order::STATUS_PAID,
+            'paid_at' => now(),
+        ]);
+
+        return redirect()->route('orders.show', $orderNumber)
+            ->with('success', 'Bukti pembayaran berhasil diupload! Pesanan Anda sedang diverifikasi.');
+    }
+
+    // Cancel order
+    public function cancel($orderNumber)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('order_number', $orderNumber)
+            ->firstOrFail();
+
+        // Check if can be cancelled
+        if (!$order->canBeCancelled()) {
+            return redirect()->back()
+                ->with('error', 'Pesanan tidak dapat dibatalkan');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Restore stock
+            foreach ($order->items as $item) {
+                $item->book->increment('stock', $item->quantity);
+            }
+
+            // Update order status
+            $order->update([
+                'status' => Order::STATUS_CANCELLED,
+                'payment_status' => Order::PAYMENT_FAILED,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('orders.show', $orderNumber)
+                ->with('success', 'Pesanan berhasil dibatalkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
     }
 
     public function checkout()

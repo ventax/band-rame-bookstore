@@ -417,6 +417,16 @@
 
                 async addToCart(bookId) {
                     try {
+                        // Trigger flying animation
+                        const bookCard = event.target.closest('.group, .relative');
+                        const bookImage = bookCard?.querySelector('img') || bookCard?.querySelector(
+                            '.aspect-\\[2\\/3\\]');
+                        const bookTitle = bookCard?.querySelector('h3')?.textContent || 'Buku';
+
+                        if (bookImage) {
+                            window.flyToCart(bookImage, bookTitle);
+                        }
+
                         const response = await fetch(`/cart/add/${bookId}`, {
                             method: 'POST',
                             headers: {
@@ -432,21 +442,11 @@
                         const data = await response.json();
                         if (data.success) {
                             window.dispatchEvent(new CustomEvent('cart-updated'));
-                            window.dispatchEvent(new CustomEvent('toast', {
-                                detail: {
-                                    message: data.message,
-                                    type: 'success'
-                                }
-                            }));
+                            // Don't show duplicate toast since flyToCart already shows one
                         }
                     } catch (error) {
                         console.error('Error adding to cart:', error);
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: {
-                                message: 'Gagal menambahkan ke keranjang',
-                                type: 'error'
-                            }
-                        }));
+                        window.showToast('error', 'Gagal menambahkan ke keranjang');
                     }
                 },
 
@@ -495,24 +495,21 @@
                                 this.quickViewBook.in_wishlist = data.action === 'added';
                             }
 
-                            window.dispatchEvent(new CustomEvent('toast', {
-                                detail: {
-                                    message: data.message,
-                                    type: 'success'
-                                }
-                            }));
+                            // Flying heart animation
+                            if (data.action === 'added' && typeof window.flyToWishlist === 'function') {
+                                const bookCard = event.target.closest('.group, .relative');
+                                const bookTitle = bookCard?.querySelector('h3')?.textContent || 'Buku';
+                                window.flyToWishlist(event.target, bookTitle);
+                            } else {
+                                window.showToast('success', data.message);
+                            }
                         } else {
                             console.error('❌ Success false:', data);
                             throw new Error(data.message || 'Unknown error');
                         }
                     } catch (error) {
                         console.error('❌ Error toggling wishlist:', error);
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: {
-                                message: error.message || 'Gagal memperbarui wishlist',
-                                type: 'error'
-                            }
-                        }));
+                        window.showToast('error', error.message || 'Gagal memperbarui wishlist');
                     }
                 }
             };

@@ -179,6 +179,14 @@
         @push('scripts')
             <script>
                 function addToCart(bookId, quantity) {
+                    // Trigger flying animation
+                    const bookImage = document.querySelector('.aspect-square img, .aspect-square > div');
+                    const bookTitle = '{{ $book->title }}';
+
+                    if (bookImage) {
+                        window.flyToCart(bookImage, bookTitle);
+                    }
+
                     fetch(`/cart/add/${bookId}`, {
                             method: 'POST',
                             headers: {
@@ -192,14 +200,15 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert(data.message);
-                                // Update cart count
-                                window.location.reload();
+                                // Don't reload, let animation finish
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                            window.showToast('error', 'Terjadi kesalahan. Silakan coba lagi.');
                         });
                 }
             </script>

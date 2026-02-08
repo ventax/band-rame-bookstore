@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'BandRame - Toko Buku Online Terlengkap')</title>
+    <title>@yield('title', 'BandRame - Toko Buku Anak-Anak Seru & Edukatif!')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -18,26 +18,27 @@
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
 
         .font-display {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Poppins', 'Nunito', sans-serif;
         }
 
-        /* Animated gradient background */
+        /* Rainbow gradient background */
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #93c5fd 0%, #ddd6fe 50%, #fbcfe8 100%);
         }
 
-        /* Glass morphism effect */
+        /* Colorful glass effect */
         .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 4px solid rgba(147, 197, 253, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Hover effects */
+        /* Playful hover effects */
         .nav-link {
             position: relative;
             transition: all 0.3s ease;
@@ -47,10 +48,11 @@
             content: '';
             position: absolute;
             width: 0;
-            height: 2px;
+            height: 3px;
             bottom: -5px;
             left: 50%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #93c5fd, #a78bfa, #f9a8d4);
+            border-radius: 10px;
             transition: all 0.3s ease;
             transform: translateX(-50%);
         }
@@ -59,16 +61,24 @@
             width: 100%;
         }
 
-        /* Book icon animation */
+        /* Bouncy float animation */
         @keyframes float {
 
             0%,
             100% {
-                transform: translateY(0px);
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-5px) rotate(-5deg);
             }
 
             50% {
-                transform: translateY(-10px);
+                transform: translateY(-10px) rotate(0deg);
+            }
+
+            75% {
+                transform: translateY(-5px) rotate(5deg);
             }
         }
 
@@ -76,58 +86,115 @@
             animation: float 3s ease-in-out infinite;
         }
 
-        /* Cart badge pulse */
-        @keyframes pulse {
+        /* Fun wiggle animation */
+        @keyframes wiggle {
 
             0%,
             100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(-10deg);
+            }
+
+            75% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .wiggle-animation:hover {
+            animation: wiggle 0.5s ease-in-out;
+        }
+
+        /* Rainbow pulse */
+        @keyframes rainbowPulse {
+            0% {
                 transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(147, 197, 253, 0.7);
             }
 
             50% {
                 transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(147, 197, 253, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(147, 197, 253, 0);
             }
         }
 
         .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
+            animation: rainbowPulse 2s ease-in-out infinite;
         }
 
-        /* Custom scrollbar */
+        /* Star sparkle */
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .sparkle {
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        /* Rainbow scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 12px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #fef9e7;
+            border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 5px;
+            background: linear-gradient(135deg, #93c5fd 0%, #c4b5fd 50%, #f9a8d4 100%);
+            border-radius: 10px;
+            border: 2px solid #fff;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #764ba2;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
         }
     </style>
 
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
+<body class="font-sans antialiased bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 min-h-screen">
+    <!-- Fun decorative elements -->
+    <div class="fixed top-10 left-10 w-20 h-20 bg-kidYellow-300 rounded-full opacity-20 blur-2xl wiggle-animation">
+    </div>
+    <div class="fixed top-32 right-20 w-32 h-32 bg-kidBlue-300 rounded-full opacity-20 blur-2xl float-animation"></div>
+    <div class="fixed bottom-20 left-1/3 w-24 h-24 bg-kidGreen-300 rounded-full opacity-20 blur-2xl sparkle"></div>
+
     <!-- Navbar -->
     <nav class="glass-effect sticky top-0 z-50 shadow-md" x-data="{ mobileMenu: false }">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <a href="{{ route('home') }}" class="flex items-center space-x-2 group">
-                        <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
-                            <i class="fas fa-book-open text-lg text-white"></i>
+                    <a href="{{ route('home') }}" class="flex items-center space-x-2 group wiggle-animation">
+                        <div
+                            class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 p-2.5 rounded-2xl shadow-fun transform transition hover:scale-110">
+                            <i class="fas fa-book-reader text-xl text-white"></i>
                         </div>
-                        <span
-                            class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent hidden sm:inline">BandRame</span>
+                        <div class="hidden sm:block">
+                            <span
+                                class="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-display">BandRame</span>
+                            <p class="text-xs text-blue-600 font-semibold -mt-1">Toko Buku Anak</p>
+                        </div>
                     </a>
                 </div>
 
@@ -140,8 +207,8 @@
                                 <i class="fas fa-search text-gray-400 text-sm"></i>
                             </div>
                             <input type="text" x-model="searchQuery" @input.debounce.300ms="search()"
-                                @focus="if(searchQuery.length >= 2) showResults = true" placeholder="Cari buku..."
-                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all bg-white">
+                                @focus="if(searchQuery.length >= 2) showResults = true" placeholder="Cari buku seru..."
+                                class="w-full pl-9 pr-3 py-2.5 text-sm rounded-2xl border-2 border-blue-200 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 outline-none transition-all bg-white shadow-sm font-medium">
                             <div x-show="loading" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <i class="fas fa-spinner fa-spin text-purple-600 text-xs"></i>
                             </div>
@@ -178,16 +245,16 @@
                 <!-- Navigation Links - Hidden on Mobile -->
                 <div class="hidden lg:flex items-center space-x-1">
                     <a href="{{ route('home') }}"
-                        class="px-3 py-1.5 text-sm text-gray-700 hover:text-purple-600 font-medium transition-colors {{ request()->routeIs('home') ? 'text-purple-600' : '' }}">
+                        class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 {{ request()->routeIs('home') ? 'bg-gradient-to-r from-blue-400 to-purple-400 text-white shadow-fun' : 'text-gray-700 hover:bg-blue-100' }}">
                         Beranda
                     </a>
                     <a href="{{ route('books.index') }}"
-                        class="px-3 py-1.5 text-sm text-gray-700 hover:text-purple-600 font-medium transition-colors {{ request()->routeIs('books.*') ? 'text-purple-600' : '' }}">
+                        class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 {{ request()->routeIs('books.*') ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-fun' : 'text-gray-700 hover:bg-purple-100' }}">
                         Katalog
                     </a>
                     @auth
                         <a href="{{ route('orders.index') }}"
-                            class="px-3 py-1.5 text-sm text-gray-700 hover:text-purple-600 font-medium transition-colors {{ request()->routeIs('orders.*') ? 'text-purple-600' : '' }}">
+                            class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 {{ request()->routeIs('orders.*') ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-fun' : 'text-gray-700 hover:bg-pink-100' }}">
                             Pesanan
                         </a>
                     @endauth
@@ -199,16 +266,16 @@
                         @if (Auth::user()->role !== 'admin')
                             <!-- Wishlist -->
                             <a href="{{ route('wishlist.index') }}"
-                                class="relative p-2 text-gray-700 hover:text-red-500 transition-colors hidden sm:block">
+                                class="relative p-2.5 bg-gradient-to-r from-pink-100 to-red-100 rounded-2xl text-red-500 hover:from-red-400 hover:to-pink-400 hover:text-white transition-all transform hover:scale-110 shadow-sm wiggle-animation hidden sm:block">
                                 <i class="fas fa-heart text-lg"></i>
                             </a>
 
                             <!-- Cart -->
-                            <a href="{{ route('cart.index') }}"
-                                class="relative p-2 text-gray-700 hover:text-purple-600 transition-colors hidden sm:block">
+                            <a href="{{ route('cart.index') }}" id="cart-icon"
+                                class="relative p-2.5 bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl text-purple-600 hover:from-blue-400 hover:to-purple-400 hover:text-white transition-all transform hover:scale-110 shadow-sm wiggle-animation hidden sm:block">
                                 <i class="fas fa-shopping-cart text-lg"></i>
                                 <span id="cart-count"
-                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                    class="absolute -top-1 -right-1 bg-gradient-to-r from-pink-400 to-rose-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center pulse-animation shadow-lg">
                                     0
                                 </span>
                             </a>
@@ -217,22 +284,23 @@
                         <!-- User Menu -->
                         <div class="relative hidden sm:block" x-data="{ open: false }">
                             <button @click="open = !open"
-                                class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none">
+                                class="flex items-center space-x-2 p-2 rounded-2xl bg-gradient-to-r from-blue-100 to-purple-100 hover:from-blue-200 hover:to-purple-200 transition-all transform hover:scale-105 focus:outline-none shadow-sm">
                                 <div
-                                    class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                                    class="w-9 h-9 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-md">
                                     <span
                                         class="text-white font-bold text-sm">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </div>
                                 <span
-                                    class="hidden lg:inline text-sm font-medium text-gray-700">{{ Str::limit(Auth::user()->name, 12) }}</span>
-                                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                    class="hidden lg:inline text-sm font-bold text-gray-700">{{ Str::limit(Auth::user()->name, 12) }}</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-600"></i>
                             </button>
 
                             <div x-show="open" @click.away="open = false" x-transition
-                                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-200">
-                                <div class="px-3 py-2 border-b border-gray-100">
-                                    <p class="text-xs font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
-                                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                                class="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-playful py-2 z-50 border-4 border-kidYellow-200">
+                                <div
+                                    class="px-4 py-3 border-b-2 border-kidYellow-100 bg-gradient-to-r from-kidPurple-50 to-pink-50 rounded-t-xl">
+                                    <p class="text-sm font-bold text-gray-800 truncate">👋 {{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-gray-600 truncate">{{ Auth::user()->email }}</p>
                                 </div>
 
                                 @if (Auth::user()->role === 'admin')
@@ -275,6 +343,11 @@
                                         <i class="fas fa-box w-4 text-gray-500"></i>
                                         <span class="ml-2">Pesanan</span>
                                     </a>
+                                    <a href="{{ route('addresses.index') }}" @click="open = false"
+                                        class="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-map-marker-alt w-4 text-gray-500"></i>
+                                        <span class="ml-2">Alamat Saya</span>
+                                    </a>
                                 @endif
 
                                 <div class="border-t border-gray-100"></div>
@@ -290,11 +363,11 @@
                         </div>
                     @else
                         <a href="{{ route('login') }}"
-                            class="hidden sm:inline-flex px-3 py-1.5 text-sm text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                            class="hidden sm:inline-flex px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-2xl hover:from-blue-500 hover:to-purple-500 transition-all transform hover:scale-105 shadow-fun">
                             Masuk
                         </a>
                         <a href="{{ route('register') }}"
-                            class="hidden sm:inline-flex px-4 py-1.5 text-sm rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-lg transition-all">
+                            class="hidden sm:inline-flex px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105 shadow-fun">
                             Daftar
                         </a>
                     @endauth
@@ -355,6 +428,11 @@
                             class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('orders.*') ? 'bg-gray-100 text-purple-600 font-medium' : '' }}">
                             <i class="fas fa-box w-4 text-gray-500"></i>
                             <span class="ml-2">Pesanan</span>
+                        </a>
+                        <a href="{{ route('addresses.index') }}"
+                            class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('addresses.*') ? 'bg-gray-100 text-purple-600 font-medium' : '' }}">
+                            <i class="fas fa-map-marker-alt w-4 text-gray-500"></i>
+                            <span class="ml-2">Alamat Saya</span>
                         </a>
 
                         <div class="border-t border-gray-200 mt-2 pt-2">

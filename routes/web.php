@@ -3,7 +3,9 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
@@ -53,16 +55,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
-    // Checkout & Orders
-    Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout/process', [OrderController::class, 'process'])->name('checkout.process');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+    // Checkout Flow (Multi-Step)
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/address', [CheckoutController::class, 'address'])->name('address');
+        Route::post('/payment', [CheckoutController::class, 'payment'])->name('payment');
+        Route::post('/process', [CheckoutController::class, 'process'])->name('process');
+        Route::get('/success/{orderNumber}', [CheckoutController::class, 'success'])->name('success');
+    });
 
-    // Payment
-    Route::get('/payment/{orderNumber}', [PaymentController::class, 'show'])->name('payment.show');
-    Route::post('/payment/{orderNumber}/process', [PaymentController::class, 'process'])->name('payment.process');
-    Route::get('/payment/{orderNumber}/confirmation', [PaymentController::class, 'confirmation'])->name('payment.confirmation');
+    // Orders Management
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{orderNumber}', [OrderController::class, 'show'])->name('show');
+        Route::post('/{orderNumber}/upload-payment', [OrderController::class, 'uploadPaymentProof'])->name('upload-payment');
+        Route::post('/{orderNumber}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+    });
+
+    // Address Management
+    Route::resource('addresses', AddressController::class)->except(['show']);
+    Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -95,9 +106,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('categories', AdminCategoryController::class);
 
     // Orders Management
-    Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
+        Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('updateStatus');
+        Route::post('/{order}/verify-payment', [AdminOrderController::class, 'verifyPayment'])->name('verifyPayment');
+        Route::delete('/{order}', [AdminOrderController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__ . '/auth.php';

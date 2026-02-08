@@ -99,6 +99,71 @@
         .stagger-4 {
             animation-delay: 0.4s;
         }
+
+        /* ========================================
+                           SWIPER HERO SLIDER CUSTOM STYLING
+                           ======================================== */
+        .hero-swiper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-swiper .swiper-wrapper {
+            transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* Custom Pagination */
+        .hero-swiper .swiper-pagination {
+            bottom: 6rem !important;
+        }
+
+        .hero-swiper .swiper-pagination-bullet {
+            width: 14px !important;
+            height: 14px !important;
+            background: rgba(255, 255, 255, 0.6) !important;
+            opacity: 1 !important;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+            border: 3px solid white !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            position: relative !important;
+        }
+
+        .hero-swiper .swiper-pagination-bullet:hover {
+            transform: scale(1.2) !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .hero-swiper .swiper-pagination-bullet-active {
+            width: 40px !important;
+            height: 14px !important;
+            border-radius: 12px !important;
+            background: linear-gradient(90deg, #a855f7, #ec4899, #f59e0b) !important;
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6), 0 0 30px rgba(168, 85, 247, 0.4) !important;
+            transform: scale(1.1) !important;
+            animation: pulsePagination 1.5s ease-in-out infinite !important;
+        }
+
+        @keyframes pulsePagination {
+
+            0%,
+            100% {
+                box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 30px rgba(236, 72, 153, 0.8), 0 0 40px rgba(168, 85, 247, 0.6);
+            }
+        }
+
+        /* Fade Effect */
+        .hero-swiper .swiper-slide {
+            opacity: 0 !important;
+            transition: opacity 0.8s ease !important;
+        }
+
+        .hero-swiper .swiper-slide-active {
+            opacity: 1 !important;
+        }
     </style>
 @endpush
 
@@ -183,25 +248,87 @@
                     </div>
                 </div>
 
-                <!-- Right Image with Advanced Animation -->
+                <!-- Right Image Slider with Advanced Animation -->
                 <div class="hidden lg:block relative animate-slide-right">
-                    <!-- Floating Book Cards -->
+                    <!-- Floating Book Cards Slider -->
                     <div class="relative">
-                        <!-- Main Card -->
+                        <!-- Main Slider Card -->
                         <div class="relative transform hover:rotate-0 transition-transform duration-700 rotate-3 z-20">
                             <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=600&fit=crop"
-                                    alt="Books Collection" class="w-full h-auto">
-                                <div class="p-6 bg-gradient-to-br from-purple-600 to-pink-600 text-white">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-sm opacity-90 font-medium">Diskon Hingga</p>
-                                            <p class="text-5xl font-black">50%</p>
+                                <!-- Swiper Container -->
+                                <div class="swiper hero-swiper">
+                                    <div class="swiper-wrapper">
+                                        <!-- Slide 1 -->
+                                        <div class="swiper-slide">
+                                            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=600&fit=crop"
+                                                alt="Books Collection 1" class="w-full h-auto">
+                                            <div class="p-6 bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-sm opacity-90 font-medium">Diskon Hingga</p>
+                                                        <p class="text-5xl font-black">50%</p>
+                                                    </div>
+                                                    <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
+                                                        <i class="fas fa-fire text-4xl text-yellow-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
-                                            <i class="fas fa-fire text-4xl text-yellow-300"></i>
+
+                                        <!-- Slide 2 -->
+                                        <div class="swiper-slide">
+                                            <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=600&fit=crop"
+                                                alt="Books Collection 2" class="w-full h-auto">
+                                            <div class="p-6 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-sm opacity-90 font-medium">Koleksi Terbaru</p>
+                                                        <p class="text-5xl font-black">1000+</p>
+                                                    </div>
+                                                    <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
+                                                        <i class="fas fa-book text-4xl text-yellow-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Slide 3 -->
+                                        <div class="swiper-slide">
+                                            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=600&fit=crop"
+                                                alt="Books Collection 3" class="w-full h-auto">
+                                            <div class="p-6 bg-gradient-to-br from-pink-600 to-orange-600 text-white">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-sm opacity-90 font-medium">Gratis Ongkir</p>
+                                                        <p class="text-5xl font-black">Min 50K</p>
+                                                    </div>
+                                                    <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
+                                                        <i class="fas fa-shipping-fast text-4xl text-yellow-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Slide 4 -->
+                                        <div class="swiper-slide">
+                                            <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=600&fit=crop"
+                                                alt="Books Collection 4" class="w-full h-auto">
+                                            <div class="p-6 bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-sm opacity-90 font-medium">Cashback</p>
+                                                        <p class="text-5xl font-black">10%</p>
+                                                    </div>
+                                                    <div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl">
+                                                        <i class="fas fa-gift text-4xl text-yellow-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <!-- Pagination -->
+                                    <div class="swiper-pagination !bottom-24"></div>
                                 </div>
                             </div>
                         </div>
@@ -249,13 +376,13 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                     @foreach ($featuredBooks as $index => $book)
                         <div class="group animate-scale-in stagger-{{ ($index % 4) + 1 }} opacity-0">
-                            <a href="{{ route('books.show', $book->slug) }}" class="block">
+                            <a href="{{ route('books.show', $book->slug) }}" class="block h-full">
                                 <div
-                                    class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-                                    <div class="relative overflow-hidden aspect-[3/4]">
+                                    class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
+                                    <div class="relative overflow-hidden aspect-[2/3]">
                                         @if ($book->cover_image)
                                             <img src="{{ asset('storage/' . $book->cover_image) }}"
                                                 alt="{{ $book->title }}"
@@ -263,7 +390,7 @@
                                         @else
                                             <div
                                                 class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                                                <i class="fas fa-book text-purple-300 text-6xl"></i>
+                                                <i class="fas fa-book text-purple-300 text-4xl md:text-6xl"></i>
                                             </div>
                                         @endif
                                         <!-- Overlay -->
@@ -281,39 +408,44 @@
                                         <div
                                             class="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                             <button
-                                                class="flex-1 bg-white text-purple-600 py-2 rounded-lg font-bold text-sm hover:bg-purple-600 hover:text-white transition-colors">
+                                                onclick="event.preventDefault(); flyToCart(this.closest('.group').querySelector('img') || this.closest('.group').querySelector('.aspect-\\[2\\/3\\]'), '{{ $book->title }}'); setTimeout(() => window.location.href = '{{ route('cart.add', $book->id) }}', 800);"
+                                                class="flex-1 bg-white text-purple-600 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-purple-600 hover:text-white transition-colors">
                                                 <i class="fas fa-shopping-cart mr-1"></i>Beli
                                             </button>
                                             <button
+                                                onclick="event.preventDefault(); flyToWishlist(this, '{{ $book->title }}'); setTimeout(() => window.location.href = '{{ route('wishlist.toggle', $book->id) }}', 800);"
                                                 class="bg-white text-red-500 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
-                                                <i class="fas fa-heart"></i>
+                                                <i class="fas fa-heart text-xs md:text-sm"></i>
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="p-4">
+                                    <div class="p-3 md:p-4 flex-1 flex flex-col">
                                         <span
-                                            class="inline-block text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-lg mb-2">
+                                            class="inline-block text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-lg mb-2 self-start">
                                             {{ $book->category->name }}
                                         </span>
                                         <h3
-                                            class="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-purple-600 transition-colors">
+                                            class="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-purple-600 transition-colors text-sm md:text-base">
                                             {{ $book->title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 mb-3">{{ $book->author }}</p>
-                                        <div class="flex justify-between items-center">
+                                        <p class="text-xs md:text-sm text-gray-600 mb-3 line-clamp-1">{{ $book->author }}
+                                        </p>
+                                        <div class="flex justify-between items-center mt-auto">
                                             <span
-                                                class="text-xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                                class="text-base md:text-xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                                 Rp {{ number_format($book->price, 0, ',', '.') }}
                                             </span>
                                             @if ($book->stock > 0)
                                                 <span
                                                     class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                                                    <i class="fas fa-check-circle"></i> Tersedia
+                                                    <i class="fas fa-check-circle"></i><span class="hidden sm:inline">
+                                                        Tersedia</span>
                                                 </span>
                                             @else
                                                 <span
                                                     class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-full">
-                                                    <i class="fas fa-times-circle"></i> Habis
+                                                    <i class="fas fa-times-circle"></i><span class="hidden sm:inline">
+                                                        Habis</span>
                                                 </span>
                                             @endif
                                         </div>
@@ -354,13 +486,13 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                     @foreach ($latestBooks as $index => $book)
                         <div class="group animate-fade-up stagger-{{ ($index % 4) + 1 }}">
-                            <a href="{{ route('books.show', $book->slug) }}" class="block">
+                            <a href="{{ route('books.show', $book->slug) }}" class="block h-full">
                                 <div
-                                    class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 hover:border-pink-300 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-                                    <div class="relative overflow-hidden aspect-[3/4]">
+                                    class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 hover:border-pink-300 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
+                                    <div class="relative overflow-hidden aspect-[2/3]">
                                         @if ($book->cover_image)
                                             <img src="{{ asset('storage/' . $book->cover_image) }}"
                                                 alt="{{ $book->title }}"
@@ -368,7 +500,7 @@
                                         @else
                                             <div
                                                 class="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                                <i class="fas fa-book text-pink-300 text-6xl"></i>
+                                                <i class="fas fa-book text-pink-300 text-4xl md:text-6xl"></i>
                                             </div>
                                         @endif
 
@@ -380,37 +512,46 @@
 
                                         <!-- Hover Overlay -->
                                         <div
-                                            class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                            class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 gap-2">
                                             <button
-                                                class="w-full bg-white text-pink-600 py-2 rounded-lg font-bold hover:bg-pink-600 hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0">
-                                                <i class="fas fa-eye mr-2"></i>Lihat Detail
+                                                onclick="event.preventDefault(); flyToCart(this.closest('.group').querySelector('img') || this.closest('.group').querySelector('.aspect-\\[2\\/3\\]'), '{{ $book->title }}'); setTimeout(() => window.location.href = '{{ route('cart.add', $book->id) }}', 800);"
+                                                class="flex-1 bg-white text-pink-600 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-pink-600 hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0">
+                                                <i class="fas fa-shopping-cart mr-1"></i>Beli
+                                            </button>
+                                            <button
+                                                onclick="event.preventDefault(); flyToWishlist(this, '{{ $book->title }}'); setTimeout(() => window.location.href = '{{ route('wishlist.toggle', $book->id) }}', 800);"
+                                                class="bg-white text-pink-600 p-2 rounded-lg hover:bg-pink-600 hover:text-white transition-colors transform translate-y-4 group-hover:translate-y-0">
+                                                <i class="fas fa-heart text-xs md:text-sm"></i>
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="p-4">
+                                    <div class="p-3 md:p-4 flex-1 flex flex-col">
                                         <span
-                                            class="inline-block text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded-lg mb-2">
+                                            class="inline-block text-xs font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded-lg mb-2 self-start">
                                             {{ $book->category->name }}
                                         </span>
                                         <h3
-                                            class="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-pink-600 transition-colors">
+                                            class="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-pink-600 transition-colors text-sm md:text-base">
                                             {{ $book->title }}
                                         </h3>
-                                        <p class="text-sm text-gray-600 mb-3">{{ $book->author }}</p>
-                                        <div class="flex justify-between items-center">
+                                        <p class="text-xs md:text-sm text-gray-600 mb-3 line-clamp-1">{{ $book->author }}
+                                        </p>
+                                        <div class="flex justify-between items-center mt-auto">
                                             <span
-                                                class="text-xl font-black bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                                                class="text-base md:text-xl font-black bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                                                 Rp {{ number_format($book->price, 0, ',', '.') }}
                                             </span>
                                             @if ($book->stock > 0)
                                                 <span
                                                     class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                                                    <i class="fas fa-check-circle"></i> Tersedia
+                                                    <i class="fas fa-check-circle"></i><span class="hidden sm:inline">
+                                                        Tersedia</span>
                                                 </span>
                                             @else
                                                 <span
                                                     class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-full">
-                                                    <i class="fas fa-times-circle"></i> Habis
+                                                    <i class="fas fa-times-circle"></i><span class="hidden sm:inline">
+                                                        Habis</span>
                                                 </span>
                                             @endif
                                         </div>

@@ -84,7 +84,7 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('checkout') }}" class="block w-full btn-primary text-center">
+                            <a href="{{ route('checkout.address') }}" class="block w-full btn-primary text-center">
                                 Lanjut ke Checkout <i class="fas fa-arrow-right ml-2"></i>
                             </a>
 

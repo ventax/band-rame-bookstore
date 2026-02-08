@@ -18,7 +18,10 @@ class OrderItem extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'quantity' => 'integer',
     ];
+
+    protected $appends = ['subtotal'];
 
     public function order()
     {
@@ -30,8 +33,21 @@ class OrderItem extends Model
         return $this->belongsTo(Book::class);
     }
 
+    // Calculate subtotal
     public function getSubtotalAttribute()
     {
         return $this->quantity * $this->price;
+    }
+
+    // Get formatted price
+    public function getFormattedPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    // Get formatted subtotal
+    public function getFormattedSubtotalAttribute()
+    {
+        return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
     }
 }
