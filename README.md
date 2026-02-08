@@ -1,7 +1,7 @@
 # 📚 BookStore - Toko Buku Online
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-11-red" alt="Laravel 11">
+  <img src="https://img.shields.io/badge/Laravel-11-red" alt="Laravel 12">
   <img src="https://img.shields.io/badge/Tailwind-3-blue" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/Alpine.js-3-green" alt="Alpine.js">
   <img src="https://img.shields.io/badge/PHP-8.2-purple" alt="PHP 8.2">
