@@ -78,10 +78,20 @@ class BookController extends Controller
             'stock' => $book->stock,
             'description' => $book->description,
             'category' => $book->category->name,
-            'image' => $book->image ? asset('storage/' . $book->image) : asset('images/book-placeholder.png'),
+            'image' => $book->cover_image ? asset('storage/' . $book->cover_image) : asset('images/book-placeholder.png'),
             'slug' => $book->slug,
             'in_wishlist' => $inWishlist,
+            'has_pdf' => !empty($book->pdf_file),
         ]);
+    }
+
+    public function viewPdf(Book $book)
+    {
+        if (!$book->pdf_file) {
+            abort(404, 'PDF tidak tersedia untuk buku ini.');
+        }
+
+        return view('books.pdf', compact('book'));
     }
 
     public function search(Request $request)
@@ -95,7 +105,7 @@ class BookController extends Controller
         $books = Book::where('title', 'like', '%' . $query . '%')
             ->orWhere('author', 'like', '%' . $query . '%')
             ->limit(5)
-            ->get(['id', 'title', 'author', 'price', 'image', 'slug']);
+            ->get(['id', 'title', 'author', 'price', 'cover_image', 'slug']);
 
         return response()->json($books->map(function ($book) {
             return [
@@ -103,7 +113,7 @@ class BookController extends Controller
                 'title' => $book->title,
                 'author' => $book->author,
                 'price' => 'Rp ' . number_format($book->price, 0, ',', '.'),
-                'image' => $book->image ? asset('storage/' . $book->image) : asset('images/book-placeholder.png'),
+                'image' => $book->cover_image ? asset('storage/' . $book->cover_image) : asset('images/book-placeholder.png'),
                 'slug' => $book->slug,
             ];
         }));

@@ -20,6 +20,7 @@ class Book extends Model
         'price',
         'stock',
         'cover_image',
+        'pdf_file',
         'pages',
         'language',
         'published_year',

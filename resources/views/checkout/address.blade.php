@@ -184,8 +184,8 @@
                             <div class="space-y-3 mb-4">
                                 @foreach ($cartItems as $item)
                                     <div class="flex gap-3">
-                                        @if ($item->book->image)
-                                            <img src="{{ asset('storage/' . $item->book->image) }}"
+                                        @if ($item->book->cover_image)
+                                            <img src="{{ asset('storage/' . $item->book->cover_image) }}"
                                                 alt="{{ $item->book->title }}" class="w-16 h-20 object-cover rounded">
                                         @else
                                             <div class="w-16 h-20 bg-gray-200 rounded flex items-center justify-center">

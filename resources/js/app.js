@@ -490,51 +490,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Cursor follow effect
-    const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    cursor.style.cssText = `
-        position: fixed;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #a855f7;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        transition: transform 0.2s ease;
-        display: none;
-    `;
-    document.body.appendChild(cursor);
+    // Cursor follow effect (disabled on admin panel)
+    if (!document.body.classList.contains('admin-panel')) {
+        const cursor = document.createElement('div');
+        cursor.className = 'custom-cursor';
+        cursor.style.cssText = `
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #a855f7;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+            display: none;
+        `;
+        document.body.appendChild(cursor);
 
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
 
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        cursor.style.display = 'block';
-    });
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.display = 'block';
+        });
 
-    function animateCursor() {
-        cursorX += (mouseX - cursorX) * 0.1;
-        cursorY += (mouseY - cursorY) * 0.1;
-        cursor.style.left = cursorX + 'px';
-        cursor.style.top = cursorY + 'px';
-        requestAnimationFrame(animateCursor);
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Scale effect on hover
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(2)';
+                cursor.style.borderColor = '#ec4899';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.borderColor = '#a855f7';
+            });
+        });
     }
-    animateCursor();
-
-    // Scale effect on hover
-    document.querySelectorAll('a, button').forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursor.style.transform = 'scale(2)';
-            cursor.style.borderColor = '#ec4899';
-        });
-        el.addEventListener('mouseleave', () => {
-            cursor.style.transform = 'scale(1)';
-            cursor.style.borderColor = '#a855f7';
-        });
-    });
 
     // ========================================
     // HERO IMAGE SLIDER

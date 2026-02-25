@@ -18,8 +18,8 @@
                         <div
                             class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                             <div class="relative overflow-hidden">
-                                @if ($wishlist->book->image)
-                                    <img src="{{ asset('storage/' . $wishlist->book->image) }}"
+                                @if ($wishlist->book->cover_image)
+                                    <img src="{{ asset('storage/' . $wishlist->book->cover_image) }}"
                                         alt="{{ $wishlist->book->title }}"
                                         class="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500">
                                 @else

@@ -131,8 +131,13 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div
-                                    class="w-10 h-14 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center mr-3">
-                                    <i class="fas fa-book text-gray-400"></i>
+                                    class="w-10 h-14 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center mr-3 overflow-hidden">
+                                    @if ($book->cover_image)
+                                        <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}"
+                                            class="w-full h-full object-cover">
+                                    @else
+                                        <i class="fas fa-book text-gray-400"></i>
+                                    @endif
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">{{ $book->title }}</div>

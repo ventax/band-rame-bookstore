@@ -51,6 +51,7 @@ class AdminBookController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'pages' => 'nullable|integer|min:1',
             'language' => 'required|string|max:50',
             'published_year' => 'nullable|integer|min:1900|max:' . date('Y'),
@@ -62,6 +63,10 @@ class AdminBookController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('books', 'public');
+        }
+
+        if ($request->hasFile('pdf_file')) {
+            $validated['pdf_file'] = $request->file('pdf_file')->store('books/pdfs', 'public');
         }
 
         Book::create($validated);
@@ -87,6 +92,7 @@ class AdminBookController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'pages' => 'nullable|integer|min:1',
             'language' => 'required|string|max:50',
             'published_year' => 'nullable|integer|min:1900|max:' . date('Y'),
@@ -104,6 +110,14 @@ class AdminBookController extends Controller
             $validated['cover_image'] = $request->file('cover_image')->store('books', 'public');
         }
 
+        if ($request->hasFile('pdf_file')) {
+            // Delete old PDF
+            if ($book->pdf_file) {
+                Storage::disk('public')->delete($book->pdf_file);
+            }
+            $validated['pdf_file'] = $request->file('pdf_file')->store('books/pdfs', 'public');
+        }
+
         $book->update($validated);
 
         return redirect()->route('admin.books.index')->with('success', 'Buku berhasil diupdate!');
@@ -114,6 +128,11 @@ class AdminBookController extends Controller
         // Delete image
         if ($book->cover_image) {
             Storage::disk('public')->delete($book->cover_image);
+        }
+
+        // Delete PDF
+        if ($book->pdf_file) {
+            Storage::disk('public')->delete($book->pdf_file);
         }
 
         $book->delete();

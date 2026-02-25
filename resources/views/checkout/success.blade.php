@@ -87,9 +87,9 @@
                     <div class="space-y-3">
                         @foreach ($order->items as $item)
                             <div class="flex gap-4 p-3 bg-gray-50 rounded">
-                                @if ($item->book->image)
-                                    <img src="{{ asset('storage/' . $item->book->image) }}" alt="{{ $item->book->title }}"
-                                        class="w-16 h-20 object-cover rounded">
+                                @if ($item->book->cover_image)
+                                    <img src="{{ asset('storage/' . $item->book->cover_image) }}"
+                                        alt="{{ $item->book->title }}" class="w-16 h-20 object-cover rounded">
                                 @else
                                     <div class="w-16 h-20 bg-gray-200 rounded flex items-center justify-center">
                                         <i class="fas fa-book text-gray-400"></i>

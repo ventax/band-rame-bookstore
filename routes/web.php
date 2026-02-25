@@ -39,6 +39,7 @@ Route::get('/dashboard', function () {
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::get('/books/{slug}', [BookController::class, 'show'])->name('books.show');
 Route::get('/books/{book}/quick-view', [BookController::class, 'quickView'])->name('books.quick-view');
+Route::get('/books/{book}/pdf', [BookController::class, 'viewPdf'])->name('books.pdf');
 Route::get('/search', [BookController::class, 'search'])->name('books.search');
 
 // Cart

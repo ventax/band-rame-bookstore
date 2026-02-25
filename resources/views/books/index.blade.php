@@ -133,8 +133,9 @@
                                 <div class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up"
                                     style="animation-delay: {{ $loop->index * 50 }}ms">
                                     <div class="relative overflow-hidden">
-                                        @if ($book->image)
-                                            <img src="{{ asset('storage/' . $book->image) }}" alt="{{ $book->title }}"
+                                        @if ($book->cover_image)
+                                            <img src="{{ asset('storage/' . $book->cover_image) }}"
+                                                alt="{{ $book->title }}"
                                                 class="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500">
                                         @else
                                             <div
@@ -276,6 +277,12 @@
                                             <span
                                                 x-text="quickViewBook.in_wishlist ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist'"></span>
                                         </button>
+
+                                        <a x-show="quickViewBook.has_pdf" :href="`/books/${quickViewBook.id}/pdf`"
+                                            target="_blank"
+                                            class="block w-full mt-3 py-3 rounded-lg font-semibold transition-all hover:shadow-lg bg-gray-100 text-red-600 hover:bg-gray-200 text-center">
+                                            <i class="fas fa-file-pdf mr-2"></i>Lihat PDF
+                                        </a>
                                     @endauth
                                 </div>
 

@@ -25,6 +25,11 @@
             background: linear-gradient(135deg, #1e40af 0%, #6366f1 50%, #8b5cf6 100%);
         }
 
+        /* Hide custom cursor on admin panel */
+        body.admin-panel .custom-cursor {
+            display: none !important;
+        }
+
         @keyframes bounce {
 
             0%,
@@ -43,7 +48,7 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-gray-50 admin-panel">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-64 sidebar-gradient text-white flex-shrink-0 shadow-2xl">
