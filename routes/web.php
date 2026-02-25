@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminSettingController;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -113,6 +114,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('updateStatus');
         Route::post('/{order}/verify-payment', [AdminOrderController::class, 'verifyPayment'])->name('verifyPayment');
         Route::delete('/{order}', [AdminOrderController::class, 'destroy'])->name('destroy');
+    });
+
+    // Settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/logo', [AdminSettingController::class, 'logo'])->name('logo');
+        Route::post('/logo', [AdminSettingController::class, 'uploadLogo'])->name('logo.upload');
+        Route::delete('/logo', [AdminSettingController::class, 'deleteLogo'])->name('logo.delete');
     });
 });
 

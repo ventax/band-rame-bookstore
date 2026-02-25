@@ -54,10 +54,15 @@
         <aside class="w-64 sidebar-gradient text-white flex-shrink-0 shadow-2xl">
             <div class="p-6 border-b border-white/20">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 bounce-hover">
-                    <div
-                        class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-110 transition">
-                        <i class="fas fa-book-reader text-2xl text-white"></i>
-                    </div>
+                    @if (\Illuminate\Support\Facades\Storage::disk('public')->exists('logo/logo.png'))
+                        <img src="{{ asset('storage/logo/logo.png') }}" alt="Logo"
+                            class="w-12 h-12 object-contain rounded-2xl bg-white/20 p-1 shadow-lg">
+                    @else
+                        <div
+                            class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-110 transition">
+                            <i class="fas fa-book-reader text-2xl text-white"></i>
+                        </div>
+                    @endif
                     <div>
                         <span class="text-2xl font-bold text-white">BandRame</span>
                         <p class="text-xs text-white/80 font-semibold">Admin Panel</p>
@@ -88,6 +93,12 @@
                     class="flex items-center px-4 py-3 mb-2 rounded-2xl transition-all duration-200 text-white font-bold {{ request()->routeIs('admin.orders.*') ? 'bg-white/30 backdrop-blur-sm shadow-lg scale-105' : 'hover:bg-white/20' }}">
                     <i class="fas fa-shopping-cart w-6 text-center text-lg"></i>
                     <span class="ml-3">Pesanan</span>
+                </a>
+
+                <a href="{{ route('admin.settings.logo') }}"
+                    class="flex items-center px-4 py-3 mb-2 rounded-2xl transition-all duration-200 text-white font-bold {{ request()->routeIs('admin.settings.*') ? 'bg-white/30 backdrop-blur-sm shadow-lg scale-105' : 'hover:bg-white/20' }}">
+                    <i class="fas fa-palette w-6 text-center text-lg"></i>
+                    <span class="ml-3">Pengaturan Logo</span>
                 </a>
 
                 <div class="border-t border-white/20 my-4 mx-2"></div>

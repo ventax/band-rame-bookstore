@@ -186,10 +186,15 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2 group wiggle-animation">
-                        <div
-                            class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 p-2.5 rounded-2xl shadow-fun transform transition hover:scale-110">
-                            <i class="fas fa-book-reader text-xl text-white"></i>
-                        </div>
+                        @if (\Illuminate\Support\Facades\Storage::disk('public')->exists('logo/logo.png'))
+                            <img src="{{ asset('storage/logo/logo.png') }}" alt="Logo BandRame"
+                                class="h-10 w-auto object-contain rounded-xl shadow-fun transform transition hover:scale-110">
+                        @else
+                            <div
+                                class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 p-2.5 rounded-2xl shadow-fun transform transition hover:scale-110">
+                                <i class="fas fa-book-reader text-xl text-white"></i>
+                            </div>
+                        @endif
                         <div class="hidden sm:block">
                             <span
                                 class="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-display">BandRame</span>
