@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Checkout - BandRame')
+@section('title', 'Checkout - ATigaBookStore')
 
 @section('content')
     <div class="bg-gray-100 py-8">

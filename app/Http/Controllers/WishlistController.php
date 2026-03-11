@@ -59,4 +59,10 @@ class WishlistController extends Controller
         $wishlist->delete();
         return redirect()->route('wishlist.index')->with('success', 'Buku dihapus dari wishlist');
     }
+
+    public function count()
+    {
+        $count = Wishlist::where('user_id', auth()->id())->count();
+        return response()->json(['count' => $count]);
+    }
 }

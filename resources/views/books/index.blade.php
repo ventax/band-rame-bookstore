@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Katalog Buku - BandRame')
+@section('title', 'Katalog Buku - ATigaBookStore')
 
 @section('content')
     <div class="bg-gray-100 py-8" x-data="booksInteractive()">
@@ -29,7 +29,7 @@
                         <div class="relative">
                             <input type="text" x-model="searchQuery" @input="liveSearch()"
                                 placeholder="Ketik untuk mencari judul buku, penulis..."
-                                class="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                class="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                             <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
                             <div x-show="searchQuery" @click="searchQuery = ''; liveSearch()"
                                 class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -42,7 +42,7 @@
                     <div class="flex gap-2">
                         <select name="sort"
                             onchange="window.location.href='{{ route('books.index') }}?sort='+this.value+'&category={{ request('category') }}&search={{ request('search') }}'"
-                            class="px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 transition-all">
+                            class="px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all">
                             <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
                             <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga Terendah
                             </option>
@@ -59,22 +59,22 @@
                 <div class="md:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24 animate-slide-in-left">
                         <h3 class="font-semibold text-lg mb-4 text-gray-800">
-                            <i class="fas fa-filter mr-2 text-purple-600"></i>Filter Kategori
+                            <i class="fas fa-filter mr-2 text-blue-600"></i>Filter Kategori
                         </h3>
                         <ul class="space-y-2">
                             <li>
                                 <a href="{{ route('books.index', ['search' => request('search'), 'sort' => request('sort')]) }}"
-                                    class="block py-2 px-3 rounded-lg transition-all {{ !request('category') ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
+                                    class="block py-2 px-3 rounded-lg transition-all {{ !request('category') ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
                                     Semua Kategori
                                 </a>
                             </li>
                             @foreach ($categories as $category)
                                 <li>
                                     <a href="{{ route('books.index', ['category' => $category->id, 'search' => request('search'), 'sort' => request('sort')]) }}"
-                                        class="flex items-center justify-between py-2 px-3 rounded-lg transition-all {{ request('category') == $category->id ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-semibold shadow-sm' : 'text-gray-700 hover:bg-gray-100' }}">
+                                        class="flex items-center justify-between py-2 px-3 rounded-lg transition-all {{ request('category') == $category->id ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-blue-700 font-semibold shadow-sm' : 'text-gray-700 hover:bg-gray-100' }}">
                                         <span>{{ $category->name }}</span>
                                         <span
-                                            class="text-xs {{ request('category') == $category->id ? 'bg-purple-200 text-purple-700' : 'bg-gray-200 text-gray-600' }} px-2 py-0.5 rounded-full">
+                                            class="text-xs {{ request('category') == $category->id ? 'bg-blue-200 text-blue-700' : 'bg-gray-200 text-gray-600' }} px-2 py-0.5 rounded-full">
                                             {{ $category->books_count }}
                                         </span>
                                     </a>
@@ -89,9 +89,9 @@
                     <!-- Active Filters -->
                     @if (request('category') || request('search'))
                         <div
-                            class="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4 flex items-center justify-between animate-fade-in">
+                            class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between animate-fade-in">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span class="text-sm font-semibold text-purple-700">
+                                <span class="text-sm font-semibold text-blue-700">
                                     <i class="fas fa-filter mr-1"></i>Filter Aktif:
                                 </span>
                                 @if (request('category'))
@@ -100,20 +100,19 @@
                                     @endphp
                                     @if ($activeCategory)
                                         <span
-                                            class="bg-purple-200 text-purple-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+                                            class="bg-blue-200 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full">
                                             <i class="fas fa-tag mr-1"></i>{{ $activeCategory->name }}
                                         </span>
                                     @endif
                                 @endif
                                 @if (request('search'))
-                                    <span
-                                        class="bg-purple-200 text-purple-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+                                    <span class="bg-blue-200 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full">
                                         <i class="fas fa-search mr-1"></i>"{{ request('search') }}"
                                     </span>
                                 @endif
                             </div>
                             <a href="{{ route('books.index', ['sort' => request('sort')]) }}"
-                                class="text-xs text-purple-600 hover:text-purple-800 font-semibold hover:underline whitespace-nowrap">
+                                class="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline whitespace-nowrap">
                                 <i class="fas fa-times mr-1"></i>Hapus Filter
                             </a>
                         </div>
@@ -123,8 +122,8 @@
                         <!-- Results Info -->
                         <div class="mb-4 flex items-center justify-between">
                             <p class="text-sm text-gray-600">
-                                Menampilkan <span class="font-semibold text-purple-700">{{ $books->count() }}</span> dari
-                                <span class="font-semibold text-purple-700">{{ $books->total() }}</span> buku
+                                Menampilkan <span class="font-semibold text-blue-700">{{ $books->count() }}</span> dari
+                                <span class="font-semibold text-blue-700">{{ $books->total() }}</span> buku
                             </p>
                         </div>
 
@@ -139,8 +138,8 @@
                                                 class="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500">
                                         @else
                                             <div
-                                                class="w-full h-72 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                                                <i class="fas fa-book text-purple-300 text-6xl"></i>
+                                                class="w-full h-72 bg-gradient-to-br from-blue-50 to-orange-50 flex items-center justify-center">
+                                                <i class="fas fa-book text-blue-300 text-6xl"></i>
                                             </div>
                                         @endif
 
@@ -159,36 +158,65 @@
                                         <button @click="quickView({{ $book->id }})"
                                             class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                             <div
-                                                class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold transform translate-y-4 group-hover:translate-y-0 transition-all">
+                                                class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold transform translate-y-4 group-hover:translate-y-0 transition-all">
                                                 <i class="fas fa-eye mr-2"></i>Quick View
                                             </div>
                                         </button>
 
                                         <!-- Badge -->
-                                        @if ($loop->index < 3)
-                                            <span
-                                                class="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
-                                                <i class="fas fa-star mr-1"></i>Best Seller
-                                            </span>
+                                        @if ($book->discount > 0)
+                                            <div class="absolute top-3 left-3 z-20">
+                                                <span
+                                                    class="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md tracking-wide">
+                                                    -{{ $book->discount }}%
+                                                </span>
+                                            </div>
+                                        @elseif ($loop->index < 3)
+                                            <div class="absolute top-3 left-3 z-20">
+                                                <span
+                                                    class="inline-block text-white text-xs font-bold px-3 py-1 rounded-full shadow-md tracking-wide"
+                                                    style="background-color:#f59e0b">
+                                                    ★ Best Seller
+                                                </span>
+                                            </div>
                                         @endif
                                     </div>
 
                                     <div class="p-5">
                                         <span
-                                            class="text-xs text-purple-600 font-semibold bg-purple-50 px-3 py-1 rounded-full">{{ $book->category->name }}</span>
+                                            class="text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">{{ $book->category->name }}</span>
                                         <h3
-                                            class="font-bold text-gray-900 mt-3 mb-2 line-clamp-2 text-lg hover:text-purple-600 transition-colors">
+                                            class="font-bold text-gray-900 mt-3 mb-2 line-clamp-2 text-lg hover:text-blue-600 transition-colors">
                                             <a href="{{ route('books.show', $book->slug) }}">{{ $book->title }}</a>
                                         </h3>
                                         <p class="text-sm text-gray-600 mb-3">
                                             <i class="fas fa-user text-gray-400 mr-1"></i>{{ $book->author }}
                                         </p>
 
-                                        <div class="flex justify-between items-center mb-4">
-                                            <span
-                                                class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                                Rp {{ number_format($book->price, 0, ',', '.') }}
-                                            </span>
+                                        <div class="flex justify-between items-end mb-4">
+                                            <div>
+                                                @if ($book->discount > 0)
+                                                    <div class="flex items-center gap-1.5 mb-0.5">
+                                                        <span class="text-xs text-gray-400 line-through">Rp
+                                                            {{ number_format($book->price, 0, ',', '.') }}</span>
+                                                    </div>
+                                                    <span class="text-xl font-black text-red-600">
+                                                        Rp {{ number_format($book->discounted_price, 0, ',', '.') }}
+                                                    </span>
+                                                    <div class="mt-0.5">
+                                                        <span
+                                                            class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                                            <i class="fas fa-piggy-bank text-xs"></i> Hemat Rp
+                                                            {{ number_format($book->price - $book->discounted_price, 0, ',', '.') }}
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <span
+                                                        class="text-xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+                                                        Rp {{ number_format($book->discounted_price, 0, ',', '.') }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                             @if ($book->stock > 0)
                                                 <span class="text-xs text-green-600 font-medium">
                                                     <i class="fas fa-check-circle"></i> Stok: {{ $book->stock }}
@@ -203,7 +231,7 @@
                                         @auth
                                             @if ($book->stock > 0)
                                                 <button @click="addToCart({{ $book->id }})"
-                                                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg">
+                                                    class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg">
                                                     <i class="fas fa-shopping-cart mr-2"></i>Tambah ke Keranjang
                                                 </button>
                                             @else
@@ -214,7 +242,7 @@
                                             @endif
                                         @else
                                             <a href="{{ route('login') }}"
-                                                class="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 px-4 rounded-lg text-center transition-all transform hover:scale-105 hover:shadow-lg">
+                                                class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-center transition-all transform hover:scale-105 hover:shadow-lg">
                                                 <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Beli
                                             </a>
                                         @endauth
@@ -288,7 +316,7 @@
 
                                 <!-- Details -->
                                 <div>
-                                    <span class="text-sm text-purple-600 font-semibold bg-purple-50 px-3 py-1 rounded-full"
+                                    <span class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full"
                                         x-text="quickViewBook.category"></span>
                                     <h3 class="text-3xl font-bold text-gray-900 mt-4 mb-2" x-text="quickViewBook.title">
                                     </h3>
@@ -299,9 +327,37 @@
                                         <i class="fas fa-building mr-2"></i><span x-text="quickViewBook.publisher"></span>
                                     </p>
 
-                                    <div
-                                        class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                                        Rp <span x-text="quickViewBook.price"></span>
+                                    <div class="mb-4">
+                                        <template x-if="quickViewBook.discount > 0">
+                                            <div>
+                                                <div
+                                                    class="inline-flex items-center gap-1.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-lg shadow mb-2 animate-pulse">
+                                                    <i class="fas fa-bolt text-yellow-300"></i>
+                                                    <span x-text="'DISKON ' + quickViewBook.discount + '% OFF'"></span>
+                                                </div>
+                                                <div class="flex items-end gap-2">
+                                                    <div class="text-3xl font-black text-red-600">
+                                                        Rp <span x-text="quickViewBook.price"></span>
+                                                    </div>
+                                                    <div class="flex flex-col pb-0.5">
+                                                        <span class="text-sm text-gray-400 line-through"
+                                                            x-text="'Rp ' + quickViewBook.original_price"></span>
+                                                        <span
+                                                            class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                                            <i class="fas fa-piggy-bank"></i>
+                                                            <span
+                                                                x-text="'Hemat Rp ' + (parseInt(quickViewBook.original_price.replace(/\./g,'')) - parseInt(quickViewBook.price.replace(/\./g,''))).toLocaleString('id-ID')"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template x-if="!quickViewBook.discount || quickViewBook.discount === 0">
+                                            <div
+                                                class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+                                                Rp <span x-text="quickViewBook.price"></span>
+                                            </div>
+                                        </template>
                                     </div>
 
                                     <div class="mb-6">
@@ -314,23 +370,24 @@
                                     <div class="mb-6">
                                         <h4 class="font-semibold text-gray-900 mb-2">Deskripsi:</h4>
                                         <p class="text-gray-600 text-sm leading-relaxed"
-                                            x-text="quickViewBook.description"></p>
+                                            x-text="quickViewBook.description">
+                                        </p>
                                     </div>
 
                                     @auth
                                         <div class="space-y-3">
                                             <button @click="addToCart(quickViewBook.id)" x-show="quickViewBook.stock > 0"
-                                                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 hover:shadow-xl">
+                                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 hover:shadow-xl">
                                                 <i class="fas fa-shopping-cart mr-2"></i>Tambah ke Keranjang
                                             </button>
                                             <a :href="`/books/${quickViewBook.slug}`"
-                                                class="block w-full bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-bold py-4 px-6 rounded-lg text-center transition-all">
+                                                class="block w-full bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-4 px-6 rounded-lg text-center transition-all">
                                                 Lihat Detail Lengkap
                                             </a>
                                         </div>
                                     @else
                                         <a href="{{ route('login') }}"
-                                            class="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-6 rounded-lg text-center transition-all hover:shadow-xl">
+                                            class="block w-full bg-gradient-to-r from-blue-600 to-orange-500 text-white font-bold py-4 px-6 rounded-lg text-center transition-all hover:shadow-xl">
                                             <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Membeli
                                         </a>
                                     @endauth

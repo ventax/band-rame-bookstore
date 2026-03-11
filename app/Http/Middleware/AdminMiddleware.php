@@ -10,9 +10,9 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Jika belum login, redirect ke halaman login
+        // Jika belum login, redirect ke halaman login admin
         if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengakses admin panel.');
+            return redirect()->route('admin.login')->with('error', 'Silakan login terlebih dahulu untuk mengakses admin panel.');
         }
 
         // Jika sudah login tapi bukan admin, redirect ke home

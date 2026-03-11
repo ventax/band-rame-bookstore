@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Konfirmasi Pembayaran - BandRame')
+@section('title', 'Konfirmasi Pembayaran - ATigaBookStore')
 
 @section('content')
     <div class="bg-gray-100 py-8">
@@ -12,7 +12,7 @@
                 </div>
 
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Pesanan Berhasil Dibuat!</h1>
-                <p class="text-gray-600 mb-8">Terima kasih telah berbelanja di BandRame</p>
+                <p class="text-gray-600 mb-8">Terima kasih telah berbelanja di ATigaBookStore</p>
 
                 <!-- Order Details -->
                 <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">

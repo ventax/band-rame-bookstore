@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\Order;
+use App\Models\Review;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -56,7 +60,33 @@ class BookController extends Controller
             ->take(4)
             ->get();
 
-        return view('books.show', compact('book', 'relatedBooks'));
+        // Reviews
+        $reviews       = $book->reviews()->with('user')->paginate(8);
+        $avgRating     = $book->averageRating();
+        $reviewsCount  = $book->reviewsCount();
+        $starBreakdown = Review::starBreakdown($book->id);
+
+        // Current user's state
+        $userReview     = null;
+        $userCanReview  = false;
+        if (Auth::check()) {
+            $userReview    = Review::where('book_id', $book->id)->where('user_id', Auth::id())->first();
+            $userCanReview = !$userReview && Order::where('user_id', Auth::id())
+                ->whereIn('status', ['delivered', 'paid', 'processing', 'shipped'])
+                ->whereHas('items', fn($q) => $q->where('book_id', $book->id))
+                ->exists();
+        }
+
+        return view('books.show', compact(
+            'book',
+            'relatedBooks',
+            'reviews',
+            'avgRating',
+            'reviewsCount',
+            'starBreakdown',
+            'userReview',
+            'userCanReview'
+        ));
     }
 
     public function quickView(Book $book)
@@ -64,8 +94,10 @@ class BookController extends Controller
         $book->load('category');
 
         $inWishlist = false;
-        if (auth()->check()) {
-            $inWishlist = auth()->user()->wishlists()->where('book_id', $book->id)->exists();
+        if (Auth::check()) {
+            $inWishlist = Wishlist::where('user_id', Auth::id())
+                ->where('book_id', $book->id)
+                ->exists();
         }
 
         return response()->json([
@@ -73,8 +105,10 @@ class BookController extends Controller
             'title' => $book->title,
             'author' => $book->author,
             'publisher' => $book->publisher,
-            'price' => number_format($book->price, 0, ',', '.'),
-            'price_raw' => $book->price,
+            'price' => number_format($book->discounted_price, 0, ',', '.'),
+            'price_raw' => $book->discounted_price,
+            'original_price' => number_format($book->price, 0, ',', '.'),
+            'discount' => $book->discount,
             'stock' => $book->stock,
             'description' => $book->description,
             'category' => $book->category->name,

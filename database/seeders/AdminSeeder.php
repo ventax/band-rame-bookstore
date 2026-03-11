@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -15,15 +15,15 @@ class AdminSeeder extends Seeder
     {
         // Create admin user
         User::create([
-            'name' => 'Admin BandRame',
-            'email' => 'admin@bandrame.com',
+            'name' => 'Admin ATigaBookStore',
+            'email' => 'admin@ATigaBookStore.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
             'phone' => '08123456789',
         ]);
 
         echo "Admin user created successfully!\n";
-        echo "Email: admin@bandrame.com\n";
+        echo "Email: admin@ATigaBookStore.com\n";
         echo "Password: admin123\n";
     }
 }

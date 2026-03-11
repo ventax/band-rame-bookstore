@@ -9,23 +9,49 @@ use Illuminate\Support\Facades\DB;
 
 class AdminOrderController extends Controller
 {
+    // API endpoint untuk polling notifikasi pesanan baru
+    public function checkNewOrders(Request $request)
+    {
+        $lastId    = (int) $request->query('last_id', 0);
+        $latestId  = Order::max('id') ?? 0;
+
+        // Cari semua pesanan baru (ID lebih besar dari lastId), tanpa filter status
+        $newOrders = Order::with('user')
+            ->where('id', '>', $lastId)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'new_count' => $newOrders->count(),
+            'latest_id' => $latestId,
+            'orders'    => $newOrders->map(fn($o) => [
+                'order_number' => $o->order_number,
+                'customer'     => $o->user->name ?? '-',
+                'total'        => number_format($o->total_amount, 0, ',', '.'),
+                'status'       => $o->status,
+                'url'          => route('admin.orders.show', $o),
+            ]),
+        ]);
+    }
+
     // List all orders with filters
     public function index(Request $request)
     {
         $query = Order::with(['user', 'items.book']);
 
         // Filter by status
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by payment status
-        if ($request->has('payment_status') && $request->payment_status !== '') {
+        if ($request->filled('payment_status')) {
             $query->where('payment_status', $request->payment_status);
         }
 
         // Search by order number or customer name/email
-        if ($request->has('search') && $request->search !== '') {
+        if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('order_number', 'like', '%' . $request->search . '%')
                     ->orWhereHas('user', function ($q) use ($request) {

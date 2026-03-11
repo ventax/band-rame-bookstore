@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Pesanan Berhasil Dibuat!')
 
@@ -11,7 +11,7 @@
                     <i class="fas fa-check-circle text-green-600 text-5xl"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Pesanan Berhasil Dibuat!</h1>
-                <p class="text-gray-600">Terima kasih telah berbelanja di BandRame</p>
+                <p class="text-gray-600">Terima kasih telah berbelanja di ATigaBookStore</p>
             </div>
 
             <!-- Order Information -->
@@ -46,11 +46,11 @@
                                     <div class="space-y-2">
                                         <div>
                                             <p class="font-bold text-gray-900">Bank BCA</p>
-                                            <p class="text-gray-600">1234567890 a.n. BandRame Store</p>
+                                            <p class="text-gray-600">1234567890 a.n. ATigaBookStore Store</p>
                                         </div>
                                         <div>
                                             <p class="font-bold text-gray-900">Bank Mandiri</p>
-                                            <p class="text-gray-600">0987654321 a.n. BandRame Store</p>
+                                            <p class="text-gray-600">0987654321 a.n. ATigaBookStore Store</p>
                                         </div>
                                     </div>
                                     <div class="mt-3 pt-3 border-t border-gray-200">

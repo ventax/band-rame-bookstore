@@ -6,10 +6,41 @@ use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
+    public function setup()
+    {
+        $user = Auth::user();
+        // Kalau profil sudah lengkap, langsung ke dashboard
+        if ($user->phone && $user->birth_date && $user->gender) {
+            return redirect()->route('dashboard')->with('success', 'Profil Anda sudah lengkap!');
+        }
+        return view('profile.setup', compact('user'));
+    }
+
+    public function storeSetup(Request $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'phone'      => ['nullable', 'string', 'max:20'],
+            'birth_date' => ['nullable', 'date'],
+            'gender'     => ['nullable', 'in:male,female,other'],
+            'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) Storage::disk('public')->delete($user->avatar);
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+        return redirect()->route('dashboard')
+            ->with('success', 'Selamat datang, ' . $user->name . '! Profil Anda berhasil disimpan. Selamat berbelanja! 🎉');
+    }
+
     public function edit()
     {
         try {
@@ -36,16 +67,24 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'name'       => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone'      => ['nullable', 'string', 'max:20'],
             'birth_date' => ['nullable', 'date'],
-            'gender' => ['nullable', 'in:male,female,other'],
+            'gender'     => ['nullable', 'in:male,female,other'],
+            'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) Storage::disk('public')->delete($user->avatar);
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        } else {
+            unset($validated['avatar']);
+        }
 
         $user->update($validated);
 
-        return redirect()->route('profile.edit')->with('success', 'Profile berhasil diperbarui!');
+        return redirect()->route('profile.edit')->with('success', 'Profil berhasil diperbarui!');
     }
 
     public function updatePassword(Request $request)

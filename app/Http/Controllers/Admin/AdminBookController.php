@@ -49,6 +49,7 @@ class AdminBookController extends Controller
             'isbn' => 'nullable|string|unique:books,isbn',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|integer|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
@@ -60,6 +61,7 @@ class AdminBookController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['discount'] = $request->input('discount', 0);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('books', 'public');
@@ -90,6 +92,7 @@ class AdminBookController extends Controller
             'isbn' => 'nullable|string|unique:books,isbn,' . $book->id,
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|integer|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
@@ -101,6 +104,7 @@ class AdminBookController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['discount'] = $request->input('discount', 0);
 
         if ($request->hasFile('cover_image')) {
             // Delete old image

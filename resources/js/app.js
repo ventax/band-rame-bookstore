@@ -1,4 +1,4 @@
-import './bootstrap';
+﻿import './bootstrap';
 
 import Alpine from 'alpinejs';
 import AOS from 'aos';
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typewriterElement) {
         new Typed('.typewriter-effect', {
             strings: [
-                'Selamat datang di BandRame! 📚',
+                'Selamat datang di ATigaBookStore! 📚',
                 'Temukan buku favoritmu! ✨',
                 'Raih mimpimu dengan membaca! 🌟'
             ],

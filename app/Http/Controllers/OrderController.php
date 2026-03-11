@@ -113,6 +113,23 @@ class OrderController extends Controller
         }
     }
 
+    // Konfirmasi pesanan diterima oleh user
+    public function confirmReceived($orderNumber)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('order_number', $orderNumber)
+            ->where('status', Order::STATUS_SHIPPED)
+            ->firstOrFail();
+
+        $order->update([
+            'status'       => Order::STATUS_DELIVERED,
+            'delivered_at' => now(),
+        ]);
+
+        return redirect()->route('orders.show', $orderNumber)
+            ->with('success', 'Terima kasih! Pesanan telah dikonfirmasi diterima.');
+    }
+
     public function checkout()
     {
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();

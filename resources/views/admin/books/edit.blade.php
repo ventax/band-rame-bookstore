@@ -81,6 +81,18 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Diskon (%)</label>
+                        <input type="number" name="discount" value="{{ old('discount', $book->discount ?? 0) }}"
+                            min="0" max="100"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                            placeholder="0 - 100">
+                        <p class="text-xs text-gray-500 mt-1">Masukkan persentase diskon (0 = tidak ada diskon)</p>
+                        @error('discount')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Stok *</label>
                         <input type="number" name="stock" value="{{ old('stock', $book->stock) }}" required
                             min="0"

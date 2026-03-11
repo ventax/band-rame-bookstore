@@ -8,12 +8,14 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminBookController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use Illuminate\Support\Facades\Route;
 
 // Home
@@ -54,8 +56,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
+    // Reviews
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // Checkout Flow (Multi-Step)
     Route::prefix('checkout')->name('checkout.')->group(function () {
@@ -63,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/payment', [CheckoutController::class, 'payment'])->name('payment');
         Route::post('/process', [CheckoutController::class, 'process'])->name('process');
         Route::get('/success/{orderNumber}', [CheckoutController::class, 'success'])->name('success');
+        Route::get('/midtrans/finish', [CheckoutController::class, 'midtransFinish'])->name('midtrans.finish');
     });
 
     // Orders Management
@@ -71,11 +79,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{orderNumber}', [OrderController::class, 'show'])->name('show');
         Route::post('/{orderNumber}/upload-payment', [OrderController::class, 'uploadPaymentProof'])->name('upload-payment');
         Route::post('/{orderNumber}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+        Route::post('/{orderNumber}/confirm-received', [OrderController::class, 'confirmReceived'])->name('confirm-received');
     });
 
     // Address Management
     Route::resource('addresses', AddressController::class)->except(['show']);
     Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('addresses.set-default');
+
+    // Profile Setup (onboarding setelah register)
+    Route::get('/profile/setup', [ProfileController::class, 'setup'])->name('profile.setup');
+    Route::post('/profile/setup', [ProfileController::class, 'storeSetup'])->name('profile.setup.store');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -93,8 +106,15 @@ Route::middleware(['auth'])->group(function () {
 // Payment Gateway Callback
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
+// Admin Auth Routes (tidak perlu middleware auth/admin)
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
+    Route::post('/login', [AdminLoginController::class, 'store'])->name('login.store');
+    Route::post('/logout', [AdminLoginController::class, 'destroy'])->middleware('auth')->name('logout');
+});
+
 // Admin Routes
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
     // Redirect /admin to /admin/dashboard
     Route::redirect('/', '/admin/dashboard');
 
@@ -110,6 +130,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Orders Management
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/check-new', [AdminOrderController::class, 'checkNewOrders'])->name('check-new');
         Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
         Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('updateStatus');
         Route::post('/{order}/verify-payment', [AdminOrderController::class, 'verifyPayment'])->name('verifyPayment');
@@ -121,6 +142,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::get('/logo', [AdminSettingController::class, 'logo'])->name('logo');
         Route::post('/logo', [AdminSettingController::class, 'uploadLogo'])->name('logo.upload');
         Route::delete('/logo', [AdminSettingController::class, 'deleteLogo'])->name('logo.delete');
+        Route::post('/favicon', [AdminSettingController::class, 'uploadFavicon'])->name('favicon.upload');
+        Route::delete('/favicon', [AdminSettingController::class, 'deleteFavicon'])->name('favicon.delete');
+        Route::post('/site-name', [AdminSettingController::class, 'updateSiteName'])->name('site-name.update');
+
+        // CMS — Konten website
+        Route::get('/content/{group?}', [AdminSettingController::class, 'content'])->name('content');
+        Route::post('/content/{group}', [AdminSettingController::class, 'updateContent'])->name('content.update');
     });
 });
 

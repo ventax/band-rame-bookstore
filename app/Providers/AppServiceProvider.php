@@ -2,23 +2,29 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        // Inject data pesanan processing (baru masuk via Midtrans) ke semua view admin.*
+        View::composer('admin.*', function ($view) {
+            $pendingOrdersCount  = Order::where('status', Order::STATUS_PROCESSING)->count();
+            $latestPendingOrders = Order::with('user')
+                ->where('status', Order::STATUS_PROCESSING)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $view->with(compact('pendingOrdersCount', 'latestPendingOrders'));
+        });
     }
 }

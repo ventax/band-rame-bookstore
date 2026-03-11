@@ -25,6 +25,7 @@ class User extends Authenticatable
         'phone',
         'birth_date',
         'gender',
+        'avatar',
     ];
 
     /**
@@ -74,5 +75,10 @@ class User extends Authenticatable
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

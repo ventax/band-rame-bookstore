@@ -4,79 +4,143 @@
 @section('page-title', 'Kelola Pesanan')
 
 @section('content')
-    <div class="mb-6">
-        <div class="flex items-center space-x-4">
-            <form action="{{ route('admin.orders.index') }}" method="GET" class="flex space-x-2">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pesanan..."
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-                <select name="status"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-                    <option value="">Semua Status</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
-                    <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                    <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                </select>
-                <button type="submit" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
-        </div>
+
+    {{-- Filter bar --}}
+    <div class="mb-5">
+        <form action="{{ route('admin.orders.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1 sm:max-w-xs">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari no. pesanan / customer..."
+                    class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white shadow-sm">
+            </div>
+            <select id="status-filter" name="status"
+                class="w-full sm:w-44 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white shadow-sm">
+                <option value="">Semua Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
+                <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            </select>
+        </form>
+        <script>
+            document.getElementById('status-filter').addEventListener('change', function() {
+                const search = document.querySelector('input[name="search"]').value.trim();
+                const status = this.value;
+                const base = '{{ route('admin.orders.index') }}';
+                const params = new URLSearchParams();
+                if (search) params.set('search', search);
+                if (status) params.set('status', status);
+                const query = params.toString();
+                window.location.href = base + (query ? '?' + query : '');
+            });
+        </script>
     </div>
 
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number
+    {{-- Status quick-filter pills --}}
+    <div class="flex flex-wrap gap-2 mb-4">
+        @php
+            $pills = [
+                '' => ['label' => 'Semua', 'color' => 'bg-gray-100 text-gray-600 hover:bg-gray-200'],
+                'pending' => ['label' => 'Pending', 'color' => 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'],
+                'processing' => ['label' => 'Processing', 'color' => 'bg-blue-100 text-blue-700 hover:bg-blue-200'],
+                'shipped' => ['label' => 'Dikirim', 'color' => 'bg-purple-100 text-purple-700 hover:bg-purple-200'],
+                'delivered' => [
+                    'label' => 'Selesai',
+                    'color' => 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
+                ],
+                'cancelled' => ['label' => 'Dibatalkan', 'color' => 'bg-red-100 text-red-700 hover:bg-red-200'],
+            ];
+        @endphp
+        @foreach ($pills as $val => $pill)
+            @php
+                $active = request('status', '') === $val;
+                $url = $val ? route('admin.orders.index', ['status' => $val]) : route('admin.orders.index');
+            @endphp
+            <a href="{{ $url }}"
+                class="px-3 py-1.5 rounded-full text-xs font-semibold transition-colors {{ $pill['color'] }} {{ $active ? 'ring-2 ring-offset-1 ring-current' : '' }}">
+                {{ $pill['label'] }}
+            </a>
+        @endforeach
+    </div>
+
+    <p class="text-xs text-gray-500 mb-3 font-medium">
+        Menampilkan <span class="font-bold text-gray-700">{{ $orders->total() }}</span> pesanan
+    </p>
+
+    {{-- Desktop Table --}}
+    <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="min-w-full">
+            <thead>
+                <tr class="bg-gray-50 border-b border-gray-100">
+                    <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">No.
+                        Pesanan</th>
+                    <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Customer
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total
+                    </th>
+                    <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tanggal
+                    </th>
+                    <th class="px-6 py-3.5 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aksi
+                    </th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-50">
                 @forelse($orders as $order)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">#{{ $order->order_number }}</div>
+                    <tr class="hover:bg-blue-50/30 transition-colors group">
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-mono font-semibold text-gray-700">#{{ $order->order_number }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $order->user->name }}</div>
-                            <div class="text-sm text-gray-500">{{ $order->user->email }}</div>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                                    <span
+                                        class="text-white text-xs font-bold">{{ strtoupper(substr($order->user->name ?? '?', 0, 1)) }}</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-700 transition-colors">
+                                        {{ $order->user->name ?? '-' }}</p>
+                                    <p class="text-xs text-gray-400 truncate">{{ $order->user->email ?? '' }}</p>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-sm font-semibold text-gray-900">Rp
-                                {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <td class="px-6 py-4">
+                            <p class="text-sm font-bold text-gray-800">Rp
+                                {{ number_format($order->grand_total, 0, ',', '.') }}</p>
+                            <p class="text-xs text-gray-400">{{ $order->items->count() }} item</p>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             <span
-                                class="px-2 py-1 text-xs rounded-full
-                        @if ($order->status === 'pending') bg-yellow-100 text-yellow-800
-                        @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                        @elseif($order->status === 'shipped') bg-purple-100 text-purple-800
-                        @elseif($order->status === 'delivered') bg-green-100 text-green-800
-                        @else bg-red-100 text-red-800 @endif">
+                                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full
+                                @if ($order->status === 'pending') bg-yellow-100 text-yellow-700
+                                @elseif($order->status === 'processing') bg-blue-100 text-blue-700
+                                @elseif($order->status === 'shipped')    bg-purple-100 text-purple-700
+                                @elseif($order->status === 'delivered')  bg-emerald-100 text-emerald-700
+                                @else bg-red-100 text-red-700 @endif">
                                 {{ ucfirst($order->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $order->created_at->format('d M Y') }}
+                        <td class="px-6 py-4">
+                            <p class="text-sm text-gray-600">{{ $order->created_at->format('d M Y') }}</p>
+                            <p class="text-xs text-gray-400">{{ $order->created_at->format('H:i') }}</p>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.orders.show', $order) }}" class="text-blue-600 hover:text-blue-900">
+                        <td class="px-6 py-4 text-right">
+                            <a href="{{ route('admin.orders.show', $order) }}"
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                                 <i class="fas fa-eye"></i> Detail
                             </a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-shopping-cart text-4xl mb-2"></i>
-                            <p>Tidak ada pesanan</p>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <i class="fas fa-shopping-cart text-4xl text-gray-200 mb-3 block"></i>
+                            <p class="text-gray-400 font-medium">Tidak ada pesanan ditemukan</p>
                         </td>
                     </tr>
                 @endforelse
@@ -84,7 +148,54 @@
         </table>
     </div>
 
+    {{-- Mobile Card List --}}
+    <div class="md:hidden space-y-3">
+        @forelse($orders as $order)
+            <a href="{{ route('admin.orders.show', $order) }}"
+                class="block bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div
+                            class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                            <span
+                                class="text-white text-xs font-bold">{{ strtoupper(substr($order->user->name ?? '?', 0, 1)) }}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-800 truncate">{{ $order->user->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400 font-mono">#{{ $order->order_number }}</p>
+                        </div>
+                    </div>
+                    <span
+                        class="flex-shrink-0 inline-block px-2.5 py-1 text-xs font-semibold rounded-full
+                        @if ($order->status === 'pending') bg-yellow-100 text-yellow-700
+                        @elseif($order->status === 'processing') bg-blue-100 text-blue-700
+                        @elseif($order->status === 'shipped')    bg-purple-100 text-purple-700
+                        @elseif($order->status === 'delivered')  bg-emerald-100 text-emerald-700
+                        @else bg-red-100 text-red-700 @endif">
+                        {{ ucfirst($order->status) }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between pt-2.5 border-t border-gray-50">
+                    <div>
+                        <p class="text-base font-extrabold text-gray-800">Rp
+                            {{ number_format($order->grand_total, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-400">{{ $order->items->count() }} item &bull;
+                            {{ $order->created_at->format('d M Y') }}</p>
+                    </div>
+                    <div class="flex items-center gap-1 text-blue-600 text-xs font-semibold">
+                        Detail <i class="fas fa-chevron-right text-[10px]"></i>
+                    </div>
+                </div>
+            </a>
+        @empty
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <i class="fas fa-shopping-cart text-4xl text-gray-200 mb-3 block"></i>
+                <p class="text-gray-400 font-medium">Tidak ada pesanan ditemukan</p>
+            </div>
+        @endforelse
+    </div>
+
     <div class="mt-6">
-        {{ $orders->links() }}
+        {{ $orders->withQueryString()->links() }}
     </div>
 @endsection

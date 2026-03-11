@@ -9,15 +9,15 @@
 /* Fun button styles untuk tema anak-anak */
 @layer components {
     .btn-primary {
-        @apply bg-gradient-to-r from-kidPurple-400 to-pink-400 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-kidPurple-500 hover:to-pink-500 transform hover:scale-105 transition-all duration-200;
+        @apply bg-gradient-to-r from-kidBlue-500 to-kidOrange-400 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-kidBlue-600 hover:to-kidOrange-500 transform hover:scale-105 transition-all duration-200;
     }
 
     .btn-success {
-        @apply bg-gradient-to-r from-kidGreen-400 to-kidBlue-400 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-kidGreen-500 hover:to-kidBlue-500 transform hover:scale-105 transition-all duration-200;
+        @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-emerald-600 hover:to-teal-600 transform hover:scale-105 transition-all duration-200;
     }
 
     .btn-warning {
-        @apply bg-gradient-to-r from-kidYellow-400 to-kidOrange-400 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-kidYellow-500 hover:to-kidOrange-500 transform hover:scale-105 transition-all duration-200;
+        @apply bg-gradient-to-r from-kidOrange-400 to-kidOrange-600 text-white font-bold py-3 px-6 rounded-2xl shadow-fun hover:from-kidOrange-500 hover:to-kidOrange-700 transform hover:scale-105 transition-all duration-200;
     }
 
     .btn-danger {
@@ -25,11 +25,11 @@
     }
 
     .card-playful {
-        @apply bg-white rounded-3xl shadow-playful p-6 border-4 border-transparent hover:border-kidYellow-300 transition-all duration-300 transform hover:scale-105;
+        @apply bg-white rounded-3xl shadow-playful p-6 border-4 border-transparent hover:border-kidOrange-300 transition-all duration-300 transform hover:scale-105;
     }
 
     .input-fun {
-        @apply w-full px-4 py-3 border-3 border-kidBlue-300 rounded-2xl focus:border-kidPurple-400 focus:ring-4 focus:ring-kidPurple-100 outline-none transition-all font-medium;
+        @apply w-full px-4 py-3 border-3 border-kidBlue-300 rounded-2xl focus:border-kidOrange-400 focus:ring-4 focus:ring-kidOrange-100 outline-none transition-all font-medium;
     }
 }
 
@@ -77,10 +77,10 @@
 /* Bubble background effect */
 .bubble-bg {
     background-image:
-        radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(75, 207, 250, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(250, 165, 2, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 90% 30%, rgba(38, 222, 129, 0.1) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 90% 30%, rgba(251, 146, 60, 0.08) 0%, transparent 50%);
 }
 
 /* ==========================
@@ -102,14 +102,14 @@
 /* Glow effect */
 @keyframes glow {
     0%, 100% {
-        box-shadow: 0 0 5px rgba(168, 85, 247, 0.5),
-                    0 0 10px rgba(168, 85, 247, 0.4),
-                    0 0 15px rgba(168, 85, 247, 0.3);
+        box-shadow: 0 0 5px rgba(37, 99, 235, 0.5),
+                    0 0 10px rgba(37, 99, 235, 0.4),
+                    0 0 15px rgba(37, 99, 235, 0.3);
     }
     50% {
-        box-shadow: 0 0 10px rgba(236, 72, 153, 0.6),
-                    0 0 20px rgba(236, 72, 153, 0.5),
-                    0 0 30px rgba(236, 72, 153, 0.4);
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.6),
+                    0 0 20px rgba(249, 115, 22, 0.5),
+                    0 0 30px rgba(249, 115, 22, 0.4);
     }
 }
 
@@ -304,10 +304,10 @@
 /* Neon glow */
 .neon-glow {
     text-shadow:
-        0 0 5px rgba(168, 85, 247, 0.8),
-        0 0 10px rgba(168, 85, 247, 0.6),
-        0 0 15px rgba(168, 85, 247, 0.4),
-        0 0 20px rgba(236, 72, 153, 0.4);
+        0 0 5px rgba(37, 99, 235, 0.8),
+        0 0 10px rgba(37, 99, 235, 0.6),
+        0 0 15px rgba(37, 99, 235, 0.4),
+        0 0 20px rgba(249, 115, 22, 0.4);
 }
 
 /* Morphing background */
@@ -322,7 +322,7 @@
 
 /* Text gradient animation */
 .text-gradient-animate {
-    background: linear-gradient(90deg, #a855f7, #ec4899, #3b82f6, #a855f7);
+    background: linear-gradient(90deg, #1d4ed8, #2563eb, #f97316, #1d4ed8);
     background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -351,8 +351,8 @@
 }
 
 .spinner {
-    border: 3px solid rgba(168, 85, 247, 0.3);
-    border-top-color: #a855f7;
+    border: 3px solid rgba(37, 99, 235, 0.3);
+    border-top-color: #2563eb;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -369,8 +369,8 @@
 /* Toast Notification - Compact & Responsive */
 .swal2-popup.colored-toast {
     background: white !important;
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15) !important;
-    border: 2px solid #f3e8ff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+    border: 2px solid #dbeafe !important;
     border-radius: 0.75rem !important;
     padding: 0.75rem 1rem !important;
     font-size: 0.875rem !important;
@@ -403,7 +403,7 @@
 }
 
 .swal2-popup.colored-toast .swal2-timer-progress-bar {
-    background: linear-gradient(90deg, #a855f7, #ec4899) !important;
+    background: linear-gradient(90deg, #2563eb, #f97316) !important;
     height: 3px !important;
 }
 
@@ -453,7 +453,7 @@
 /* Regular Modal (non-toast) */
 .swal2-popup:not(.colored-toast) .swal2-title {
     font-family: 'Poppins', sans-serif !important;
-    color: #7c3aed !important;
+    color: #1d4ed8 !important;
     font-weight: 700 !important;
 }
 
@@ -462,17 +462,17 @@
 }
 
 .swal2-confirm {
-    background: linear-gradient(135deg, #a855f7, #ec4899) !important;
+    background: linear-gradient(135deg, #2563eb, #f97316) !important;
     border-radius: 1rem !important;
     padding: 0.75rem 2rem !important;
     font-weight: 600 !important;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3) !important;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
     transition: all 0.3s ease !important;
 }
 
 .swal2-confirm:hover {
     transform: scale(1.05) !important;
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
 }
 
 .swal2-icon.swal2-success {

@@ -10,6 +10,8 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
@@ -57,7 +59,7 @@ class CheckoutController extends Controller
 
         // Calculate totals
         $subtotal = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->book->price;
+            return $item->quantity * $item->book->discounted_price;
         });
 
         $shippingCost = 15000; // Flat rate, bisa diubah sesuai kebutuhan
@@ -71,7 +73,6 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'payment_method' => 'required|in:transfer_bank,cod',
             'address_id' => 'nullable|exists:addresses,id',
             'recipient_name' => 'required_without:address_id|string|max:255',
             'phone' => 'required_without:address_id|string|max:20',
@@ -81,6 +82,9 @@ class CheckoutController extends Controller
             'postal_code' => 'required_without:address_id|string|max:10',
             'notes' => 'nullable|string|max:500',
         ]);
+
+        // Selalu gunakan Midtrans sebagai payment method
+        $request->merge(['payment_method' => 'midtrans']);
 
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
 
@@ -114,20 +118,14 @@ class CheckoutController extends Controller
         try {
             // Calculate totals
             $subtotal = $cartItems->sum(function ($item) {
-                return $item->quantity * $item->book->price;
+                return $item->quantity * $item->book->discounted_price;
             });
 
             $shippingCost = 15000;
             $grandTotal = $subtotal + $shippingCost;
 
-            // Determine payment and order status
-            $paymentStatus = $request->payment_method === Order::PAYMENT_COD
-                ? Order::PAYMENT_UNPAID
-                : Order::PAYMENT_UNPAID;
-
-            $orderStatus = $request->payment_method === Order::PAYMENT_COD
-                ? Order::STATUS_PROCESSING
-                : Order::STATUS_PENDING;
+            $paymentStatus = Order::PAYMENT_UNPAID;
+            $orderStatus   = Order::STATUS_PENDING;
 
             // Create Order
             $order = Order::create(array_merge($shippingData, [
@@ -155,7 +153,7 @@ class CheckoutController extends Controller
                     'order_id' => $order->id,
                     'book_id' => $item->book_id,
                     'quantity' => $item->quantity,
-                    'price' => $item->book->price,
+                    'price' => $item->book->discounted_price,
                 ]);
 
                 // Update stock
@@ -167,14 +165,96 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            return redirect()->route('checkout.success', $order->order_number)
-                ->with('success', 'Pesanan berhasil dibuat!');
+            // Generate Midtrans Snap URL
+            MidtransConfig::$serverKey    = config('services.midtrans.server_key');
+            MidtransConfig::$isProduction = config('services.midtrans.is_production');
+            MidtransConfig::$isSanitized  = config('services.midtrans.sanitize');
+            MidtransConfig::$is3ds        = config('services.midtrans.enable_3ds');
+
+            $user = Auth::user();
+            $snapParams = [
+                'transaction_details' => [
+                    'order_id'     => $order->order_number,
+                    'gross_amount' => (int) $order->grand_total,
+                ],
+                'customer_details' => [
+                    'first_name' => $order->shipping_name,
+                    'email'      => $user->email,
+                    'phone'      => $order->shipping_phone,
+                    'billing_address' => [
+                        'first_name'   => $order->shipping_name,
+                        'email'        => $user->email,
+                        'phone'        => $order->shipping_phone,
+                        'address'      => $order->shipping_address,
+                        'city'         => $order->shipping_city,
+                        'postal_code'  => $order->shipping_postal_code,
+                        'country_code' => 'IDN',
+                    ],
+                    'shipping_address' => [
+                        'first_name'   => $order->shipping_name,
+                        'email'        => $user->email,
+                        'phone'        => $order->shipping_phone,
+                        'address'      => $order->shipping_address,
+                        'city'         => $order->shipping_city,
+                        'postal_code'  => $order->shipping_postal_code,
+                        'country_code' => 'IDN',
+                    ],
+                ],
+                'item_details' => $order->items->map(fn($item) => [
+                    'id'       => (string) $item->book_id,
+                    'price'    => (int) $item->price,
+                    'quantity' => $item->quantity,
+                    'name'     => mb_substr($item->book->title, 0, 50),
+                ])->concat([[
+                    'id'       => 'SHIPPING',
+                    'price'    => (int) $order->shipping_cost,
+                    'quantity' => 1,
+                    'name'     => 'Ongkos Kirim',
+                ]])->toArray(),
+                'callbacks' => [
+                    'finish' => route('checkout.midtrans.finish'),
+                ],
+            ];
+
+            $snapUrl = Snap::createTransaction($snapParams)->redirect_url;
+
+            return redirect($snapUrl);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->withInput()
-                ->with('error', $e->getMessage());
+            return redirect()->route('cart.index')
+                ->with('error', 'Gagal membuat pesanan: ' . $e->getMessage());
         }
+    }
+
+    // Midtrans finish callback (GET redirect dari Midtrans setelah bayar)
+    public function midtransFinish(Request $request)
+    {
+        $orderNumber       = $request->query('order_id');
+        $transactionStatus = $request->query('transaction_status');
+
+        $order = Order::where('order_number', $orderNumber)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($order) {
+            if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                $order->update([
+                    'payment_status' => Order::PAYMENT_PAID,
+                    'status'         => Order::STATUS_PROCESSING,
+                    'paid_at'        => now(),
+                ]);
+            } elseif ($transactionStatus === 'pending') {
+                $order->update(['payment_status' => Order::PAYMENT_UNPAID]);
+            } elseif (in_array($transactionStatus, ['cancel', 'expire', 'deny', 'failure'])) {
+                $order->update([
+                    'payment_status' => 'failed',
+                    'status'         => Order::STATUS_CANCELLED,
+                ]);
+            }
+        }
+
+        return redirect()->route('checkout.success', $orderNumber)
+            ->with('success', 'Pembayaran berhasil diproses!');
     }
 
     // Success page

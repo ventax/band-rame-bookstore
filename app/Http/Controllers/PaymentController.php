@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Notification;
 
 class PaymentController extends Controller
 {
@@ -64,9 +66,48 @@ class PaymentController extends Controller
 
     public function callback(Request $request)
     {
-        // This will be used for payment gateway callbacks (Midtrans/Xendit)
-        // TODO: Implement payment gateway callback handling
+        MidtransConfig::$serverKey    = config('services.midtrans.server_key');
+        MidtransConfig::$isProduction = config('services.midtrans.is_production');
+        MidtransConfig::$isSanitized  = config('services.midtrans.sanitize');
+        MidtransConfig::$is3ds        = config('services.midtrans.enable_3ds');
 
-        return response()->json(['status' => 'success']);
+        try {
+            $notification = new Notification();
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+        }
+
+        $orderNumber       = $notification->order_id;
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus       = $notification->fraud_status;
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        if (!$order) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        }
+
+        if ($transactionStatus === 'capture') {
+            if ($fraudStatus === 'challenge') {
+                $order->update(['payment_status' => Order::PAYMENT_UNPAID]);
+            } elseif ($fraudStatus === 'accept') {
+                $order->update(['payment_status' => Order::PAYMENT_PAID, 'status' => Order::STATUS_PROCESSING, 'paid_at' => now()]);
+                Payment::updateOrCreate(
+                    ['order_id' => $order->id],
+                    ['payment_method' => 'midtrans', 'payment_gateway' => 'midtrans', 'amount' => $order->grand_total, 'status' => 'success']
+                );
+            }
+        } elseif ($transactionStatus === 'settlement') {
+            $order->update(['payment_status' => Order::PAYMENT_PAID, 'status' => Order::STATUS_PROCESSING, 'paid_at' => now()]);
+            Payment::updateOrCreate(
+                ['order_id' => $order->id],
+                ['payment_method' => 'midtrans', 'payment_gateway' => 'midtrans', 'amount' => $order->grand_total, 'status' => 'success']
+            );
+        } elseif ($transactionStatus === 'pending') {
+            $order->update(['payment_status' => Order::PAYMENT_UNPAID]);
+        } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel', 'failure'])) {
+            $order->update(['payment_status' => 'failed', 'status' => Order::STATUS_CANCELLED]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 }

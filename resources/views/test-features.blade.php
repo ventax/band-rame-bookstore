@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Test Fitur Interaktif - BandRame')
+@section('title', 'Test Fitur Interaktif - ATigaBookStore')
 
 @section('content')
     <div class="bg-gray-100 py-12">

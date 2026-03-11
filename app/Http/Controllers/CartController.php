@@ -13,7 +13,7 @@ class CartController extends Controller
     {
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
         $total = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->book->price;
+            return $item->quantity * $item->book->discounted_price;
         });
 
         return view('cart.index', compact('cartItems', 'total'));
@@ -53,12 +53,12 @@ class CartController extends Controller
 
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
         $total = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->book->price;
+            return $item->quantity * $item->book->discounted_price;
         });
 
         return response()->json([
             'success' => true,
-            'subtotal' => $cartItem->quantity * $cartItem->book->price,
+            'subtotal' => $cartItem->quantity * $cartItem->book->discounted_price,
             'total' => $total
         ]);
     }
@@ -84,7 +84,7 @@ class CartController extends Controller
     {
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
         $total = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->book->price;
+            return $item->quantity * $item->book->discounted_price;
         });
 
         return response()->json([
@@ -93,11 +93,11 @@ class CartController extends Controller
                     'id' => $item->id,
                     'book_id' => $item->book->id,
                     'title' => $item->book->title,
-                    'price' => $item->book->price,
-                    'price_formatted' => 'Rp ' . number_format($item->book->price, 0, ',', '.'),
+                    'price' => $item->book->discounted_price,
+                    'price_formatted' => 'Rp ' . number_format($item->book->discounted_price, 0, ',', '.'),
                     'quantity' => $item->quantity,
-                    'subtotal' => $item->quantity * $item->book->price,
-                    'subtotal_formatted' => 'Rp ' . number_format($item->quantity * $item->book->price, 0, ',', '.'),
+                    'subtotal' => $item->quantity * $item->book->discounted_price,
+                    'subtotal_formatted' => 'Rp ' . number_format($item->quantity * $item->book->discounted_price, 0, ',', '.'),
                     'image' => $item->book->image ? asset('storage/' . $item->book->image) : asset('images/book-placeholder.png'),
                 ];
             }),

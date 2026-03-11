@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Wishlist Saya - BandRame')
+@section('title', 'Wishlist Saya - ATigaBookStore')
 
 @section('content')
     <div class="bg-gray-100 py-8">
@@ -55,11 +55,33 @@
                                     <i class="fas fa-user text-gray-400 mr-1"></i>{{ $wishlist->book->author }}
                                 </p>
 
-                                <div class="flex justify-between items-center mb-4">
-                                    <span
-                                        class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                        Rp {{ number_format($wishlist->book->price, 0, ',', '.') }}
-                                    </span>
+                                <div class="flex justify-between items-end mb-4">
+                                    <div>
+                                        @if ($wishlist->book->discount > 0)
+                                            <div class="flex items-center gap-1.5 mb-1">
+                                                <span
+                                                    class="inline-flex items-center gap-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black px-2 py-0.5 rounded-lg shadow-sm">
+                                                    <i class="fas fa-bolt text-yellow-200" style="font-size:9px"></i>
+                                                    -{{ $wishlist->book->discount }}%
+                                                </span>
+                                                <span class="text-xs text-gray-400 line-through">Rp
+                                                    {{ number_format($wishlist->book->price, 0, ',', '.') }}</span>
+                                            </div>
+                                            <span class="text-xl font-black text-red-600">
+                                                Rp {{ number_format($wishlist->book->discounted_price, 0, ',', '.') }}
+                                            </span><br>
+                                            <span
+                                                class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full mt-1">
+                                                <i class="fas fa-piggy-bank text-xs"></i> Hemat Rp
+                                                {{ number_format($wishlist->book->price - $wishlist->book->discounted_price, 0, ',', '.') }}
+                                            </span>
+                                        @else
+                                            <span
+                                                class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                                Rp {{ number_format($wishlist->book->discounted_price, 0, ',', '.') }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if ($wishlist->book->stock > 0)
                                         <span class="text-xs text-green-600 font-medium">
                                             <i class="fas fa-check-circle"></i> Tersedia
