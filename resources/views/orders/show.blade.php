@@ -175,6 +175,66 @@
                     </div>
                 @endif
 
+                {{-- === BUKTI PENGIRIMAN === --}}
+                @if ($order->status === 'shipped' || $order->status === 'delivered')
+                    @if ($order->tracking_number || $order->shipping_proof)
+                        <div class="px-6 py-5 border-b bg-violet-50">
+                            <div class="flex items-center gap-2 mb-4">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-truck-fast text-violet-600 text-sm"></i>
+                                </div>
+                                <p class="font-semibold text-violet-800 text-sm">Info Pengiriman</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                @if ($order->courier_name)
+                                    <div class="bg-white rounded-xl p-3 border border-violet-100">
+                                        <p class="text-xs text-gray-400 mb-0.5">Ekspedisi</p>
+                                        <p class="text-sm font-bold text-gray-800">{{ strtoupper($order->courier_name) }}
+                                        </p>
+                                    </div>
+                                @endif
+                                @if ($order->tracking_number)
+                                    <div
+                                        class="bg-white rounded-xl p-3 border border-violet-100 col-span-{{ $order->courier_name ? '1' : '2' }}">
+                                        <p class="text-xs text-gray-400 mb-0.5">Nomor Resi</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="text-sm font-bold text-gray-800 font-mono tracking-wide">
+                                                {{ $order->tracking_number }}</p>
+                                            <button
+                                                onclick="navigator.clipboard.writeText('{{ $order->tracking_number }}').then(() => { this.innerHTML='<i class=\'fas fa-check text-green-500\'></i>'; setTimeout(() => this.innerHTML='<i class=\'fas fa-copy\'></i>', 1500) })"
+                                                class="text-gray-400 hover:text-violet-600 transition-colors flex-shrink-0"
+                                                title="Salin resi">
+                                                <i class="fas fa-copy text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if ($order->shipping_proof)
+                                <div class="mt-3">
+                                    <p class="text-xs text-gray-500 font-semibold mb-2">Foto Bukti Pengiriman</p>
+                                    <a href="{{ asset('storage/' . $order->shipping_proof) }}" target="_blank"
+                                        class="block">
+                                        <img src="{{ asset('storage/' . $order->shipping_proof) }}"
+                                            class="rounded-xl border border-violet-200 max-h-52 object-contain w-full bg-white"
+                                            alt="Bukti Pengiriman">
+                                        <p class="text-xs text-violet-600 mt-1.5 text-center"><i
+                                                class="fas fa-expand-alt mr-1"></i>Klik untuk lihat ukuran penuh</p>
+                                    </a>
+                                </div>
+                            @endif
+
+                            <p class="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
+                                <i class="fas fa-circle-info text-violet-400"></i>
+                                Gunakan nomor resi di atas untuk melacak paket Anda di website ekspedisi.
+                            </p>
+                        </div>
+                    @endif
+                @endif
+
                 <div class="p-6 md:p-8">
 
                     <!-- Order Items -->

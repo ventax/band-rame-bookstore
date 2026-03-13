@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminOrderController extends Controller
 {
@@ -85,22 +86,46 @@ class AdminOrderController extends Controller
     // Update order status
     public function updateStatus(Request $request, Order $order)
     {
-        $request->validate([
-            'status' => 'required|in:pending,paid,processing,shipped,delivered,cancelled',
-        ]);
+        $rules = [
+            'status'          => 'required|in:pending,paid,processing,shipped,delivered,cancelled',
+            'courier_name'    => 'nullable|string|max:100',
+            'tracking_number' => 'nullable|string|max:100',
+            'shipping_proof'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+        ];
+
+        // Wajib isi resi saat status shipped
+        if ($request->status === 'shipped') {
+            $rules['courier_name']    = 'required|string|max:100';
+            $rules['tracking_number'] = 'required|string|max:100';
+        }
+
+        $request->validate($rules);
 
         $oldStatus = $order->status;
         $newStatus = $request->status;
 
         DB::beginTransaction();
         try {
-            // Update status
-            $order->update(['status' => $newStatus]);
+            $updateData = ['status' => $newStatus];
 
             // Additional actions based on status
             if ($newStatus === Order::STATUS_SHIPPED && !$order->shipped_at) {
-                $order->update(['shipped_at' => now()]);
+                $updateData['shipped_at']      = now();
+                $updateData['courier_name']    = $request->courier_name;
+                $updateData['tracking_number'] = $request->tracking_number;
+
+                // Upload foto bukti pengiriman
+                if ($request->hasFile('shipping_proof')) {
+                    // Hapus foto lama jika ada
+                    if ($order->shipping_proof) {
+                        Storage::disk('public')->delete($order->shipping_proof);
+                    }
+                    $updateData['shipping_proof'] = $request->file('shipping_proof')
+                        ->store('shipping-proofs', 'public');
+                }
             }
+
+            $order->update($updateData);
 
             if ($newStatus === Order::STATUS_DELIVERED && !$order->delivered_at) {
                 $order->update(['delivered_at' => now()]);

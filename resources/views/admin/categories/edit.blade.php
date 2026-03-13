@@ -4,85 +4,98 @@
 @section('page-title', 'Edit Kategori')
 
 @section('content')
-    <div class="max-w-3xl mx-auto">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <form action="{{ route('admin.categories.update', $category) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
+    <div class="mb-5">
+        <a href="{{ route('admin.categories.index') }}"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors">
+            <i class="fas fa-arrow-left text-xs"></i> Kembali ke Daftar Kategori
+        </a>
+    </div>
 
-                <div class="space-y-6">
-                    <!-- Nama Kategori -->
+    <div class="max-w-2xl">
+        <form action="{{ route('admin.categories.update', $category) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-tags text-blue-600 text-sm"></i>
+                    </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori *</label>
+                        <h2 class="text-base font-bold text-gray-800">Informasi Kategori</h2>
+                        <p class="text-xs text-gray-400">{{ $category->books_count }} buku dalam kategori ini</p>
+                    </div>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nama Kategori <span
+                                class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name', $category->name) }}" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                             placeholder="Contoh: Fiksi, Non-Fiksi, Komik">
                         @error('name')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
+                                    class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Deskripsi -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Deskripsi</label>
                         <textarea name="description" rows="4"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
                             placeholder="Deskripsi singkat tentang kategori ini...">{{ old('description', $category->description) }}</textarea>
                         @error('description')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
+                                    class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Gambar Saat Ini -->
+                    {{-- Gambar saat ini --}}
                     @if ($category->image)
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Saat Ini</label>
-                            <div class="flex items-center space-x-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gambar Saat Ini</label>
+                            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                 <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}"
-                                    class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
-                                <div class="text-sm text-gray-600">
-                                    <p class="font-medium">{{ basename($category->image) }}</p>
-                                    <p class="text-xs mt-1">Upload gambar baru untuk menggantinya</p>
+                                    class="w-20 h-20 object-cover rounded-xl border-2 border-gray-200 flex-shrink-0">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-700">{{ basename($category->image) }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Upload gambar baru untuk menggantinya</p>
                                 </div>
                             </div>
                         </div>
                     @endif
 
-                    <!-- Upload Gambar Baru -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             {{ $category->image ? 'Ganti Gambar' : 'Upload Gambar' }}
+                            <span class="text-gray-400 font-normal text-xs">(opsional)</span>
                         </label>
                         <input type="file" name="image" accept="image/*"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Maksimal 2MB</p>
+                            class="block w-full text-sm text-gray-600 border-2 border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-400 mt-1.5">Format: JPG, PNG. Maksimal 2MB</p>
                         @error('image')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
+                                    class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Info Buku -->
-                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
-                        <div class="flex items-start">
-                            <i class="fas fa-info-circle text-blue-500 text-lg mr-3 mt-0.5"></i>
-                            <div class="text-sm text-blue-700">
-                                <p class="font-semibold mb-1">Kategori ini memiliki {{ $category->books_count }} buku</p>
-                                <p class="text-xs">Mengubah nama kategori tidak akan mempengaruhi buku yang sudah ada</p>
-                            </div>
-                        </div>
+                    <div class="flex gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700">
+                        <i class="fas fa-info-circle mt-0.5 flex-shrink-0 text-blue-400"></i>
+                        <span>Mengubah nama kategori tidak akan mempengaruhi buku yang sudah ada dalam kategori ini.</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Buttons -->
-                <div class="mt-8 flex justify-end space-x-3">
-                    <a href="{{ route('admin.categories.index') }}" class="btn-secondary">
-                        <i class="fas fa-times mr-2"></i>Batal
-                    </a>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save mr-2"></i>Update Kategori
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                <a href="{{ route('admin.categories.index') }}"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-xl transition-all">
+                    <i class="fas fa-times text-xs"></i> Batal
+                </a>
+                <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm hover:shadow-md transition-all">
+                    <i class="fas fa-save"></i> Update Kategori
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

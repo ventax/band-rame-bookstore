@@ -31,6 +31,9 @@ class Order extends Model
         'paid_at',
         'shipped_at',
         'delivered_at',
+        'courier_name',
+        'tracking_number',
+        'shipping_proof',
     ];
 
     protected $casts = [

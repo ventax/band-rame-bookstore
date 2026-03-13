@@ -1,13 +1,5 @@
 <!-- Slide-over Cart Component -->
 <div x-data="slideOverCart()" x-init="init()" @cart-updated.window="loadCart()" class="relative z-50">
-    <!-- Cart Toggle Button (Floating) -->
-    <button @click="open = true"
-        class="fixed right-4 bottom-20 lg:hidden bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-40">
-        <i class="fas fa-shopping-cart text-xl"></i>
-        <span x-show="cart.count > 0" x-text="cart.count"
-            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-        </span>
-    </button>
 
     <!-- Overlay -->
     <div x-show="open" x-transition:enter="transition-opacity ease-linear duration-300"

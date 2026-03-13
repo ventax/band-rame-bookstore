@@ -6,40 +6,29 @@
     <div class="bg-gray-100 py-8">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Progress Steps -->
-            <div class="mb-8">
-                <div class="flex items-center justify-center">
-                    <div class="flex items-center">
-                        <div class="flex items-center text-purple-600 relative">
-                            <div
-                                class="rounded-full h-12 w-12 flex items-center justify-center bg-purple-600 text-white font-bold">
-                                1
-                            </div>
-                            <div
-                                class="absolute top-0 -ml-10 text-center mt-16 w-32 text-xs font-medium uppercase text-purple-600">
-                                Alamat
-                            </div>
-                        </div>
-                        <div class="flex-auto border-t-2 border-gray-300"></div>
-                        <div class="flex items-center text-gray-400 relative">
-                            <div
-                                class="rounded-full h-12 w-12 flex items-center justify-center bg-gray-300 text-white font-bold">
-                                2
-                            </div>
-                            <div class="absolute top-0 -ml-10 text-center mt-16 w-32 text-xs font-medium uppercase">
-                                Pembayaran
-                            </div>
-                        </div>
-                        <div class="flex-auto border-t-2 border-gray-300"></div>
-                        <div class="flex items-center text-gray-400 relative">
-                            <div
-                                class="rounded-full h-12 w-12 flex items-center justify-center bg-gray-300 text-white font-bold">
-                                3
-                            </div>
-                            <div class="absolute top-0 -ml-10 text-center mt-16 w-32 text-xs font-medium uppercase">
-                                Selesai
-                            </div>
-                        </div>
+            <div class="mb-8 flex items-center justify-center max-w-xs sm:max-w-sm mx-auto">
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md font-bold">
+                        1
                     </div>
+                    <span class="mt-1.5 text-[10px] font-bold uppercase tracking-wide text-purple-600">Alamat</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-1.5 mb-5"></div>
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center shadow-sm font-bold">
+                        2
+                    </div>
+                    <span class="mt-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">Bayar</span>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-300 mx-1.5 mb-5"></div>
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center shadow-sm font-bold">
+                        3
+                    </div>
+                    <span class="mt-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">Selesai</span>
                 </div>
             </div>
 

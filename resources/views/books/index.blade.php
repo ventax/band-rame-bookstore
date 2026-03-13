@@ -3,296 +3,474 @@
 @section('title', 'Katalog Buku - ATigaBookStore')
 
 @section('content')
-    <div class="bg-gray-100 py-8" x-data="booksInteractive()">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Header & Search -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4 animate-fade-in">Katalog Buku</h1>
+    <div x-data="booksInteractive()">
 
-                <div class="flex flex-col md:flex-row gap-4" x-data="{
-                    searchQuery: '{{ request('search') }}',
-                    searchTimeout: null,
-                    liveSearch() {
-                        clearTimeout(this.searchTimeout);
-                        this.searchTimeout = setTimeout(() => {
-                            let url = '{{ route('books.index') }}';
-                            let params = [];
-                            if (this.searchQuery) params.push('search=' + encodeURIComponent(this.searchQuery));
-                            if ('{{ request('category') }}') params.push('category={{ request('category') }}');
-                            if ('{{ request('sort') }}') params.push('sort={{ request('sort') }}');
-                            window.location.href = url + (params.length ? '?' + params.join('&') : '');
-                        }, 500);
-                    }
-                }">
-                    <!-- Live Search -->
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" x-model="searchQuery" @input="liveSearch()"
-                                placeholder="Ketik untuk mencari judul buku, penulis..."
-                                class="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                            <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-                            <div x-show="searchQuery" @click="searchQuery = ''; liveSearch()"
-                                class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 cursor-pointer">
-                                <i class="fas fa-times"></i>
-                            </div>
+        {{-- ───────── MOBILE HEADER ───────── --}}
+        <div class="md:hidden"
+            style="position:sticky; top:56px; z-index:50; background:#ffffff; box-shadow:0 1px 6px rgba(0,0,0,0.07); border-bottom:1px solid #f3f4f6; padding:10px 12px 8px;"
+            x-data="{
+                searchQuery: '{{ request('search') }}',
+                showFilter: false,
+                searchTimeout: null,
+                liveSearch() {
+                    clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        let params = [];
+                        if (this.searchQuery) params.push('search=' + encodeURIComponent(this.searchQuery));
+                        if ('{{ request('category') }}') params.push('category={{ request('category') }}');
+                        if ('{{ request('sort') }}') params.push('sort={{ request('sort') }}');
+                        window.location.href = '{{ route('books.index') }}' + (params.length ? '?' + params.join('&') : '');
+                    }, 600);
+                }
+            }">
+            {{-- Search row --}}
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <i
+                        class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text" x-model="searchQuery" @input="liveSearch()" placeholder="Cari buku, penulis…"
+                        class="w-full pl-9 pr-8 py-2 text-sm rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none bg-gray-50">
+                    <button x-show="searchQuery" @click="searchQuery=''; liveSearch()"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {{-- Sort --}}
+                <select
+                    onchange="window.location.href='{{ route('books.index') }}?sort='+this.value+'&category={{ request('category') }}&search={{ request('search') }}'"
+                    class="text-xs px-2 py-2 rounded-xl border border-gray-200 bg-gray-50 focus:border-blue-400 outline-none">
+                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Termurah</option>
+                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Termahal</option>
+                    <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>A–Z</option>
+                </select>
+            </div>
+
+            {{-- Category pills (horizontal scroll) --}}
+            <div class="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide" style="-webkit-overflow-scrolling:touch;">
+                <a href="{{ route('books.index', ['search' => request('search'), 'sort' => request('sort')]) }}"
+                    class="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all
+                          {{ !request('category') ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600' }}">
+                    Semua
+                </a>
+                @foreach ($categories as $cat)
+                    <a href="{{ route('books.index', ['category' => $cat->id, 'search' => request('search'), 'sort' => request('sort')]) }}"
+                        class="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all
+                              {{ request('category') == $cat->id ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600' }}">
+                        {{ $cat->name }}
+                        <span class="ml-0.5 opacity-70">({{ $cat->books_count }})</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- ───────── DESKTOP LAYOUT ───────── --}}
+        <div class="hidden md:block" style="background:#f3f4f6; min-height:100vh; padding:28px 32px 48px;">
+            <div class="max-w-7xl mx-auto">
+
+                {{-- Page title --}}
+                <div style="margin-bottom:20px;">
+                    <h1 style="font-size:22px; font-weight:800; color:#111827;">Katalog Buku</h1>
+                    <p style="font-size:12px; color:#9ca3af; margin-top:2px;">{{ $books->total() }} buku tersedia</p>
+                </div>
+
+                {{-- Main: sidebar + right column --}}
+                <div style="display:grid; grid-template-columns:210px 1fr; gap:20px; align-items:start;">
+
+                    {{-- Sidebar --}}
+                    <div
+                        style="background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); padding:20px; position:sticky; top:90px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                            <i class="fas fa-layer-group" style="color:#7c3aed; font-size:14px;"></i>
+                            <span style="font-size:14px; font-weight:700; color:#111827;">Kategori</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <a href="{{ route('books.index', ['search' => request('search'), 'sort' => request('sort')]) }}"
+                                style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; font-size:13px; font-weight:{{ !request('category') ? '700' : '500' }}; text-decoration:none; transition:background 0.15s;
+                               {{ !request('category') ? 'background:linear-gradient(90deg,#ede9fe,#fce7f3); color:#6d28d9;' : 'color:#374151;' }}"
+                                onmouseover="{{ !request('category') ? '' : "this.style.background='#f9fafb'" }}"
+                                onmouseout="{{ !request('category') ? '' : "this.style.background=''" }}">
+                                <span>Semua</span>
+                                <span
+                                    style="font-size:11px; padding:2px 8px; border-radius:20px; {{ !request('category') ? 'background:#ddd6fe; color:#6d28d9;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $categories->sum('books_count') }}</span>
+                            </a>
+                            @foreach ($categories as $category)
+                                @php $isActive = request('category') == $category->id; @endphp
+                                <a href="{{ route('books.index', ['category' => $category->id, 'search' => request('search'), 'sort' => request('sort')]) }}"
+                                    style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; font-size:13px; font-weight:{{ $isActive ? '700' : '500' }}; text-decoration:none; transition:background 0.15s;
+                               {{ $isActive ? 'background:linear-gradient(90deg,#ede9fe,#fce7f3); color:#6d28d9;' : 'color:#374151;' }}"
+                                    onmouseover="{{ $isActive ? '' : "this.style.background='#f9fafb'" }}"
+                                    onmouseout="{{ $isActive ? '' : "this.style.background=''" }}">
+                                    <span>{{ $category->name }}</span>
+                                    <span
+                                        style="font-size:11px; padding:2px 8px; border-radius:20px; {{ $isActive ? 'background:#ddd6fe; color:#6d28d9;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $category->books_count }}</span>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
 
-                    <!-- Sort -->
-                    <div class="flex gap-2">
-                        <select name="sort"
-                            onchange="window.location.href='{{ route('books.index') }}?sort='+this.value+'&category={{ request('category') }}&search={{ request('search') }}'"
-                            class="px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all">
-                            <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
-                            <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga Terendah
-                            </option>
-                            <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga
-                                Tertinggi</option>
-                            <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>Judul (A-Z)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+                    {{-- Right column: search bar + filter chips + book grid --}}
+                    <div x-data="{
+                        searchQuery: '{{ request('search') }}',
+                        searchTimeout: null,
+                        liveSearch() {
+                            clearTimeout(this.searchTimeout);
+                            this.searchTimeout = setTimeout(() => {
+                                let params = [];
+                                if (this.searchQuery) params.push('search=' + encodeURIComponent(this.searchQuery));
+                                if ('{{ request('category') }}') params.push('category={{ request('category') }}');
+                                if ('{{ request('sort') }}') params.push('sort={{ request('sort') }}');
+                                window.location.href = '{{ route('books.index') }}' + (params.length ? '?' + params.join('&') : '');
+                            }, 500);
+                        }
+                    }">
+                        {{-- Search + Sort bar --}}
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                            {{-- Search --}}
+                            <div style="flex:1; position:relative;">
+                                <i class="fas fa-search"
+                                    style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:13px; pointer-events:none;"></i>
+                                <input type="text" x-model="searchQuery" @input="liveSearch()"
+                                    placeholder="Cari judul, penulis…"
+                                    style="width:100%; padding:10px 36px 10px 38px; border:1.5px solid #e5e7eb; border-radius:12px; font-size:13px; outline:none; background:#fff; box-sizing:border-box; transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'">
+                                <button x-show="searchQuery" @click="searchQuery=''; liveSearch()"
+                                    style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#9ca3af; font-size:12px; padding:0;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {{-- Sort --}}
+                            <div style="position:relative;">
+                                <select
+                                    onchange="window.location.href='{{ route('books.index') }}?sort='+this.value+'&category={{ request('category') }}&search={{ request('search') }}'"
+                                    style="appearance:none; padding:10px 36px 10px 14px; border:1.5px solid #e5e7eb; border-radius:12px; font-size:13px; color:#374151; background:#fff; outline:none; cursor:pointer; white-space:nowrap;">
+                                    <option value="latest" {{ request('sort', 'latest') == 'latest' ? 'selected' : '' }}>
+                                        Terbaru</option>
+                                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>
+                                        Termurah</option>
+                                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>
+                                        Termahal</option>
+                                    <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>A–Z</option>
+                                </select>
+                                <i class="fas fa-chevron-down"
+                                    style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:11px; pointer-events:none;"></i>
+                            </div>
+                        </div>
 
-            <div class="grid md:grid-cols-4 gap-8">
-                <!-- Sidebar Filters -->
-                <div class="md:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-24 animate-slide-in-left">
-                        <h3 class="font-semibold text-lg mb-4 text-gray-800">
-                            <i class="fas fa-filter mr-2 text-blue-600"></i>Filter Kategori
-                        </h3>
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="{{ route('books.index', ['search' => request('search'), 'sort' => request('sort')]) }}"
-                                    class="block py-2 px-3 rounded-lg transition-all {{ !request('category') ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-100' }}">
-                                    Semua Kategori
-                                </a>
-                            </li>
-                            @foreach ($categories as $category)
-                                <li>
-                                    <a href="{{ route('books.index', ['category' => $category->id, 'search' => request('search'), 'sort' => request('sort')]) }}"
-                                        class="flex items-center justify-between py-2 px-3 rounded-lg transition-all {{ request('category') == $category->id ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-blue-700 font-semibold shadow-sm' : 'text-gray-700 hover:bg-gray-100' }}">
-                                        <span>{{ $category->name }}</span>
-                                        <span
-                                            class="text-xs {{ request('category') == $category->id ? 'bg-blue-200 text-blue-700' : 'bg-gray-200 text-gray-600' }} px-2 py-0.5 rounded-full">
-                                            {{ $category->books_count }}
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Books Grid -->
-                <div class="md:col-span-3">
-                    <!-- Active Filters -->
-                    @if (request('category') || request('search'))
-                        <div
-                            class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between animate-fade-in">
-                            <div class="flex items-center gap-3 flex-wrap">
-                                <span class="text-sm font-semibold text-blue-700">
-                                    <i class="fas fa-filter mr-1"></i>Filter Aktif:
-                                </span>
+                        {{-- Active filter chips --}}
+                        @if (request('category') || request('search'))
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+                                <span style="font-size:12px; color:#6b7280;">Filter aktif:</span>
+                                @if (request('search'))
+                                    <span
+                                        style="display:inline-flex; align-items:center; gap:5px; background:#ede9fe; color:#6d28d9; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px;">
+                                        <i class="fas fa-search" style="font-size:10px;"></i> "{{ request('search') }}"
+                                    </span>
+                                @endif
                                 @if (request('category'))
-                                    @php
-                                        $activeCategory = $categories->firstWhere('id', request('category'));
-                                    @endphp
-                                    @if ($activeCategory)
+                                    @php $activeCat = $categories->firstWhere('id', request('category')); @endphp
+                                    @if ($activeCat)
                                         <span
-                                            class="bg-blue-200 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                            <i class="fas fa-tag mr-1"></i>{{ $activeCategory->name }}
+                                            style="display:inline-flex; align-items:center; gap:5px; background:#ede9fe; color:#6d28d9; font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px;">
+                                            <i class="fas fa-tag" style="font-size:10px;"></i> {{ $activeCat->name }}
                                         </span>
                                     @endif
                                 @endif
-                                @if (request('search'))
-                                    <span class="bg-blue-200 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                        <i class="fas fa-search mr-1"></i>"{{ request('search') }}"
-                                    </span>
-                                @endif
+                                <a href="{{ route('books.index', ['sort' => request('sort')]) }}"
+                                    style="font-size:12px; color:#ef4444; font-weight:600; text-decoration:none;">
+                                    <i class="fas fa-times-circle"></i> Hapus semua
+                                </a>
                             </div>
-                            <a href="{{ route('books.index', ['sort' => request('sort')]) }}"
-                                class="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline whitespace-nowrap">
-                                <i class="fas fa-times mr-1"></i>Hapus Filter
-                            </a>
-                        </div>
-                    @endif
+                        @endif
+                        @if ($books->count() > 0)
+                            <div
+                                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:16px; margin-bottom:24px;">
+                                @foreach ($books as $book)
+                                    <div style="background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.07); overflow:hidden; display:flex; flex-direction:column; transition:transform 0.2s, box-shadow 0.2s; cursor:pointer;"
+                                        onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 28px rgba(0,0,0,0.13)';"
+                                        onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.07)';">
 
-                    @if ($books->count() > 0)
-                        <!-- Results Info -->
-                        <div class="mb-4 flex items-center justify-between">
-                            <p class="text-sm text-gray-600">
-                                Menampilkan <span class="font-semibold text-blue-700">{{ $books->count() }}</span> dari
-                                <span class="font-semibold text-blue-700">{{ $books->total() }}</span> buku
-                            </p>
-                        </div>
+                                        {{-- Cover --}}
+                                        <a href="{{ route('books.show', $book->slug) }}"
+                                            style="display:block; position:relative; overflow:hidden;">
+                                            @if ($book->cover_image)
+                                                <img src="{{ asset('storage/' . $book->cover_image) }}"
+                                                    alt="{{ $book->title }}"
+                                                    style="width:100%; height:195px; object-fit:cover; object-position:center top; display:block; transition:transform 0.4s;"
+                                                    onmouseover="this.style.transform='scale(1.06)'"
+                                                    onmouseout="this.style.transform=''">
+                                            @else
+                                                <div
+                                                    style="width:100%; height:195px; background:linear-gradient(135deg,#ede9fe,#fce7f3); display:flex; align-items:center; justify-content:center;">
+                                                    <i class="fas fa-book" style="font-size:40px; color:#c4b5fd;"></i>
+                                                </div>
+                                            @endif
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @foreach ($books as $book)
-                                <div class="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up"
-                                    style="animation-delay: {{ $loop->index * 50 }}ms">
-                                    <div class="relative overflow-hidden">
-                                        @if ($book->cover_image)
-                                            <img src="{{ asset('storage/' . $book->cover_image) }}"
-                                                alt="{{ $book->title }}"
-                                                class="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500">
-                                        @else
-                                            <div
-                                                class="w-full h-72 bg-gradient-to-br from-blue-50 to-orange-50 flex items-center justify-center">
-                                                <i class="fas fa-book text-blue-300 text-6xl"></i>
+                                            {{-- Discount badge --}}
+                                            @if ($book->discount > 0)
+                                                <div
+                                                    style="position:absolute; top:8px; left:8px; background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; z-index:2;">
+                                                    -{{ $book->discount }}%
+                                                </div>
+                                            @elseif($loop->index < 4)
+                                                <div
+                                                    style="position:absolute; top:8px; left:8px; background:#f59e0b; color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; z-index:2;">
+                                                    ★ Best
+                                                </div>
+                                            @endif
+
+                                            {{-- Quick view overlay --}}
+                                            <div style="position:absolute; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; transition:background 0.3s; z-index:1;"
+                                                onmouseover="this.style.background='rgba(0,0,0,0.45)'; this.querySelector('.qv-btn').style.opacity='1'; this.querySelector('.qv-btn').style.transform='translateY(0)';"
+                                                onmouseout="this.style.background='rgba(0,0,0,0)'; this.querySelector('.qv-btn').style.opacity='0'; this.querySelector('.qv-btn').style.transform='translateY(8px)';"
+                                                @click.prevent="quickView({{ $book->id }})">
+                                                <div class="qv-btn"
+                                                    style="background:#fff; color:#7c3aed; font-size:12px; font-weight:700; padding:8px 16px; border-radius:10px; opacity:0; transform:translateY(8px); transition:opacity 0.25s, transform 0.25s; pointer-events:none;">
+                                                    <i class="fas fa-eye" style="margin-right:5px;"></i>Quick View
+                                                </div>
                                             </div>
-                                        @endif
+                                        </a>
 
-                                        <!-- Wishlist Button -->
+                                        {{-- Wishlist --}}
                                         @auth
-                                            <button @click="toggleWishlist({{ $book->id }}, $event)"
-                                                :class="wishlistBooks.includes({{ $book->id }}) ? 'text-red-500' :
-                                                    'text-gray-700'"
-                                                class="absolute top-3 right-3 w-10 h-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg flex items-center justify-center transition-all transform hover:scale-110 z-10">
-                                                <i :class="wishlistBooks.includes({{ $book->id }}) ? 'fas' : 'far'"
-                                                    class="fa-heart text-lg"></i>
-                                            </button>
+                                            <div style="position:relative;">
+                                                <button @click="toggleWishlist({{ $book->id }}, $event)"
+                                                    :class="wishlistBooks.includes({{ $book->id }}) ? 'text-red-500' :
+                                                        'text-gray-400'"
+                                                    style="position:absolute; top:-36px; right:8px; width:30px; height:30px; background:#fff; border:none; border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,0.12); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; z-index:3;">
+                                                    <i :class="wishlistBooks.includes({{ $book->id }}) ? 'fas' : 'far'"
+                                                        class="fa-heart"></i>
+                                                </button>
+                                            </div>
                                         @endauth
 
-                                        <!-- Quick View Button -->
-                                        <button @click="quickView({{ $book->id }})"
-                                            class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        {{-- Info --}}
+                                        <div style="padding:12px 12px 14px; flex:1; display:flex; flex-direction:column;">
                                             <div
-                                                class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold transform translate-y-4 group-hover:translate-y-0 transition-all">
-                                                <i class="fas fa-eye mr-2"></i>Quick View
+                                                style="font-size:10px; font-weight:600; color:#7c3aed; background:#f3f0ff; display:inline-block; padding:2px 8px; border-radius:20px; margin-bottom:6px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                                {{ $book->category->name }}
                                             </div>
-                                        </button>
-
-                                        <!-- Badge -->
-                                        @if ($book->discount > 0)
-                                            <div class="absolute top-3 left-3 z-20">
-                                                <span
-                                                    class="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md tracking-wide">
-                                                    -{{ $book->discount }}%
-                                                </span>
+                                            <a href="{{ route('books.show', $book->slug) }}"
+                                                style="font-size:13px; font-weight:700; color:#111827; text-decoration:none; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:3px; flex:1; min-height:35px;"
+                                                onmouseover="this.style.color='#7c3aed'"
+                                                onmouseout="this.style.color='#111827'">
+                                                {{ $book->title }}
+                                            </a>
+                                            <div
+                                                style="font-size:11px; color:#9ca3af; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                                {{ $book->author }}
                                             </div>
-                                        @elseif ($loop->index < 3)
-                                            <div class="absolute top-3 left-3 z-20">
-                                                <span
-                                                    class="inline-block text-white text-xs font-bold px-3 py-1 rounded-full shadow-md tracking-wide"
-                                                    style="background-color:#f59e0b">
-                                                    ★ Best Seller
-                                                </span>
-                                            </div>
-                                        @endif
-                                    </div>
 
-                                    <div class="p-5">
-                                        <span
-                                            class="text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">{{ $book->category->name }}</span>
-                                        <h3
-                                            class="font-bold text-gray-900 mt-3 mb-2 line-clamp-2 text-lg hover:text-blue-600 transition-colors">
-                                            <a href="{{ route('books.show', $book->slug) }}">{{ $book->title }}</a>
-                                        </h3>
-                                        <p class="text-sm text-gray-600 mb-3">
-                                            <i class="fas fa-user text-gray-400 mr-1"></i>{{ $book->author }}
-                                        </p>
-
-                                        <div class="flex justify-between items-end mb-4">
-                                            <div>
+                                            {{-- Price --}}
+                                            <div style="margin-bottom:10px;">
                                                 @if ($book->discount > 0)
-                                                    <div class="flex items-center gap-1.5 mb-0.5">
-                                                        <span class="text-xs text-gray-400 line-through">Rp
-                                                            {{ number_format($book->price, 0, ',', '.') }}</span>
+                                                    <div
+                                                        style="font-size:11px; color:#9ca3af; text-decoration:line-through; line-height:1.2;">
+                                                        Rp {{ number_format($book->price, 0, ',', '.') }}
                                                     </div>
-                                                    <span class="text-xl font-black text-red-600">
+                                                    <div
+                                                        style="font-size:16px; font-weight:900; color:#dc2626; line-height:1.2;">
                                                         Rp {{ number_format($book->discounted_price, 0, ',', '.') }}
-                                                    </span>
-                                                    <div class="mt-0.5">
-                                                        <span
-                                                            class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                                                            <i class="fas fa-piggy-bank text-xs"></i> Hemat Rp
-                                                            {{ number_format($book->price - $book->discounted_price, 0, ',', '.') }}
-                                                        </span>
+                                                    </div>
+                                                    <div
+                                                        style="display:inline-flex; align-items:center; gap:3px; background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; margin-top:2px;">
+                                                        <i class="fas fa-piggy-bank" style="font-size:9px;"></i>
+                                                        Hemat Rp
+                                                        {{ number_format($book->price - $book->discounted_price, 0, ',', '.') }}
                                                     </div>
                                                 @else
-                                                    <span
-                                                        class="text-xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+                                                    <div
+                                                        style="font-size:16px; font-weight:900; color:#7c3aed; line-height:1.2;">
                                                         Rp {{ number_format($book->discounted_price, 0, ',', '.') }}
-                                                    </span>
+                                                    </div>
                                                 @endif
                                             </div>
-                                            @if ($book->stock > 0)
-                                                <span class="text-xs text-green-600 font-medium">
-                                                    <i class="fas fa-check-circle"></i> Stok: {{ $book->stock }}
-                                                </span>
+
+                                            {{-- Stock + CTA --}}
+                                            @auth
+                                                @if ($book->stock > 0)
+                                                    <button @click="addToCart({{ $book->id }})"
+                                                        style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:12px; font-weight:700; padding:9px; border:none; border-radius:10px; cursor:pointer; transition:opacity 0.2s; box-sizing:border-box;"
+                                                        onmouseover="this.style.opacity='0.88'"
+                                                        onmouseout="this.style.opacity='1'">
+                                                        <i class="fas fa-shopping-cart"></i> Keranjang
+                                                    </button>
+                                                @else
+                                                    <button disabled
+                                                        style="width:100%; background:#f3f4f6; color:#9ca3af; font-size:12px; font-weight:700; padding:9px; border:none; border-radius:10px; cursor:not-allowed; box-sizing:border-box;">
+                                                        Stok Habis
+                                                    </button>
+                                                @endif
                                             @else
-                                                <span class="text-xs text-red-600 font-medium">
-                                                    <i class="fas fa-times-circle"></i> Habis
-                                                </span>
-                                            @endif
+                                                <a href="{{ route('login') }}"
+                                                    style="display:block; text-align:center; width:100%; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:12px; font-weight:700; padding:9px; border-radius:10px; text-decoration:none; box-sizing:border-box;">
+                                                    <i class="fas fa-sign-in-alt" style="margin-right:4px;"></i>Login & Beli
+                                                </a>
+                                            @endauth
                                         </div>
-
-                                        @auth
-                                            @if ($book->stock > 0)
-                                                <button @click="addToCart({{ $book->id }})"
-                                                    class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg">
-                                                    <i class="fas fa-shopping-cart mr-2"></i>Tambah ke Keranjang
-                                                </button>
-                                            @else
-                                                <button disabled
-                                                    class="w-full bg-gray-300 text-gray-500 font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed">
-                                                    Stok Habis
-                                                </button>
-                                            @endif
-                                        @else
-                                            <a href="{{ route('login') }}"
-                                                class="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-center transition-all transform hover:scale-105 hover:shadow-lg">
-                                                <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Beli
-                                            </a>
-                                        @endauth
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
+                                @endforeach
+                            </div>
 
-                        <!-- Pagination -->
-                        <div class="mt-8">
-                            {{ $books->appends(['category' => request('category'), 'search' => request('search'), 'sort' => request('sort')])->links() }}
-                        </div>
-                    @else
-                        <div class="text-center py-16 bg-white rounded-xl shadow-lg">
-                            <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
-                            <h3 class="text-xl font-semibold text-gray-600 mb-2">Buku tidak ditemukan</h3>
-                            <p class="text-gray-500">Coba kata kunci atau filter yang berbeda</p>
-                        </div>
-                    @endif
+                            {{-- Pagination --}}
+                            <div>
+                                {{ $books->appends(['category' => request('category'), 'search' => request('search'), 'sort' => request('sort')])->links() }}
+                            </div>
+                        @else
+                            <div
+                                style="background:#fff; border-radius:16px; padding:80px 32px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+                                <i class="fas fa-search"
+                                    style="font-size:48px; color:#d1d5db; display:block; margin-bottom:16px;"></i>
+                                <h3 style="font-size:18px; font-weight:700; color:#374151; margin-bottom:6px;">Buku tidak
+                                    ditemukan</h3>
+                                <p style="color:#9ca3af; font-size:14px;">Coba kata kunci atau filter yang berbeda</p>
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- Quick View Modal -->
+        {{-- ───────── MOBILE BOOK LIST ───────── --}}
+        <div class="md:hidden bg-gray-50 px-3 py-4">
+            @if (request('category') || request('search'))
+                <div class="mb-3 flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
+                    <span class="text-xs font-semibold text-blue-700">
+                        @if (request('search'))
+                            "{{ request('search') }}"
+                        @endif
+                        @if (request('category') && isset($activeCategory))
+                            · {{ $categories->firstWhere('id', request('category'))?->name }}
+                        @endif
+                    </span>
+                    <a href="{{ route('books.index', ['sort' => request('sort')]) }}"
+                        class="text-xs text-blue-500 font-semibold ml-2"><i class="fas fa-times"></i> Hapus</a>
+                </div>
+            @endif
+
+            @if ($books->count() > 0)
+                <p class="text-xs text-gray-500 mb-3">{{ $books->total() }} buku ditemukan</p>
+
+                {{-- 2-column compact grid --}}
+                <div class="grid grid-cols-2 gap-3">
+                    @foreach ($books as $book)
+                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden active:scale-95 transition-transform duration-150"
+                            style="animation-delay:{{ $loop->index * 30 }}ms">
+
+                            {{-- Cover --}}
+                            <a href="{{ route('books.show', $book->slug) }}" class="block relative">
+                                @if ($book->cover_image)
+                                    <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}"
+                                        class="w-full object-cover" style="height:160px; object-position:center top;">
+                                @else
+                                    <div class="w-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50"
+                                        style="height:160px;">
+                                        <i class="fas fa-book text-blue-200 text-4xl"></i>
+                                    </div>
+                                @endif
+
+                                {{-- Badge --}}
+                                @if ($book->discount > 0)
+                                    <span
+                                        class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">-{{ $book->discount }}%</span>
+                                @elseif($loop->index < 3)
+                                    <span
+                                        class="absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow"
+                                        style="background:#f59e0b">★ Best</span>
+                                @endif
+
+                                {{-- Wishlist --}}
+                                @auth
+                                    <button @click.prevent="toggleWishlist({{ $book->id }}, $event)"
+                                        :class="wishlistBooks.includes({{ $book->id }}) ? 'text-red-500 bg-white' :
+                                            'text-gray-500 bg-white/80'"
+                                        class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center shadow text-xs">
+                                        <i :class="wishlistBooks.includes({{ $book->id }}) ? 'fas' : 'far'"
+                                            class="fa-heart"></i>
+                                    </button>
+                                @endauth
+                            </a>
+
+                            {{-- Info --}}
+                            <div class="p-2.5">
+                                <span
+                                    class="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{{ $book->category->name }}</span>
+                                <a href="{{ route('books.show', $book->slug) }}"
+                                    class="block mt-1.5 mb-0.5 text-xs font-bold text-gray-800 leading-tight line-clamp-2">{{ $book->title }}</a>
+                                <p class="text-[10px] text-gray-400 truncate mb-1.5">{{ $book->author }}</p>
+
+                                {{-- Price --}}
+                                <div class="mb-2">
+                                    @if ($book->discount > 0)
+                                        <p class="text-[10px] text-gray-400 line-through leading-none">Rp
+                                            {{ number_format($book->price, 0, ',', '.') }}</p>
+                                        <p class="text-sm font-black text-red-600 leading-tight">Rp
+                                            {{ number_format($book->discounted_price, 0, ',', '.') }}</p>
+                                    @else
+                                        <p class="text-sm font-black text-blue-600 leading-tight">Rp
+                                            {{ number_format($book->discounted_price, 0, ',', '.') }}</p>
+                                    @endif
+                                </div>
+
+                                {{-- CTA --}}
+                                @auth
+                                    @if ($book->stock > 0)
+                                        <button @click="addToCart({{ $book->id }})"
+                                            class="w-full text-[11px] font-bold py-1.5 rounded-xl text-white transition-all active:scale-95"
+                                            style="background:linear-gradient(90deg,#2563eb,#1d4ed8);">
+                                            <i class="fas fa-cart-plus mr-1"></i>Keranjang
+                                        </button>
+                                    @else
+                                        <button disabled
+                                            class="w-full text-[11px] font-bold py-1.5 rounded-xl bg-gray-200 text-gray-400">Habis</button>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}"
+                                        class="block w-full text-[11px] font-bold py-1.5 rounded-xl text-white text-center transition-all active:scale-95"
+                                        style="background:linear-gradient(90deg,#2563eb,#f97316);">
+                                        Login & Beli
+                                    </a>
+                                @endauth
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Mobile pagination --}}
+                <div class="mt-6">
+                    {{ $books->appends(['category' => request('category'), 'search' => request('search'), 'sort' => request('sort')])->links() }}
+                </div>
+            @else
+                <div class="text-center py-16">
+                    <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-600 mb-1">Buku tidak ditemukan</h3>
+                    <p class="text-sm text-gray-400">Coba kata kunci atau filter lain</p>
+                </div>
+            @endif
+        </div>
+
+        {{-- ───────── QUICK VIEW MODAL (shared) ───────── --}}
         <div x-show="showQuickView" x-cloak @click.self="showQuickView = false"
-            class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
             <div @click.stop
-                class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transform transition-all"
-                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
-                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-
+                class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto"
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4"
+                x-transition:enter-end="opacity-100 translate-y-0">
                 <template x-if="quickViewBook">
                     <div>
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                            <h2 class="text-2xl font-bold text-gray-900">Quick View</h2>
+                        <div class="flex justify-between items-center p-5 border-b border-gray-200">
+                            <h2 class="text-lg font-bold text-gray-900">Detail Buku</h2>
                             <button @click="showQuickView = false"
-                                class="text-gray-400 hover:text-gray-600 transition-colors">
-                                <i class="fas fa-times text-2xl"></i>
+                                class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
-
-                        <!-- Content -->
-                        <div class="p-6">
-                            <div class="grid md:grid-cols-2 gap-8">
-                                <!-- Image -->
+                        <div class="p-5">
+                            <div class="grid md:grid-cols-2 gap-6">
                                 <div>
                                     <img :src="quickViewBook.image" :alt="quickViewBook.title"
                                         class="w-full rounded-xl shadow-lg">
@@ -300,94 +478,78 @@
                                         <button @click="toggleWishlist(quickViewBook.id, $event)"
                                             :class="quickViewBook.in_wishlist ? 'bg-red-500 text-white' :
                                                 'bg-gray-100 text-gray-700'"
-                                            class="w-full mt-4 py-3 rounded-lg font-semibold transition-all hover:shadow-lg">
+                                            class="w-full mt-3 py-2.5 rounded-xl font-semibold transition-all text-sm">
                                             <i :class="quickViewBook.in_wishlist ? 'fas' : 'far'" class="fa-heart mr-2"></i>
                                             <span
                                                 x-text="quickViewBook.in_wishlist ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist'"></span>
                                         </button>
-
                                         <a x-show="quickViewBook.has_pdf" :href="`/books/${quickViewBook.id}/pdf`"
                                             target="_blank"
-                                            class="block w-full mt-3 py-3 rounded-lg font-semibold transition-all hover:shadow-lg bg-gray-100 text-red-600 hover:bg-gray-200 text-center">
+                                            class="block w-full mt-2 py-2.5 rounded-xl font-semibold bg-gray-100 text-red-600 hover:bg-gray-200 text-center text-sm">
                                             <i class="fas fa-file-pdf mr-2"></i>Lihat PDF
                                         </a>
                                     @endauth
                                 </div>
-
-                                <!-- Details -->
                                 <div>
                                     <span class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full"
                                         x-text="quickViewBook.category"></span>
-                                    <h3 class="text-3xl font-bold text-gray-900 mt-4 mb-2" x-text="quickViewBook.title">
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-3 mb-2" x-text="quickViewBook.title">
                                     </h3>
-                                    <p class="text-gray-600 mb-4">
-                                        <i class="fas fa-user mr-2"></i><span x-text="quickViewBook.author"></span>
-                                    </p>
-                                    <p class="text-gray-600 mb-4">
-                                        <i class="fas fa-building mr-2"></i><span x-text="quickViewBook.publisher"></span>
-                                    </p>
-
+                                    <p class="text-gray-600 mb-1 text-sm"><i class="fas fa-user mr-2"></i><span
+                                            x-text="quickViewBook.author"></span></p>
+                                    <p class="text-gray-600 mb-4 text-sm"><i class="fas fa-building mr-2"></i><span
+                                            x-text="quickViewBook.publisher"></span></p>
                                     <div class="mb-4">
                                         <template x-if="quickViewBook.discount > 0">
                                             <div>
                                                 <div
-                                                    class="inline-flex items-center gap-1.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-lg shadow mb-2 animate-pulse">
+                                                    class="inline-flex items-center gap-1.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-lg mb-2">
                                                     <i class="fas fa-bolt text-yellow-300"></i>
                                                     <span x-text="'DISKON ' + quickViewBook.discount + '% OFF'"></span>
                                                 </div>
                                                 <div class="flex items-end gap-2">
-                                                    <div class="text-3xl font-black text-red-600">
-                                                        Rp <span x-text="quickViewBook.price"></span>
-                                                    </div>
+                                                    <div class="text-2xl font-black text-red-600">Rp <span
+                                                            x-text="quickViewBook.price"></span></div>
                                                     <div class="flex flex-col pb-0.5">
                                                         <span class="text-sm text-gray-400 line-through"
                                                             x-text="'Rp ' + quickViewBook.original_price"></span>
-                                                        <span
-                                                            class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                                                            <i class="fas fa-piggy-bank"></i>
-                                                            <span
-                                                                x-text="'Hemat Rp ' + (parseInt(quickViewBook.original_price.replace(/\./g,'')) - parseInt(quickViewBook.price.replace(/\./g,''))).toLocaleString('id-ID')"></span>
-                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </template>
                                         <template x-if="!quickViewBook.discount || quickViewBook.discount === 0">
                                             <div
-                                                class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+                                                class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
                                                 Rp <span x-text="quickViewBook.price"></span>
                                             </div>
                                         </template>
                                     </div>
-
-                                    <div class="mb-6">
+                                    <div class="mb-4">
                                         <span class="text-sm font-medium text-gray-700">Stok: </span>
                                         <span class="text-sm font-bold"
                                             :class="quickViewBook.stock > 0 ? 'text-green-600' : 'text-red-600'"
                                             x-text="quickViewBook.stock > 0 ? quickViewBook.stock + ' tersedia' : 'Habis'"></span>
                                     </div>
-
-                                    <div class="mb-6">
-                                        <h4 class="font-semibold text-gray-900 mb-2">Deskripsi:</h4>
+                                    <div class="mb-5">
+                                        <h4 class="font-semibold text-gray-900 mb-1 text-sm">Deskripsi:</h4>
                                         <p class="text-gray-600 text-sm leading-relaxed"
                                             x-text="quickViewBook.description">
                                         </p>
                                     </div>
-
                                     @auth
-                                        <div class="space-y-3">
+                                        <div class="space-y-2">
                                             <button @click="addToCart(quickViewBook.id)" x-show="quickViewBook.stock > 0"
-                                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 hover:shadow-xl">
+                                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-xl transition-all text-sm">
                                                 <i class="fas fa-shopping-cart mr-2"></i>Tambah ke Keranjang
                                             </button>
                                             <a :href="`/books/${quickViewBook.slug}`"
-                                                class="block w-full bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-4 px-6 rounded-lg text-center transition-all">
+                                                class="block w-full bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-3 px-6 rounded-xl text-center transition-all text-sm">
                                                 Lihat Detail Lengkap
                                             </a>
                                         </div>
                                     @else
                                         <a href="{{ route('login') }}"
-                                            class="block w-full bg-gradient-to-r from-blue-600 to-orange-500 text-white font-bold py-4 px-6 rounded-lg text-center transition-all hover:shadow-xl">
+                                            class="block w-full bg-gradient-to-r from-blue-600 to-orange-500 text-white font-bold py-3 px-6 rounded-xl text-center transition-all text-sm">
                                             <i class="fas fa-sign-in-alt mr-2"></i>Login untuk Membeli
                                         </a>
                                     @endauth
@@ -449,6 +611,16 @@
 
         .animate-slide-in-left {
             animation: slideInLeft 0.5s ease-out;
+        }
+
+        /* Hide scrollbar for category pills */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 

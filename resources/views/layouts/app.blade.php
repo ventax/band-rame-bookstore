@@ -552,7 +552,7 @@
         </div>
     </nav>
 
-    <div class="bg-gradient-to-br from-blue-50 via-slate-50 to-orange-50 min-h-screen" style="padding-top: 56px;">
+    <div class="bg-gradient-to-br from-blue-50 via-slate-50 to-orange-50 min-h-screen" style="padding-top: 30px;">
 
         <!-- Flash Messages -->
         @if (session('success'))
@@ -592,7 +592,7 @@
         @endif
 
         <!-- Main Content -->
-        <main class="min-h-screen">
+        <main class="min-h-screen pb-20 md:pb-0">
             @yield('content')
         </main>
 
@@ -751,6 +751,115 @@
 
     </div><!-- /gradient wrapper -->
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+        style="background:rgba(255,255,255,0.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid rgba(0,0,0,0.08); box-shadow:0 -4px 20px rgba(0,0,0,0.10); padding-bottom:env(safe-area-inset-bottom,0px);">
+        <div style="display:flex; align-items:flex-end; justify-content:space-around; padding:4px 4px 8px;">
+
+            <!-- Home -->
+            <a href="{{ route('home') }}"
+                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('home') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                @if (request()->routeIs('home'))
+                    <span
+                        style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:#2563eb;border-radius:99px;"></span>
+                @endif
+                <span
+                    style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;{{ request()->routeIs('home') ? 'background:#eff6ff;' : '' }}">
+                    <i class="fas fa-home" style="font-size:19px;"></i>
+                </span>
+                <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Beranda</span>
+            </a>
+
+            <!-- Catalog -->
+            <a href="{{ route('books.index') }}"
+                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('books.*') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                @if (request()->routeIs('books.*'))
+                    <span
+                        style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:#2563eb;border-radius:99px;"></span>
+                @endif
+                <span
+                    style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;{{ request()->routeIs('books.*') ? 'background:#eff6ff;' : '' }}">
+                    <i class="fas fa-book-open" style="font-size:19px;"></i>
+                </span>
+                <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Katalog</span>
+            </a>
+
+            <!-- Cart (elevated FAB center) -->
+            <a href="{{ route('cart.index') }}"
+                style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 8px; text-decoration:none; margin-top:-20px; transition:transform .15s;"
+                ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                <span
+                    style="position:relative; width:54px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:18px; background:linear-gradient(135deg,#7c3aed,#db2777); box-shadow:0 6px 20px rgba(124,58,237,0.45);">
+                    <i class="fas fa-shopping-bag" style="font-size:22px; color:white;"></i>
+                    @auth
+                        @php $cartCount = auth()->user()->cart()->count(); @endphp
+                        <span id="mobile-bottom-cart-count"
+                            style="position:absolute;top:-6px;right:-6px;background:#f97316;color:white;font-size:9px;font-weight:700;border-radius:9999px;min-width:18px;height:18px;display:{{ $cartCount > 0 ? 'flex' : 'none' }};align-items:center;justify-content:center;padding:0 3px;border:2px solid white;">{{ $cartCount }}</span>
+                    @endauth
+                </span>
+                <span
+                    style="font-size:9px;font-weight:700;letter-spacing:0.04em;{{ request()->routeIs('cart.*') ? 'color:#7c3aed;' : 'color:#9ca3af;' }}">Keranjang</span>
+            </a>
+
+            <!-- Wishlist -->
+            @auth
+                <a href="{{ route('wishlist.index') }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('wishlist.*') ? 'color:#ec4899;' : 'color:#9ca3af;' }}"
+                    ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                    @if (request()->routeIs('wishlist.*'))
+                        <span
+                            style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:#ec4899;border-radius:99px;"></span>
+                    @endif
+                    <span
+                        style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;{{ request()->routeIs('wishlist.*') ? 'background:#fdf2f8;' : '' }}">
+                        <i class="fas fa-heart" style="font-size:19px;"></i>
+                    </span>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Wishlist</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#9ca3af; transition:transform .15s;"
+                    ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                    <span
+                        style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;">
+                        <i class="fas fa-heart" style="font-size:19px;"></i>
+                    </span>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Wishlist</span>
+                </a>
+            @endauth
+
+            <!-- Profile / Login -->
+            @auth
+                <a href="{{ route('profile.edit') }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('profile.*') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                    ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                    @if (request()->routeIs('profile.*'))
+                        <span
+                            style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:#2563eb;border-radius:99px;"></span>
+                    @endif
+                    <span
+                        style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;{{ request()->routeIs('profile.*') ? 'background:#eff6ff;' : '' }}">
+                        <i class="fas fa-user-circle" style="font-size:19px;"></i>
+                    </span>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Profil</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#9ca3af; transition:transform .15s;"
+                    ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
+                    <span
+                        style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;">
+                        <i class="fas fa-sign-in-alt" style="font-size:19px;"></i>
+                    </span>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:0.04em;">Masuk</span>
+                </a>
+            @endauth
+
+        </div>
+    </nav>
+
     <!-- Toast Notification Component -->
     @include('components.toast')
 
@@ -819,7 +928,8 @@
         fetch('{{ route('cart.count') }}')
             .then(response => response.json())
             .then(data => {
-                const cartCountElements = document.querySelectorAll('#cart-count, #mobile-cart-count');
+                const cartCountElements = document.querySelectorAll(
+                    '#cart-count, #mobile-cart-count, #mobile-bottom-cart-count');
                 cartCountElements.forEach(el => {
                     el.textContent = data.count;
                 });
@@ -860,8 +970,8 @@
         $waUrl = 'https://wa.me/' . $waNumber . '?text=' . $waText;
     @endphp
     <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer"
-        style="position:fixed; bottom:24px; right:24px; z-index:9999;"
-        class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 flex items-center justify-center w-14 h-14"
+        style="position:fixed; right:1rem; bottom:88px; z-index:9999;"
+        class="md:!bottom-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 flex items-center justify-center w-14 h-14"
         title="Chat via WhatsApp">
         <i class="fab fa-whatsapp" style="font-size:28px;"></i>
     </a>
