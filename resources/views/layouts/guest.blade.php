@@ -44,6 +44,7 @@
         body {
             background: #f1f5f9;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* Left panel */
@@ -158,9 +159,31 @@
         .form-card {
             background: #fff;
             border-radius: 24px;
-            padding: 2.5rem;
+            padding: clamp(1rem, 3.8vw, 2.5rem);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 20px 50px -10px rgba(0, 0, 0, 0.1);
             animation: fadeUp 0.45s ease both;
+        }
+
+        @media (max-width: 640px) {
+            .form-card {
+                border-radius: 18px;
+            }
+
+            .field-wrap input {
+                padding: 1rem 2.7rem 0.38rem 2.6rem;
+            }
+
+            .field-label {
+                left: 2.6rem;
+            }
+
+            .field-icon-l {
+                left: 0.85rem;
+            }
+
+            .field-icon-r {
+                right: 0.7rem;
+            }
         }
 
         @keyframes fadeUp {
@@ -441,7 +464,7 @@
 </head>
 
 <body class="antialiased" style="margin:0;padding:0;background:#f1f5f9;font-family:'Inter',sans-serif;">
-    <div style="position:fixed;inset:0;overflow-y:auto;display:flex;">
+    <div class="min-h-screen flex flex-col lg:flex-row">
 
         {{-- LEFT PANEL --}}
         <div class="auth-left hidden lg:flex lg:w-[42%] xl:w-[44%] flex-col justify-between p-10 xl:p-14">
@@ -543,11 +566,12 @@
         </div>
 
         {{-- RIGHT PANEL --}}
-        <div class="flex-1 flex items-center justify-center bg-slate-50 p-6 sm:p-8 lg:p-12">
+        <div
+            class="flex-1 flex items-start lg:items-center justify-center bg-slate-50 px-3 py-4 sm:px-6 sm:py-8 lg:p-12">
             <div class="w-full max-w-md">
 
                 {{-- Mobile logo --}}
-                <div class="lg:hidden flex justify-center mb-7">
+                <div class="lg:hidden flex justify-center mb-4 sm:mb-6">
                     <a href="{{ route('home') }}" class="flex items-center gap-2.5">
                         @if (\Illuminate\Support\Facades\Storage::disk('public')->exists('logo/logo.png'))
                             <img src="{{ asset('storage/logo/logo.png') }}" alt="ATigaBookStore"

@@ -38,11 +38,17 @@ class CartController extends Controller
             ]);
         }
 
-        return response()->json([
+        $payload = [
             'success' => true,
             'message' => 'Buku berhasil ditambahkan ke keranjang',
             'cart_count' => Cart::where('user_id', Auth::id())->sum('quantity')
-        ]);
+        ];
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json($payload);
+        }
+
+        return redirect()->back()->with('success', $payload['message']);
     }
 
     public function update(Request $request, $id)

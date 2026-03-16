@@ -185,35 +185,13 @@ window.flyToWishlist = function(element, productName = 'Produk') {
 // TOAST NOTIFICATIONS
 // ========================================
 window.showToast = function(type = 'success', message = 'Berhasil!', duration = 3000) {
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: duration,
-        timerProgressBar: true,
-        width: 'auto',
-        padding: '0.75rem 1rem',
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer);
-            toast.addEventListener('mouseleave', Swal.resumeTimer);
-        },
-        customClass: {
-            popup: 'colored-toast'
+    window.dispatchEvent(new CustomEvent('toast', {
+        detail: {
+            type,
+            message,
+            duration
         }
-    });
-
-    const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
-    };
-
-    Toast.fire({
-        icon: type,
-        title: message,
-        iconHtml: icons[type] || icons.success
-    });
+    }));
 };
 
 // ========================================

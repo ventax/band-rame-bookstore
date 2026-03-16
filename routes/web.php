@@ -67,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
     // Checkout Flow (Multi-Step)
     Route::prefix('checkout')->name('checkout.')->group(function () {
         Route::get('/address', [CheckoutController::class, 'address'])->name('address');
+        Route::get('/payment', function () {
+            return redirect()->route('checkout.address')
+                ->with('error', 'Sesi checkout pembayaran tidak ditemukan. Silakan pilih alamat terlebih dahulu.');
+        })->name('payment.fallback');
         Route::post('/payment', [CheckoutController::class, 'payment'])->name('payment');
         Route::post('/process', [CheckoutController::class, 'process'])->name('process');
         Route::get('/success/{orderNumber}', [CheckoutController::class, 'success'])->name('success');
@@ -79,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{orderNumber}', [OrderController::class, 'show'])->name('show');
         Route::post('/{orderNumber}/upload-payment', [OrderController::class, 'uploadPaymentProof'])->name('upload-payment');
         Route::post('/{orderNumber}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+        Route::post('/{orderNumber}/confirm-whatsapp', [OrderController::class, 'confirmWhatsapp'])->name('confirm-whatsapp');
         Route::post('/{orderNumber}/confirm-received', [OrderController::class, 'confirmReceived'])->name('confirm-received');
     });
 

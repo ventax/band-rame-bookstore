@@ -447,6 +447,160 @@
             background: #fef3c7;
             color: #92400e;
         }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .setup-wrap {
+                max-width: 680px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .setup-page {
+                align-items: flex-start;
+                padding: 1rem 0.75rem 5.75rem;
+            }
+
+            .setup-brand {
+                margin-bottom: 1rem;
+            }
+
+            .setup-brand-logo {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+            }
+
+            .setup-brand-name {
+                font-size: 1.08rem;
+            }
+
+            .setup-card {
+                border-radius: 18px;
+            }
+
+            .setup-card-header {
+                padding: 1.1rem 1rem;
+                gap: 10px;
+            }
+
+            .header-avatar {
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+
+            .header-text h2 {
+                font-size: 1rem;
+            }
+
+            .header-text p {
+                font-size: 0.74rem;
+                line-height: 1.35;
+            }
+
+            .setup-card-body {
+                padding: 1rem;
+            }
+
+            .progress-bar-wrap {
+                margin-bottom: 1rem;
+            }
+
+            .info-box {
+                margin-bottom: 1rem;
+                padding: 0.72rem 0.82rem;
+                font-size: 0.76rem;
+            }
+
+            .f-group {
+                margin-bottom: 0.92rem;
+            }
+
+            .f-input,
+            .f-select {
+                font-size: 0.88rem;
+                padding: 0.72rem 0.9rem;
+                border-radius: 10px;
+            }
+
+            .gender-grid {
+                gap: 0.58rem;
+            }
+
+            .gender-card label {
+                padding: 0.68rem 0.72rem;
+                gap: 8px;
+                min-height: 72px;
+            }
+
+            .gender-card label .g-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                font-size: 0.86rem;
+                flex-shrink: 0;
+            }
+
+            .gender-card label .g-text strong {
+                font-size: 0.83rem;
+                line-height: 1.2;
+            }
+
+            .gender-card label .g-text span {
+                font-size: 0.68rem;
+            }
+
+            .btn-primary {
+                padding: 0.78rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .skip-link {
+                margin-top: 0.78rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .setup-page {
+                padding: 0.85rem 0.55rem 5.75rem;
+            }
+
+            .setup-card-body {
+                padding: 0.84rem;
+            }
+
+            .step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 0.72rem;
+            }
+
+            .step-line {
+                margin-top: 15px !important;
+            }
+
+            .step-label {
+                font-size: 0.62rem;
+            }
+
+            .gender-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gender-card label {
+                min-height: 56px;
+            }
+
+            .completion-row {
+                gap: 4px;
+            }
+
+            .c-dot {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+        }
     </style>
 
     <div class="setup-page">
@@ -586,8 +740,8 @@
                         {{-- Telepon --}}
                         <div class="f-group">
                             <label class="f-label" for="phone">Nomor Telepon / WhatsApp</label>
-                            <input type="text" name="phone" id="phone" value="{{ old('phone') }}" class="f-input"
-                                placeholder="08xxxxxxxxxx">
+                            <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
+                                class="f-input" placeholder="08xxxxxxxxxx">
                             <p class="f-hint"><i class="fas fa-whatsapp"></i> Untuk notifikasi pesanan via WhatsApp</p>
                             @error('phone')
                                 <div class="f-err"><i class="fas fa-triangle-exclamation"></i> {{ $message }}</div>
@@ -597,11 +751,16 @@
                         {{-- Tanggal Lahir --}}
                         <div class="f-group">
                             <label class="f-label" for="birth_date">Tanggal Lahir</label>
-                            <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}"
-                                max="{{ now()->format('Y-m-d') }}" class="f-input">
-                            <p class="f-hint"><i class="fas fa-gift"></i> Dapatkan hadiah spesial di hari ulang tahun
-                                Anda!
-                            </p>
+                            @if ($user->birth_date)
+                                <input type="text" id="birth_date" class="f-input readonly"
+                                    value="{{ $user->birth_date->translatedFormat('d F Y') }}" readonly>
+                                <p class="f-hint"><i class="fas fa-circle-check" style="color:#22c55e;"></i>
+                                    Tanggal lahir sudah terisi saat pendaftaran.</p>
+                            @else
+                                <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}"
+                                    max="{{ now()->subYears(17)->toDateString() }}" class="f-input">
+                                <p class="f-hint"><i class="fas fa-gift"></i> Minimal usia 17 tahun.</p>
+                            @endif
                             @error('birth_date')
                                 <div class="f-err"><i class="fas fa-triangle-exclamation"></i> {{ $message }}</div>
                             @enderror
@@ -613,7 +772,7 @@
                             <div class="gender-grid">
                                 <div class="gender-card">
                                     <input type="radio" name="gender" id="g_male" value="male"
-                                        {{ old('gender') === 'male' ? 'checked' : '' }}>
+                                        {{ old('gender', $user->gender) === 'male' ? 'checked' : '' }}>
                                     <label for="g_male">
                                         <div class="g-icon male"><i class="fas fa-mars"></i></div>
                                         <div class="g-text">
@@ -624,7 +783,7 @@
                                 </div>
                                 <div class="gender-card">
                                     <input type="radio" name="gender" id="g_female" value="female"
-                                        {{ old('gender') === 'female' ? 'checked' : '' }}>
+                                        {{ old('gender', $user->gender) === 'female' ? 'checked' : '' }}>
                                     <label for="g_female">
                                         <div class="g-icon female"><i class="fas fa-venus"></i></div>
                                         <div class="g-text">

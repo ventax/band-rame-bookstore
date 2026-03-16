@@ -130,6 +130,23 @@ class OrderController extends Controller
             ->with('success', 'Terima kasih! Pesanan telah dikonfirmasi diterima.');
     }
 
+    // Tandai bahwa user sudah konfirmasi pesanan via WhatsApp
+    public function confirmWhatsapp($orderNumber)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('order_number', $orderNumber)
+            ->firstOrFail();
+
+        if (!$order->whatsapp_confirmed_at) {
+            $order->update([
+                'whatsapp_confirmed_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('orders.show', $orderNumber)
+            ->with('success', 'Konfirmasi WhatsApp berhasil ditandai. Tim kami akan memeriksa pesanan Anda.');
+    }
+
     public function checkout()
     {
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();

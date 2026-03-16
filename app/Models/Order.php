@@ -29,6 +29,7 @@ class Order extends Model
         'shipping_postal_code',
         'notes',
         'paid_at',
+        'whatsapp_confirmed_at',
         'shipped_at',
         'delivered_at',
         'courier_name',
@@ -42,6 +43,7 @@ class Order extends Model
         'discount_amount' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_at' => 'datetime',
+        'whatsapp_confirmed_at' => 'datetime',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
     ];

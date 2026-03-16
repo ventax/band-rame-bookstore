@@ -38,6 +38,22 @@
             @enderror
         </div>
 
+        {{-- Birth Date (17+) --}}
+        <div>
+            <div class="field-wrap">
+                <input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date') }}"
+                    max="{{ now()->subYears(17)->toDateString() }}"
+                    class="@error('birth_date') is-error @elseif(old('birth_date')) is-valid @endif"
+                    placeholder=" " required autocomplete="bday">
+                <label class="field-label" for="birth_date">Tanggal Lahir</label>
+                <i class="fas fa-cake-candles field-icon-l"></i>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Minimal usia 17 tahun.</p>
+            @error('birth_date')
+                <p class="err-msg"><i class="fas fa-circle-exclamation text-xs"></i> {{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Password --}}
         <div>
             <div class="field-wrap">

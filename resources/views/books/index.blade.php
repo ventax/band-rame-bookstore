@@ -1,13 +1,46 @@
 ﻿@extends('layouts.app')
 
 @section('title', 'Katalog Buku - ATigaBookStore')
+@section('mobile_main_padding', 'pb-20')
 
 @section('content')
     <div x-data="booksInteractive()">
+        @php
+            $bookPageQuery = [
+                'category' => request('category'),
+                'search' => request('search'),
+                'sort' => request('sort'),
+            ];
+            $bookCurrent = $books->currentPage();
+            $bookLast = $books->lastPage();
+            $bookStart = max(1, $bookCurrent - 2);
+            $bookEnd = min($bookLast, $bookCurrent + 2);
+            $bookPages = [];
+
+            if ($bookStart > 1) {
+                $bookPages[] = 1;
+                if ($bookStart > 2) {
+                    $bookPages[] = '...';
+                }
+            }
+
+            for ($i = $bookStart; $i <= $bookEnd; $i++) {
+                $bookPages[] = $i;
+            }
+
+            if ($bookEnd < $bookLast) {
+                if ($bookEnd < $bookLast - 1) {
+                    $bookPages[] = '...';
+                }
+                $bookPages[] = $bookLast;
+            }
+        @endphp
+
+        <div id="books-results-anchor"></div>
 
         {{-- ───────── MOBILE HEADER ───────── --}}
         <div class="md:hidden"
-            style="position:sticky; top:56px; z-index:50; background:#ffffff; box-shadow:0 1px 6px rgba(0,0,0,0.07); border-bottom:1px solid #f3f4f6; padding:10px 12px 8px;"
+            style="position:sticky; top:48px; z-index:20; background:#ffffff; box-shadow:0 1px 6px rgba(0,0,0,0.07); border-bottom:1px solid #f3f4f6; padding:10px 12px 8px;"
             x-data="{
                 searchQuery: '{{ request('search') }}',
                 showFilter: false,
@@ -201,8 +234,8 @@
                                                     onmouseout="this.style.transform=''">
                                             @else
                                                 <div
-                                                    style="width:100%; height:195px; background:linear-gradient(135deg,#ede9fe,#fce7f3); display:flex; align-items:center; justify-content:center;">
-                                                    <i class="fas fa-book" style="font-size:40px; color:#c4b5fd;"></i>
+                                                    style="width:100%; height:195px; background:linear-gradient(135deg,#eff6ff,#ffedd5); display:flex; align-items:center; justify-content:center;">
+                                                    <i class="fas fa-book" style="font-size:40px; color:#93c5fd;"></i>
                                                 </div>
                                             @endif
 
@@ -247,12 +280,12 @@
                                         {{-- Info --}}
                                         <div style="padding:12px 12px 14px; flex:1; display:flex; flex-direction:column;">
                                             <div
-                                                style="font-size:10px; font-weight:600; color:#7c3aed; background:#f3f0ff; display:inline-block; padding:2px 8px; border-radius:20px; margin-bottom:6px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                                style="font-size:10px; font-weight:600; color:#2563eb; background:#eff6ff; display:inline-block; padding:2px 8px; border-radius:20px; margin-bottom:6px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
                                                 {{ $book->category->name }}
                                             </div>
                                             <a href="{{ route('books.show', $book->slug) }}"
                                                 style="font-size:13px; font-weight:700; color:#111827; text-decoration:none; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:3px; flex:1; min-height:35px;"
-                                                onmouseover="this.style.color='#7c3aed'"
+                                                onmouseover="this.style.color='#2563eb'"
                                                 onmouseout="this.style.color='#111827'">
                                                 {{ $book->title }}
                                             </a>
@@ -280,7 +313,7 @@
                                                     </div>
                                                 @else
                                                     <div
-                                                        style="font-size:16px; font-weight:900; color:#7c3aed; line-height:1.2;">
+                                                        style="font-size:16px; font-weight:900; color:#2563eb; line-height:1.2;">
                                                         Rp {{ number_format($book->discounted_price, 0, ',', '.') }}
                                                     </div>
                                                 @endif
@@ -290,7 +323,7 @@
                                             @auth
                                                 @if ($book->stock > 0)
                                                     <button @click="addToCart({{ $book->id }})"
-                                                        style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:12px; font-weight:700; padding:9px; border:none; border-radius:10px; cursor:pointer; transition:opacity 0.2s; box-sizing:border-box;"
+                                                        style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; background:linear-gradient(90deg,#2563eb,#1d4ed8); color:#fff; font-size:12px; font-weight:700; padding:9px; border:none; border-radius:10px; cursor:pointer; transition:opacity 0.2s; box-sizing:border-box;"
                                                         onmouseover="this.style.opacity='0.88'"
                                                         onmouseout="this.style.opacity='1'">
                                                         <i class="fas fa-shopping-cart"></i> Keranjang
@@ -303,7 +336,7 @@
                                                 @endif
                                             @else
                                                 <a href="{{ route('login') }}"
-                                                    style="display:block; text-align:center; width:100%; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:12px; font-weight:700; padding:9px; border-radius:10px; text-decoration:none; box-sizing:border-box;">
+                                                    style="display:block; text-align:center; width:100%; background:linear-gradient(90deg,#2563eb,#f97316); color:#fff; font-size:12px; font-weight:700; padding:9px; border-radius:10px; text-decoration:none; box-sizing:border-box;">
                                                     <i class="fas fa-sign-in-alt" style="margin-right:4px;"></i>Login & Beli
                                                 </a>
                                             @endauth
@@ -313,9 +346,61 @@
                             </div>
 
                             {{-- Pagination --}}
-                            <div>
-                                {{ $books->appends(['category' => request('category'), 'search' => request('search'), 'sort' => request('sort')])->links() }}
-                            </div>
+                            @if ($books->hasPages())
+                                <div>
+                                    <p style="text-align:center; font-size:12px; color:#6b7280; margin-bottom:8px;">
+                                        Halaman {{ $bookCurrent }} dari {{ $bookLast }}
+                                    </p>
+                                    <div style="display:flex; justify-content:center;">
+                                        <nav aria-label="Pagination"
+                                            style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; background:#fff; border:1px solid #dbeafe; border-radius:14px; padding:6px; box-shadow:0 6px 20px rgba(37,99,235,0.12);">
+                                            @if ($books->onFirstPage())
+                                                <span
+                                                    style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                                                    <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                                                </span>
+                                            @else
+                                                <a href="{{ $books->appends($bookPageQuery)->previousPageUrl() }}"
+                                                    data-pagination-link="true"
+                                                    style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                                                    <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                                                </a>
+                                            @endif
+
+                                            @foreach ($bookPages as $page)
+                                                @if ($page === '...')
+                                                    <span
+                                                        style="min-width:28px; height:36px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-weight:700;">...</span>
+                                                @elseif ($page == $bookCurrent)
+                                                    <span
+                                                        style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#fff; font-weight:700; font-size:13px; background:linear-gradient(90deg,#2563eb,#1d4ed8);">
+                                                        {{ $page }}
+                                                    </span>
+                                                @else
+                                                    <a href="{{ $books->appends($bookPageQuery)->url($page) }}"
+                                                        data-pagination-link="true"
+                                                        style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#334155; font-weight:600; font-size:13px; text-decoration:none; background:#f8fafc;">
+                                                        {{ $page }}
+                                                    </a>
+                                                @endif
+                                            @endforeach
+
+                                            @if ($books->hasMorePages())
+                                                <a href="{{ $books->appends($bookPageQuery)->nextPageUrl() }}"
+                                                    data-pagination-link="true"
+                                                    style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                                                    <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                                                </a>
+                                            @else
+                                                <span
+                                                    style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                                                    <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                                                </span>
+                                            @endif
+                                        </nav>
+                                    </div>
+                                </div>
+                            @endif
                         @else
                             <div
                                 style="background:#fff; border-radius:16px; padding:80px 32px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
@@ -333,7 +418,7 @@
         </div>
 
         {{-- ───────── MOBILE BOOK LIST ───────── --}}
-        <div class="md:hidden bg-gray-50 px-3 py-4">
+        <div class="md:hidden bg-gray-50 px-3 pt-4 pb-2">
             @if (request('category') || request('search'))
                 <div class="mb-3 flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
                     <span class="text-xs font-semibold text-blue-700">
@@ -438,9 +523,60 @@
                 </div>
 
                 {{-- Mobile pagination --}}
-                <div class="mt-6">
-                    {{ $books->appends(['category' => request('category'), 'search' => request('search'), 'sort' => request('sort')])->links() }}
-                </div>
+                @if ($books->hasPages())
+                    <div class="mt-6">
+                        <p class="text-center text-xs text-gray-500 mb-2">Halaman {{ $bookCurrent }} dari
+                            {{ $bookLast }}</p>
+                        <div style="display:flex; justify-content:center;">
+                            <nav aria-label="Pagination"
+                                style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; background:#fff; border:1px solid #dbeafe; border-radius:14px; padding:6px; box-shadow:0 6px 20px rgba(37,99,235,0.12);">
+                                @if ($books->onFirstPage())
+                                    <span
+                                        style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                                        <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                                    </span>
+                                @else
+                                    <a href="{{ $books->appends($bookPageQuery)->previousPageUrl() }}"
+                                        data-pagination-link="true"
+                                        style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                                        <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                                    </a>
+                                @endif
+
+                                @foreach ($bookPages as $page)
+                                    @if ($page === '...')
+                                        <span
+                                            style="min-width:28px; height:36px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-weight:700;">...</span>
+                                    @elseif ($page == $bookCurrent)
+                                        <span
+                                            style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#fff; font-weight:700; font-size:13px; background:linear-gradient(90deg,#2563eb,#1d4ed8);">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $books->appends($bookPageQuery)->url($page) }}"
+                                            data-pagination-link="true"
+                                            style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#334155; font-weight:600; font-size:13px; text-decoration:none; background:#f8fafc;">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                @endforeach
+
+                                @if ($books->hasMorePages())
+                                    <a href="{{ $books->appends($bookPageQuery)->nextPageUrl() }}"
+                                        data-pagination-link="true"
+                                        style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                                        <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                                    </a>
+                                @else
+                                    <span
+                                        style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                                        <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                                    </span>
+                                @endif
+                            </nav>
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="text-center py-16">
                     <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
@@ -625,6 +761,25 @@
     </style>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-pagination-link="true"]').forEach((link) => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const anchor = document.getElementById('books-results-anchor');
+                    if (anchor) {
+                        anchor.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 120);
+                });
+            });
+        });
+
         function booksInteractive() {
             return {
                 showQuickView: false,
@@ -678,7 +833,7 @@
                         const data = await response.json();
                         if (data.success) {
                             window.dispatchEvent(new CustomEvent('cart-updated'));
-                            // Don't show duplicate toast since flyToCart already shows one
+                            window.showToast('success', data.message || 'Produk berhasil ditambahkan ke keranjang');
                         }
                     } catch (error) {
                         console.error('Error adding to cart:', error);

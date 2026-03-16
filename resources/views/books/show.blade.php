@@ -40,6 +40,13 @@
                                 <i class="fas fa-book text-gray-500 text-8xl"></i>
                             </div>
                         @endif
+
+                        @if (!empty($book->pdf_file))
+                            <a href="{{ route('books.pdf', $book->id) }}" target="_blank"
+                                class="block w-full mt-4 py-2.5 rounded-xl font-semibold bg-gray-100 text-red-600 hover:bg-gray-200 text-center text-sm">
+                                <i class="fas fa-file-pdf mr-2"></i>Lihat PDF
+                            </a>
+                        @endif
                     </div>
 
                     <!-- Book Info -->
@@ -482,10 +489,8 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Don't reload, let animation finish
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
+                                window.dispatchEvent(new CustomEvent('cart-updated'));
+                                window.showToast('success', data.message || 'Produk berhasil ditambahkan ke keranjang');
                             }
                         })
                         .catch(error => {

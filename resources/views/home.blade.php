@@ -233,11 +233,44 @@
 @endpush
 
 @section('content')
+    @php
+        $hasWelcomeAfterRegister = session('welcome_after_register') && auth()->check();
+    @endphp
+
+    @if ($hasWelcomeAfterRegister)
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-5 sm:pb-6">
+            <div
+                style="background:linear-gradient(135deg,#dbeafe,#eff6ff 55%,#fff7ed); border:1px solid #bfdbfe; border-radius:16px; box-shadow:0 8px 22px rgba(37,99,235,0.15); padding:12px 14px;">
+                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:flex-start; gap:10px; min-width:200px; flex:1;">
+                        <div
+                            style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-hand-sparkles" style="font-size:13px;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size:13px; font-weight:800; color:#1e3a8a; margin:0; line-height:1.3;">
+                                Halo, {{ explode(' ', auth()->user()->name)[0] }}. Selamat datang di
+                                ATigaBookStore!
+                            </p>
+                            <p style="font-size:11.5px; color:#334155; margin:2px 0 0; line-height:1.4;">
+                                Akunmu sudah aktif. Yuk mulai belanja buku favoritmu sekarang.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('books.index') }}"
+                        style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; border-radius:12px; padding:8px 12px; font-size:11px; font-weight:800; color:#fff; background:linear-gradient(90deg,#2563eb,#1d4ed8); box-shadow:0 6px 16px rgba(37,99,235,0.24); white-space:nowrap;">
+                        <i class="fas fa-cart-shopping" style="font-size:11px;"></i>
+                        Mulai Belanja
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- HERO --}}
 
 
-    <section class="hero-section py-14 lg:py-32" style="margin-top: -56px;">
+    <section class="hero-section py-14 lg:py-32" style="margin-top: {{ $hasWelcomeAfterRegister ? '8px' : '-56px' }};">
         <div class="hero-blob w-96 h-96 bg-blue-300" style="top:-80px;left:-80px;"></div>
         <div class="hero-blob w-72 h-72 bg-orange-400" style="bottom:-60px;right:5%;"></div>
         <div class="hero-blob w-48 h-48 bg-indigo-400" style="top:30%;right:28%;"></div>
@@ -789,3 +822,18 @@
     </section>
 
 @endsection
+
+@if (session('welcome_after_register') && auth()->check())
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const message =
+                    "Halo, {{ explode(' ', auth()->user()->name)[0] }}. Selamat datang di ATigaBookStore! Yuk mulai belanja buku favoritmu.";
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('success', message, 4600);
+                }
+            });
+        </script>
+    @endpush
+@endif

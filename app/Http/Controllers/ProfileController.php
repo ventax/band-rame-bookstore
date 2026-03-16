@@ -3,17 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    public function setup()
+    private function currentUser(): User
     {
         $user = Auth::user();
+        abort_unless($user instanceof User, 401);
+
+        return $user;
+    }
+
+    public function setup()
+    {
+        $user = $this->currentUser();
         // Kalau profil sudah lengkap, langsung ke dashboard
         if ($user->phone && $user->birth_date && $user->gender) {
             return redirect()->route('dashboard')->with('success', 'Profil Anda sudah lengkap!');
@@ -23,12 +33,14 @@ class ProfileController extends Controller
 
     public function storeSetup(Request $request)
     {
-        $user = Auth::user();
+        $user = $this->currentUser();
         $validated = $request->validate([
             'phone'      => ['nullable', 'string', 'max:20'],
-            'birth_date' => ['nullable', 'date'],
+            'birth_date' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(17)->toDateString()],
             'gender'     => ['nullable', 'in:male,female,other'],
             'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'birth_date.before_or_equal' => 'Usia minimal yang diperbolehkan adalah 17 tahun.',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -44,35 +56,33 @@ class ProfileController extends Controller
     public function edit()
     {
         try {
-            $user = Auth::user();
-
-            if (!$user) {
-                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-            }
+            $user = $this->currentUser();
 
             $addresses = $user->addresses()->latest()->get();
 
             // Debug log
-            \Log::info('Profile Edit - User: ' . $user->name . ', Addresses: ' . $addresses->count());
+            Log::info('Profile Edit - User: ' . $user->name . ', Addresses: ' . $addresses->count());
 
             return view('profile.edit', compact('user', 'addresses'));
         } catch (\Exception $e) {
-            \Log::error('Profile Edit Error: ' . $e->getMessage());
+            Log::error('Profile Edit Error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
     public function update(Request $request)
     {
-        $user = Auth::user();
+        $user = $this->currentUser();
 
         $validated = $request->validate([
             'name'       => ['required', 'string', 'max:255'],
             'email'      => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone'      => ['nullable', 'string', 'max:20'],
-            'birth_date' => ['nullable', 'date'],
+            'birth_date' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(17)->toDateString()],
             'gender'     => ['nullable', 'in:male,female,other'],
             'avatar'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'birth_date.before_or_equal' => 'Usia minimal yang diperbolehkan adalah 17 tahun.',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -94,7 +104,7 @@ class ProfileController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        Auth::user()->update([
+        $this->currentUser()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -103,6 +113,8 @@ class ProfileController extends Controller
 
     public function storeAddress(Request $request)
     {
+        $user = $this->currentUser();
+
         $validated = $request->validate([
             'label' => ['required', 'string', 'max:255'],
             'recipient_name' => ['required', 'string', 'max:255'],
@@ -117,10 +129,10 @@ class ProfileController extends Controller
 
         // If this address is set as default, unset other defaults
         if ($request->is_default) {
-            Auth::user()->addresses()->update(['is_default' => false]);
+            $user->addresses()->update(['is_default' => false]);
         }
 
-        $validated['user_id'] = Auth::id();
+        $validated['user_id'] = $user->id;
         $validated['is_default'] = $request->boolean('is_default');
 
         Address::create($validated);
@@ -130,8 +142,10 @@ class ProfileController extends Controller
 
     public function updateAddress(Request $request, Address $address)
     {
+        $user = $this->currentUser();
+
         // Ensure user owns this address
-        if ($address->user_id !== Auth::id()) {
+        if ((int) $address->user_id !== (int) $user->id) {
             abort(403);
         }
 
@@ -149,7 +163,7 @@ class ProfileController extends Controller
 
         // If this address is set as default, unset other defaults
         if ($request->is_default) {
-            Auth::user()->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+            $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
         }
 
         $validated['is_default'] = $request->boolean('is_default');
@@ -160,8 +174,10 @@ class ProfileController extends Controller
 
     public function destroyAddress(Address $address)
     {
+        $user = $this->currentUser();
+
         // Ensure user owns this address
-        if ($address->user_id !== Auth::id()) {
+        if ((int) $address->user_id !== (int) $user->id) {
             abort(403);
         }
 
@@ -172,13 +188,15 @@ class ProfileController extends Controller
 
     public function setDefaultAddress(Address $address)
     {
+        $user = $this->currentUser();
+
         // Ensure user owns this address
-        if ($address->user_id !== Auth::id()) {
+        if ((int) $address->user_id !== (int) $user->id) {
             abort(403);
         }
 
         // Unset all defaults
-        Auth::user()->addresses()->update(['is_default' => false]);
+        $user->addresses()->update(['is_default' => false]);
 
         // Set this as default
         $address->update(['is_default' => true]);

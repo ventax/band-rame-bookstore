@@ -625,7 +625,7 @@
             @endif
 
             {{-- ═══════ TABS + CONTENT ═══════ --}}
-            <div x-data="{ activeTab: '{{ $errors->any() && $errors->has('current_password') ? 'password' : session('tab', 'profile') }}', showAddressModal: false, editAddressId: null }">
+            <div x-data="{ activeTab: '{{ $errors->any() && $errors->has('current_password') ? 'password' : session('tab', 'profile') }}', showAddressModal: false, editAddressId: null, showDeleteAccountModal: false }">
 
                 {{-- Tab Buttons --}}
                 <div class="tab-wrap mb-5">
@@ -1114,7 +1114,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('profile.destroy') }}">
+                    <form id="delete-account-form" method="POST" action="{{ route('profile.destroy') }}">
                         @csrf @method('DELETE')
                         <div>
                             <label class="f-label" for="password_delete">Konfirmasi Password <span
@@ -1127,12 +1127,47 @@
                             @enderror
                         </div>
                         <div style="margin-top:1.5rem;">
-                            <button type="submit" onclick="return confirm('Yakin ingin menghapus akun secara permanen?')"
-                                class="btn-danger">
+                            <button type="button" @click="showDeleteAccountModal = true" class="btn-danger">
                                 <i class="fas fa-trash-alt"></i> Hapus Akun Saya
                             </button>
                         </div>
                     </form>
+
+                    <div x-show="showDeleteAccountModal" x-cloak @keydown.escape.window="showDeleteAccountModal = false"
+                        @click.self="showDeleteAccountModal = false" class="modal-overlay"
+                        style="display:none; z-index:90;">
+                        <div class="modal-box" style="max-width:460px; padding:1.4rem; border-radius:16px;">
+                            <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px;">
+                                <div
+                                    style="width:36px; height:36px; border-radius:10px; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                </div>
+                                <div>
+                                    <p style="font-size:1rem; font-weight:800; color:#991b1b; margin:0;">Hapus akun
+                                        permanen?</p>
+                                    <p style="font-size:.85rem; color:#7f1d1d; margin:4px 0 0; line-height:1.45;">
+                                        Semua data akun Anda akan dihapus permanen dan tidak bisa dikembalikan.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                style="display:flex; align-items:center; gap:8px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:8px 10px; margin-bottom:14px;">
+                                <i class="fas fa-key" style="color:#ef4444; font-size:12px;"></i>
+                                <span style="font-size:.76rem; color:#991b1b; font-weight:700;">Pastikan password sudah
+                                    diisi sebelum konfirmasi.</span>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:8px;">
+                                <button type="button" @click="showDeleteAccountModal = false" class="btn-outline">
+                                    Batal
+                                </button>
+                                <button type="submit" form="delete-account-form" class="btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Ya, Hapus Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

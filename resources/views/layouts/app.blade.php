@@ -247,19 +247,19 @@
     <div class="fixed bottom-20 left-1/3 w-24 h-24 bg-orange-300 rounded-full opacity-20 blur-2xl sparkle"></div>
 
     <!-- Navbar -->
-    <nav class="glass-effect fixed top-0 left-0 right-0 z-50 shadow-md" x-data="{ mobileMenu: false }">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-14">
+    <nav class="glass-effect fixed top-0 left-0 right-0 z-50 shadow-md" style="z-index:1000;" x-data="{ mobileMenu: false, mobileMore: false }">
+        <div class="max-w-7xl mx-auto px-4 lg:px-6">
+            <div class="flex justify-between items-center h-12 md:h-14 lg:h-16">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2 group logo-link">
                         @if (\Illuminate\Support\Facades\Storage::disk('public')->exists('logo/logo.png'))
                             <img src="{{ asset('storage/logo/logo.png') }}" alt="Logo ATigaBookStore"
-                                class="h-10 w-auto object-contain rounded-xl shadow-fun transform transition hover:scale-110">
+                                class="h-8 md:h-10 w-auto object-contain rounded-xl shadow-fun transform transition hover:scale-110">
                         @else
                             <div
-                                class="bg-gradient-to-r from-blue-600 via-blue-500 to-orange-400 p-2.5 rounded-2xl shadow-fun transform transition hover:scale-110">
-                                <i class="fas fa-book-reader text-xl text-white"></i>
+                                class="bg-gradient-to-r from-blue-600 via-blue-500 to-orange-400 p-2 md:p-2.5 rounded-2xl shadow-fun transform transition hover:scale-110">
+                                <i class="fas fa-book-reader text-base md:text-xl text-white"></i>
                             </div>
                         @endif
                         <div class="hidden sm:block">
@@ -270,52 +270,58 @@
                     </a>
                 </div>
 
-                <!-- Search Bar (Desktop) -->
-                <div class="hidden md:flex flex-1 max-w-xl mx-4" x-data="liveSearch()"
-                    @click.away="showResults = false">
-                    <div class="w-full relative">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400 text-sm"></i>
+                @if (request()->routeIs('books.index', 'orders.*'))
+                    <div class="hidden md:flex flex-1 max-w-xl mx-4" aria-hidden="true"></div>
+                @else
+                    <!-- Search Bar (Desktop) -->
+                    <div class="hidden md:flex flex-1 max-w-xl mx-4" x-data="liveSearch()"
+                        @click.away="showResults = false">
+                        <div class="w-full relative">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400 text-sm"></i>
+                                </div>
+                                <input type="text" x-model="searchQuery" @input.debounce.300ms="search()"
+                                    @focus="if(searchQuery.length >= 2) showResults = true"
+                                    placeholder="Cari buku seru..."
+                                    class="w-full pl-9 pr-3 py-2.5 text-sm rounded-2xl border-2 border-blue-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none transition-all bg-white shadow-sm font-medium">
+                                <div x-show="loading" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <i class="fas fa-spinner fa-spin text-blue-600 text-xs"></i>
+                                </div>
                             </div>
-                            <input type="text" x-model="searchQuery" @input.debounce.300ms="search()"
-                                @focus="if(searchQuery.length >= 2) showResults = true" placeholder="Cari buku seru..."
-                                class="w-full pl-9 pr-3 py-2.5 text-sm rounded-2xl border-2 border-blue-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none transition-all bg-white shadow-sm font-medium">
-                            <div x-show="loading" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                <i class="fas fa-spinner fa-spin text-blue-600 text-xs"></i>
-                            </div>
-                        </div>
 
-                        <!-- Live Search Results -->
-                        <div x-show="showResults && results.length > 0" x-cloak
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 -translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            class="absolute top-full mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50 max-h-80 overflow-y-auto">
-                            <template x-for="book in results" :key="book.id">
-                                <a :href="`/books/${book.slug}`"
-                                    class="flex items-center p-2 hover:bg-gray-50 transition-colors">
-                                    <img :src="book.image" :alt="book.title"
-                                        class="w-10 h-14 object-cover rounded">
-                                    <div class="ml-2 flex-1 min-w-0">
-                                        <h4 class="font-medium text-gray-900 text-xs truncate" x-text="book.title"></h4>
-                                        <p class="text-xs text-gray-500 truncate" x-text="book.author"></p>
-                                        <p class="text-xs font-bold text-blue-600 mt-0.5" x-text="book.price"></p>
-                                    </div>
-                                </a>
-                            </template>
-                            <div class="border-t border-gray-200 p-2 bg-gray-50">
-                                <a :href="`/books?search=${searchQuery}`"
-                                    class="block text-center text-xs text-blue-600 hover:text-blue-700 font-medium">
-                                    Lihat semua hasil →
-                                </a>
+                            <!-- Live Search Results -->
+                            <div x-show="showResults && results.length > 0" x-cloak
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="absolute top-full mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50 max-h-80 overflow-y-auto">
+                                <template x-for="book in results" :key="book.id">
+                                    <a :href="`/books/${book.slug}`"
+                                        class="flex items-center p-2 hover:bg-gray-50 transition-colors">
+                                        <img :src="book.image" :alt="book.title"
+                                            class="w-10 h-14 object-cover rounded">
+                                        <div class="ml-2 flex-1 min-w-0">
+                                            <h4 class="font-medium text-gray-900 text-xs truncate" x-text="book.title">
+                                            </h4>
+                                            <p class="text-xs text-gray-500 truncate" x-text="book.author"></p>
+                                            <p class="text-xs font-bold text-blue-600 mt-0.5" x-text="book.price"></p>
+                                        </div>
+                                    </a>
+                                </template>
+                                <div class="border-t border-gray-200 p-2 bg-gray-50">
+                                    <a :href="`/books?search=${searchQuery}`"
+                                        class="block text-center text-xs text-blue-600 hover:text-blue-700 font-medium">
+                                        Lihat semua hasil →
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
                 <!-- Navigation Links - Hidden on Mobile -->
-                <div class="hidden lg:flex items-center space-x-1">
+                <div class="hidden lg:flex items-center space-x-2 xl:space-x-3 pr-2 xl:pr-3 lg:mr-2 xl:mr-3">
                     <a href="{{ route('home') }}"
                         class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 {{ request()->routeIs('home') ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-fun' : 'text-gray-700 hover:bg-blue-100' }}">
                         Beranda
@@ -326,20 +332,22 @@
                     </a>
                     @auth
                         <a href="{{ route('orders.index') }}"
-                            class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 {{ request()->routeIs('orders.*') ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-fun' : 'text-gray-700 hover:bg-orange-50' }}">
+                            class="px-4 py-2 text-sm font-bold rounded-2xl transition-all transform hover:scale-105 lg:mr-5 xl:mr-7 {{ request()->routeIs('orders.*') ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-fun' : 'text-gray-700 hover:bg-orange-50' }}">
                             Pesanan
                         </a>
                     @endauth
                 </div>
 
                 <!-- Right Side -->
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-2 lg:gap-4 xl:gap-5 lg:ml-8 xl:ml-10">
                     @auth
                         @if (Auth::user()->role !== 'admin')
+                            <div class="hidden sm:block w-4 lg:w-6 xl:w-8 flex-shrink-0" aria-hidden="true"></div>
+
                             <!-- Wishlist -->
                             <a href="{{ route('wishlist.index') }}"
-                                class="relative p-2.5 bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl text-orange-500 hover:from-orange-400 hover:to-amber-500 hover:text-white transition-all transform hover:scale-110 shadow-sm wiggle-animation hidden sm:block">
-                                <i class="fas fa-heart text-lg"></i>
+                                class="relative p-2.5 lg:p-3 bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl text-orange-500 hover:from-orange-400 hover:to-amber-500 hover:text-white transition-all transform hover:scale-110 shadow-sm hidden sm:block">
+                                <i class="fas fa-heart text-lg wiggle-animation inline-block"></i>
                                 <span id="wishlist-count"
                                     class="absolute -top-1 -right-1 bg-gradient-to-r from-orange-400 to-orange-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center pulse-animation shadow-lg"
                                     style="display:none;">0</span>
@@ -347,8 +355,8 @@
 
                             <!-- Cart -->
                             <a href="{{ route('cart.index') }}" id="cart-icon"
-                                class="relative p-2.5 bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl text-blue-600 hover:from-blue-500 hover:to-blue-600 hover:text-white transition-all transform hover:scale-110 shadow-sm wiggle-animation hidden sm:block">
-                                <i class="fas fa-shopping-cart text-lg"></i>
+                                class="relative p-2.5 lg:p-3 bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl text-blue-600 hover:from-blue-500 hover:to-blue-600 hover:text-white transition-all transform hover:scale-110 shadow-sm hidden sm:block">
+                                <i class="fas fa-shopping-cart text-lg wiggle-animation inline-block"></i>
                                 <span id="cart-count"
                                     class="absolute -top-1 -right-1 bg-gradient-to-r from-orange-400 to-orange-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center pulse-animation shadow-lg">
                                     0
@@ -359,14 +367,14 @@
                         <!-- User Menu -->
                         <div class="relative hidden sm:block" x-data="{ open: false }">
                             <button @click="open = !open"
-                                class="flex items-center space-x-2 p-2 rounded-2xl bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 transition-all transform hover:scale-105 focus:outline-none shadow-sm">
+                                class="flex items-center space-x-2 p-2 lg:px-2.5 rounded-2xl bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 transition-all transform hover:scale-105 focus:outline-none shadow-sm">
                                 <div
                                     class="w-9 h-9 bg-gradient-to-r from-blue-600 via-blue-500 to-orange-400 rounded-full flex items-center justify-center shadow-md">
                                     <span
                                         class="text-white font-bold text-sm">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </div>
                                 <span
-                                    class="hidden lg:inline text-sm font-bold text-gray-700">{{ Str::limit(Auth::user()->name, 12) }}</span>
+                                    class="hidden lg:inline text-sm font-bold text-gray-700">{{ Str::limit(Auth::user()->name, 10) }}</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-600"></i>
                             </button>
 
@@ -449,100 +457,97 @@
 
                     <!-- Mobile Menu Button -->
                     <button @click="mobileMenu = !mobileMenu"
-                        class="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none transition-colors">
-                        <i class="fas fa-bars text-xl"></i>
+                        class="md:hidden p-1.5 text-gray-700 hover:text-blue-600 focus:outline-none transition-colors">
+                        <i class="fas" :class="mobileMenu ? 'fa-xmark text-xl' : 'fa-bars text-xl'"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Mobile Menu -->
             <div x-show="mobileMenu" @click.away="mobileMenu = false" x-transition
-                class="md:hidden border-t border-gray-200 bg-white shadow-lg">
-
-                <!-- Mobile Search -->
-                <div class="px-3 py-2">
-                    <form action="{{ route('books.index') }}" method="GET">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400 text-sm"></i>
-                            </div>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari buku..."
-                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all bg-white">
-                        </div>
-                    </form>
-                </div>
+                class="md:hidden fixed left-2 right-2 border border-gray-200 bg-white rounded-2xl shadow-xl max-h-[70vh] overflow-y-auto"
+                style="top:52px; z-index:1100;">
 
                 <!-- Navigation Menu -->
-                <div class="px-3 py-2">
+                <div class="px-2 py-2">
                     <a href="{{ route('home') }}"
-                        class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
-                        <i class="fas fa-home w-4 text-gray-500"></i>
+                        class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('home') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
+                        <i class="fas fa-home w-4 text-slate-700 text-xs"></i>
                         <span class="ml-2">Beranda</span>
                     </a>
                     <a href="{{ route('books.index') }}"
-                        class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('books.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
-                        <i class="fas fa-book w-4 text-gray-500"></i>
+                        class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('books.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
+                        <i class="fas fa-book w-4 text-slate-700 text-xs"></i>
                         <span class="ml-2">Katalog</span>
                     </a>
 
                     @auth
                         <a href="{{ route('cart.index') }}"
-                            class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('cart.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
-                            <i class="fas fa-shopping-cart w-4 text-gray-500"></i>
+                            class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('cart.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
+                            <i class="fas fa-shopping-cart w-4 text-slate-700 text-xs"></i>
                             <span class="ml-2">Keranjang</span>
                             <span id="mobile-cart-count"
                                 class="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
                         </a>
                         <a href="{{ route('wishlist.index') }}"
-                            class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('wishlist.*') ? 'bg-orange-50 text-orange-500 font-medium' : '' }}">
-                            <i class="fas fa-heart w-4 text-red-500"></i>
+                            class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('wishlist.*') ? 'bg-orange-50 text-orange-500 font-medium' : '' }}">
+                            <i class="fas fa-heart w-4 text-red-500 text-xs"></i>
                             <span class="ml-2">Wishlist</span>
                             <span id="mobile-wishlist-count"
                                 class="ml-auto bg-gradient-to-r from-orange-400 to-orange-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
                                 style="display:none;">0</span>
                         </a>
                         <a href="{{ route('orders.index') }}"
-                            class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
-                            <i class="fas fa-box w-4 text-gray-500"></i>
+                            class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('orders.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
+                            <i class="fas fa-box w-4 text-slate-700 text-xs"></i>
                             <span class="ml-2">Pesanan</span>
                         </a>
-                        <a href="{{ route('addresses.index') }}"
-                            class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors {{ request()->routeIs('addresses.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
-                            <i class="fas fa-map-marker-alt w-4 text-gray-500"></i>
-                            <span class="ml-2">Alamat Saya</span>
-                        </a>
 
-                        <div class="border-t border-gray-200 mt-2 pt-2">
+                        <button type="button" @click="mobileMore = !mobileMore"
+                            class="w-full flex items-center justify-between py-1.5 px-2.5 mt-1 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors border border-gray-100">
+                            <span class="flex items-center">
+                                <i class="fas fa-ellipsis-h w-4 text-slate-700 text-xs"></i>
+                                <span class="ml-2">Menu Lainnya</span>
+                            </span>
+                            <i class="fas text-[11px] text-slate-700"
+                                :class="mobileMore ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+
+                        <div x-show="mobileMore" x-transition x-cloak class="border-t border-gray-200 mt-1 pt-1.5">
+                            <a href="{{ route('addresses.index') }}"
+                                class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors {{ request()->routeIs('addresses.*') ? 'bg-blue-50 text-blue-600 font-medium' : '' }}">
+                                <i class="fas fa-map-marker-alt w-4 text-slate-700 text-xs"></i>
+                                <span class="ml-2">Alamat Saya</span>
+                            </a>
                             <a href="{{ route('profile.edit') }}"
-                                class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-user-edit w-4 text-gray-500"></i>
+                                class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-user-edit w-4 text-slate-700 text-xs"></i>
                                 <span class="ml-2">Profil</span>
                             </a>
                             @if (Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="flex items-center py-2 px-3 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-cog w-4 text-gray-500"></i>
+                                    class="flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-slate-800 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-cog w-4 text-slate-700 text-xs"></i>
                                     <span class="ml-2">Admin</span>
                                 </a>
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="w-full flex items-center py-2 px-3 text-sm rounded-lg text-red-600 hover:bg-red-50 transition-colors">
-                                    <i class="fas fa-sign-out-alt w-4"></i>
+                                    class="w-full flex items-center py-1.5 px-2.5 text-[13px] rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt w-4 text-xs"></i>
                                     <span class="ml-2">Logout</span>
                                 </button>
                             </form>
                         </div>
                     @else
-                        <div class="border-t border-gray-200 mt-2 pt-2 space-y-2 px-3">
+                        <div class="border-t border-gray-200 mt-1.5 pt-1.5 space-y-1.5 px-2.5">
                             <a href="{{ route('login') }}"
-                                class="flex items-center justify-center py-2 text-sm rounded-lg text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors font-medium">
+                                class="flex items-center justify-center py-1.5 text-[13px] rounded-lg text-slate-800 border border-gray-300 hover:bg-gray-50 transition-colors font-medium">
                                 Masuk
                             </a>
                             <a href="{{ route('register') }}"
-                                class="flex items-center justify-center py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-orange-500 text-white font-medium hover:shadow-lg transition-all">
+                                class="flex items-center justify-center py-1.5 text-[13px] rounded-lg bg-gradient-to-r from-blue-600 to-orange-500 text-white font-medium hover:shadow-lg transition-all">
                                 Daftar
                             </a>
                         </div>
@@ -554,50 +559,14 @@
 
     <div class="bg-gradient-to-br from-blue-50 via-slate-50 to-orange-50 min-h-screen" style="padding-top: 30px;">
 
-        <!-- Flash Messages -->
-        @if (session('success'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6" x-data="{ show: true }" x-show="show"
-                x-transition>
-                <div
-                    class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-800 px-6 py-4 rounded-xl shadow-lg flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-green-500 rounded-full p-2">
-                            <i class="fas fa-check text-white"></i>
-                        </div>
-                        <span class="font-medium">{{ session('success') }}</span>
-                    </div>
-                    <button @click="show = false" class="text-green-600 hover:text-green-800">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6" x-data="{ show: true }" x-show="show"
-                x-transition>
-                <div
-                    class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-800 px-6 py-4 rounded-xl shadow-lg flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-red-500 rounded-full p-2">
-                            <i class="fas fa-exclamation-triangle text-white"></i>
-                        </div>
-                        <span class="font-medium">{{ session('error') }}</span>
-                    </div>
-                    <button @click="show = false" class="text-red-600 hover:text-red-800">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        @endif
-
         <!-- Main Content -->
-        <main class="min-h-screen pb-20 md:pb-0">
+        <main class="min-h-screen @yield('mobile_main_padding', 'pb-20') md:pb-0">
             @yield('content')
         </main>
 
         <!-- Footer -->
-        <footer class="relative bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white mt-10 md:mt-20">
+        <footer
+            class="{{ request()->routeIs('home') ? 'block' : 'hidden md:block' }} relative bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white mt-10 md:mt-20">
             <!-- Decorative wave -->
             <div class="absolute top-0 left-0 right-0">
                 <svg viewBox="0 0 1440 120" class="w-full h-12 fill-current text-slate-50">
@@ -607,7 +576,8 @@
                 </svg>
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8 md:py-16 relative">
+            <div
+                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 {{ request()->routeIs('home') ? 'pb-24' : 'pb-8' }} md:py-16 relative">
                 <!-- Mobile: 2-column grid for links & contact, About spans full width -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
                     <!-- About: full width on mobile, 2 cols on desktop -->
@@ -758,7 +728,7 @@
 
             <!-- Home -->
             <a href="{{ route('home') }}"
-                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('home') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('home') ? 'color:#2563eb;' : 'color:#334155;' }}"
                 ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                 @if (request()->routeIs('home'))
                     <span
@@ -773,7 +743,7 @@
 
             <!-- Catalog -->
             <a href="{{ route('books.index') }}"
-                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('books.*') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('books.*') ? 'color:#2563eb;' : 'color:#334155;' }}"
                 ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                 @if (request()->routeIs('books.*'))
                     <span
@@ -791,7 +761,7 @@
                 style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 8px; text-decoration:none; margin-top:-20px; transition:transform .15s;"
                 ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                 <span
-                    style="position:relative; width:54px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:18px; background:linear-gradient(135deg,#7c3aed,#db2777); box-shadow:0 6px 20px rgba(124,58,237,0.45);">
+                    style="position:relative; width:54px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:18px; background:linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 6px 20px rgba(37,99,235,0.45);">
                     <i class="fas fa-shopping-bag" style="font-size:22px; color:white;"></i>
                     @auth
                         @php $cartCount = auth()->user()->cart()->count(); @endphp
@@ -800,13 +770,13 @@
                     @endauth
                 </span>
                 <span
-                    style="font-size:9px;font-weight:700;letter-spacing:0.04em;{{ request()->routeIs('cart.*') ? 'color:#7c3aed;' : 'color:#9ca3af;' }}">Keranjang</span>
+                    style="font-size:9px;font-weight:700;letter-spacing:0.04em;{{ request()->routeIs('cart.*') ? 'color:#2563eb;' : 'color:#334155;' }}">Keranjang</span>
             </a>
 
             <!-- Wishlist -->
             @auth
                 <a href="{{ route('wishlist.index') }}"
-                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('wishlist.*') ? 'color:#ec4899;' : 'color:#9ca3af;' }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('wishlist.*') ? 'color:#ec4899;' : 'color:#334155;' }}"
                     ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                     @if (request()->routeIs('wishlist.*'))
                         <span
@@ -820,7 +790,7 @@
                 </a>
             @else
                 <a href="{{ route('login') }}"
-                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#9ca3af; transition:transform .15s;"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#334155; transition:transform .15s;"
                     ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                     <span
                         style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;">
@@ -833,7 +803,7 @@
             <!-- Profile / Login -->
             @auth
                 <a href="{{ route('profile.edit') }}"
-                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('profile.*') ? 'color:#2563eb;' : 'color:#9ca3af;' }}"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; position:relative; transition:transform .15s; {{ request()->routeIs('profile.*') ? 'color:#2563eb;' : 'color:#334155;' }}"
                     ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                     @if (request()->routeIs('profile.*'))
                         <span
@@ -847,7 +817,7 @@
                 </a>
             @else
                 <a href="{{ route('login') }}"
-                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#9ca3af; transition:transform .15s;"
+                    style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; text-decoration:none; color:#334155; transition:transform .15s;"
                     ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">
                     <span
                         style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:14px;">
@@ -871,6 +841,17 @@
     @stack('scripts')
 
     <script>
+        // Global toast helper so any page can trigger notifications consistently.
+        window.showToast = function(type, message, duration = 3000) {
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    type: type || 'info',
+                    message: message || 'Notifikasi',
+                    duration
+                }
+            }));
+        };
+
         // Live Search Function
         function liveSearch() {
             return {
@@ -955,6 +936,7 @@
 
     <!-- WhatsApp Floating Button -->
     @php
+        $hideWhatsappFloating = request()->routeIs('cart.*', 'checkout.payment', 'checkout.process');
         $waNumber = setting('store_whatsapp', '');
         if (empty($waNumber)) {
             $waNumber = setting('store_phone', '6281234567890');
@@ -969,12 +951,14 @@
         $waText = urlencode('Halo, saya ingin bertanya tentang produk di ' . setting('store_name', 'ATigaBookStore'));
         $waUrl = 'https://wa.me/' . $waNumber . '?text=' . $waText;
     @endphp
-    <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer"
-        style="position:fixed; right:1rem; bottom:88px; z-index:9999;"
-        class="md:!bottom-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 flex items-center justify-center w-14 h-14"
-        title="Chat via WhatsApp">
-        <i class="fab fa-whatsapp" style="font-size:28px;"></i>
-    </a>
+    @unless ($hideWhatsappFloating)
+        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer"
+            style="position:fixed; right:1rem; bottom:88px; z-index:9999;"
+            class="md:!bottom-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 flex items-center justify-center w-14 h-14"
+            title="Chat via WhatsApp">
+            <i class="fab fa-whatsapp" style="font-size:28px;"></i>
+        </a>
+    @endunless
 
     <style>
         [x-cloak] {

@@ -2,35 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class WishlistController extends Controller
 {
     public function index()
     {
-        $wishlists = auth()->user()->wishlists()->with('book.category')->get();
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
+
+        $wishlists = Wishlist::query()
+            ->where('user_id', $user->id)
+            ->with('book.category')
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
         return view('wishlist.index', compact('wishlists'));
     }
 
     public function toggle(Request $request)
     {
-        \Log::info('Wishlist toggle requested', [
-            'user_id' => auth()->id(),
-            'book_id' => $request->book_id,
-        ]);
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
 
-        $request->validate([
+        $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
         ]);
 
-        $wishlist = Wishlist::where('user_id', auth()->id())
-            ->where('book_id', $request->book_id)
+        $bookId = (int) $validated['book_id'];
+
+        Log::info('Wishlist toggle requested', [
+            'user_id' => $user->id,
+            'book_id' => $bookId,
+        ]);
+
+        $wishlist = Wishlist::where('user_id', $user->id)
+            ->where('book_id', $bookId)
             ->first();
 
         if ($wishlist) {
             $wishlist->delete();
-            \Log::info('Wishlist removed', ['book_id' => $request->book_id]);
+            Log::info('Wishlist removed', ['book_id' => $bookId]);
             return response()->json([
                 'success' => true,
                 'action' => 'removed',
@@ -38,10 +55,10 @@ class WishlistController extends Controller
             ]);
         } else {
             $created = Wishlist::create([
-                'user_id' => auth()->id(),
-                'book_id' => $request->book_id,
+                'user_id' => $user->id,
+                'book_id' => $bookId,
             ]);
-            \Log::info('Wishlist added', ['wishlist_id' => $created->id]);
+            Log::info('Wishlist added', ['wishlist_id' => $created->id]);
             return response()->json([
                 'success' => true,
                 'action' => 'added',
@@ -52,7 +69,10 @@ class WishlistController extends Controller
 
     public function destroy(Wishlist $wishlist)
     {
-        if ($wishlist->user_id !== auth()->id()) {
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
+
+        if ((int) $wishlist->user_id !== (int) $user->id) {
             abort(403);
         }
 
@@ -62,7 +82,10 @@ class WishlistController extends Controller
 
     public function count()
     {
-        $count = Wishlist::where('user_id', auth()->id())->count();
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
+
+        $count = Wishlist::where('user_id', $user->id)->count();
         return response()->json(['count' => $count]);
     }
 }

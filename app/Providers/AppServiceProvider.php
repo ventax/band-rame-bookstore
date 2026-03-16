@@ -15,6 +15,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        date_default_timezone_set(config('app.timezone'));
+
         // Inject data pesanan processing (baru masuk via Midtrans) ke semua view admin.*
         View::composer('admin.*', function ($view) {
             $pendingOrdersCount  = Order::where('status', Order::STATUS_PROCESSING)->count();

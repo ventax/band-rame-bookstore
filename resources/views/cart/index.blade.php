@@ -1,8 +1,61 @@
 ﻿@extends('layouts.app')
 
 @section('title', 'Keranjang Belanja - ATigaBookStore')
+@section('mobile_main_padding', 'pb-0')
 
 @section('content')
+    <style>
+        .cart-check-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cart-check-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 9999px;
+            border: 2px solid #d1d5db;
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .cart-check-dot.square {
+            border-radius: 6px;
+        }
+
+        .cart-check-control input:checked+.cart-check-dot {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .cart-check-control input:focus-visible+.cart-check-dot {
+            outline: 2px solid rgba(37, 99, 235, 0.32);
+            outline-offset: 2px;
+        }
+
+        .cart-check-control input:not(:checked)+.cart-check-dot i {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .cart-check-control input:checked+.cart-check-dot i {
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.18s ease;
+        }
+    </style>
+
     <div id="cart-page-content" style="background:#f3f4f6; min-height:100vh; transition:filter 0.2s ease;">
 
         {{-- ===== MOBILE STICKY HEADER ===== --}}
@@ -11,7 +64,7 @@
             <div style="display:flex; align-items:center; justify-content:space-between;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div
-                        style="width:32px; height:32px; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        style="width:32px; height:32px; background:linear-gradient(135deg,#2563eb,#1d4ed8); border-radius:50%; display:flex; align-items:center; justify-content:center;">
                         <i class="fas fa-shopping-cart" style="color:#fff; font-size:14px;"></i>
                     </div>
                     <div>
@@ -20,7 +73,7 @@
                     </div>
                 </div>
                 <a href="{{ route('books.index') }}"
-                    style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:#7c3aed; text-decoration:none; background:#f3f0ff; padding:6px 12px; border-radius:20px;">
+                    style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:#2563eb; text-decoration:none; background:#eff6ff; padding:6px 12px; border-radius:20px;">
                     <i class="fas fa-plus" style="font-size:10px;"></i> Belanja Lagi
                 </a>
             </div>
@@ -31,7 +84,7 @@
             <div class="max-w-7xl mx-auto">
                 <h1
                     style="font-size:28px; font-weight:800; color:#111827; margin-bottom:6px; display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-shopping-cart" style="color:#7c3aed;"></i> Keranjang Belanja
+                    <i class="fas fa-shopping-cart" style="color:#2563eb;"></i> Keranjang Belanja
                 </h1>
                 <p style="color:#6b7280; font-size:15px;">{{ $cartItems->sum('quantity') }} item dalam keranjang</p>
             </div>
@@ -42,10 +95,28 @@
             {{-- ===== MOBILE LAYOUT ===== --}}
             <div class="md:hidden" style="padding:12px 12px 0;">
                 <div style="display:flex; flex-direction:column; gap:10px;">
+                    <label
+                        style="display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px;">
+                        <span class="cart-check-control">
+                            <input type="checkbox" class="cart-select-all sr-only" checked>
+                            <span class="cart-check-dot square"><i class="fas fa-check"></i></span>
+                            <span style="font-size:12px; font-weight:700; color:#374151;">Pilih semua item</span>
+                        </span>
+                        <span
+                            style="font-size:10px; font-weight:700; color:#2563eb; background:#eff6ff; border:1px solid #bfdbfe; border-radius:9999px; padding:3px 8px;">
+                            Checkout fleksibel
+                        </span>
+                    </label>
                     @foreach ($cartItems as $item)
                         <div style="background:#fff; border-radius:16px; box-shadow:0 1px 8px rgba(0,0,0,0.07); overflow:hidden; display:flex; gap:0;"
                             id="cart-item-{{ $item->id }}" data-stock="{{ $item->book->stock }}"
                             data-price="{{ $item->book->discounted_price }}">
+
+                            <label class="cart-check-control" style="padding:10px 6px 10px 10px; align-items:flex-start;">
+                                <input type="checkbox" class="cart-item-checkbox sr-only" data-item-id="{{ $item->id }}"
+                                    checked>
+                                <span class="cart-check-dot" style="margin-top:2px;"><i class="fas fa-check"></i></span>
+                            </label>
 
                             {{-- Cover --}}
                             <a href="{{ route('books.show', $item->book->slug) }}"
@@ -56,8 +127,8 @@
                                         style="width:80px; height:110px; object-fit:cover; object-position:center top; display:block;">
                                 @else
                                     <div
-                                        style="width:80px; height:110px; background:linear-gradient(135deg,#ede9fe,#fce7f3); display:flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-book" style="color:#c4b5fd; font-size:24px;"></i>
+                                        style="width:80px; height:110px; background:linear-gradient(135deg,#dbeafe,#eff6ff); display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-book" style="color:#93c5fd; font-size:24px;"></i>
                                     </div>
                                 @endif
                                 @if ($item->book->discount > 0)
@@ -89,7 +160,7 @@
                                                 {{ number_format($item->book->price, 0, ',', '.') }}</span>
                                         </div>
                                     @else
-                                        <div style="font-size:14px; font-weight:800; color:#7c3aed; margin-bottom:4px;">
+                                        <div style="font-size:14px; font-weight:800; color:#2563eb; margin-bottom:4px;">
                                             Rp {{ number_format($item->book->discounted_price, 0, ',', '.') }}
                                         </div>
                                     @endif
@@ -143,7 +214,7 @@
                 </div>
 
                 {{-- Spacer for mobile bottom checkout bar --}}
-                <div style="height:130px;"></div>
+                <div style="height:176px;"></div>
             </div>
 
             {{-- ===== MOBILE STICKY BOTTOM CHECKOUT BAR ===== --}}
@@ -152,18 +223,18 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                     <div>
                         <div style="font-size:11px; color:#6b7280; margin-bottom:1px;">Total
-                            ({{ $cartItems->sum('quantity') }} item)</div>
-                        <div style="font-size:16px; font-weight:900; color:#7c3aed;" id="mobile-cart-total">Rp
+                            (<span id="mobile-selected-count">{{ $cartItems->sum('quantity') }}</span> item)</div>
+                        <div style="font-size:16px; font-weight:900; color:#2563eb;" id="mobile-cart-total">Rp
                             {{ number_format($total, 0, ',', '.') }}</div>
                     </div>
                     <div style="font-size:11px; color:#9ca3af; text-align:right;">
                         Ongkir dihitung<br>saat checkout
                     </div>
                 </div>
-                <a href="{{ route('checkout.address') }}"
-                    style="display:block; width:100%; text-align:center; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-weight:700; font-size:14px; padding:13px; border-radius:14px; text-decoration:none; box-sizing:border-box;">
+                <button type="button" id="checkout-btn-mobile" onclick="proceedToCheckout()"
+                    style="display:block; width:100%; text-align:center; background:linear-gradient(90deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; font-size:14px; padding:13px; border-radius:14px; text-decoration:none; box-sizing:border-box;">
                     Lanjut ke Checkout &nbsp;<i class="fas fa-arrow-right"></i>
-                </a>
+                </button>
             </div>
 
             {{-- ===== DESKTOP LAYOUT ===== --}}
@@ -172,10 +243,24 @@
                     <div class="grid md:grid-cols-3 gap-8">
                         {{-- Items --}}
                         <div class="md:col-span-2 space-y-4">
+                            <label
+                                style="display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid #e5e7eb; border-radius:9999px; background:#fff;">
+                                <span class="cart-check-control">
+                                    <input type="checkbox" class="cart-select-all sr-only" checked>
+                                    <span class="cart-check-dot square"><i class="fas fa-check"></i></span>
+                                    <span class="text-sm font-semibold text-gray-700">Pilih semua item</span>
+                                </span>
+                            </label>
                             @foreach ($cartItems as $item)
                                 <div class="bg-white rounded-xl shadow p-6 flex gap-4"
-                                    data-stock="{{ $item->book->stock }}"
+                                    id="cart-item-{{ $item->id }}-d" data-stock="{{ $item->book->stock }}"
                                     data-price="{{ $item->book->discounted_price }}">
+
+                                    <label class="cart-check-control pt-1">
+                                        <input type="checkbox" class="cart-item-checkbox sr-only"
+                                            data-item-id="{{ $item->id }}" checked>
+                                        <span class="cart-check-dot"><i class="fas fa-check"></i></span>
+                                    </label>
 
                                     <div class="w-24 h-32 flex-shrink-0">
                                         @if ($item->book->cover_image)
@@ -184,8 +269,8 @@
                                                 class="w-full h-full object-cover rounded-lg">
                                         @else
                                             <div
-                                                class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center rounded-lg">
-                                                <i class="fas fa-book text-purple-300 text-3xl"></i>
+                                                class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center rounded-lg">
+                                                <i class="fas fa-book text-blue-300 text-3xl"></i>
                                             </div>
                                         @endif
                                     </div>
@@ -211,7 +296,7 @@
                                                 {{ number_format($item->book->price - $item->book->discounted_price, 0, ',', '.') }}
                                             </span>
                                         @else
-                                            <p class="text-purple-600 font-bold text-lg mb-4">Rp
+                                            <p class="text-blue-600 font-bold text-lg mb-4">Rp
                                                 {{ number_format($item->book->discounted_price, 0, ',', '.') }}</p>
                                         @endif
 
@@ -225,7 +310,7 @@
                                                         {{ $item->quantity <= 1 ? 'disabled' : '' }}>
                                                         <i class="fas fa-minus text-xs"></i>
                                                     </button>
-                                                    <span
+                                                    <span id="qty-{{ $item->id }}-d"
                                                         class="px-4 py-1.5 border-x border-gray-300 font-semibold min-w-[2.5rem] text-center">{{ $item->quantity }}</span>
                                                     <button type="button" id="btn-plus-{{ $item->id }}-d"
                                                         onclick="updateQuantity({{ $item->id }}, 1)"
@@ -234,14 +319,15 @@
                                                         <i class="fas fa-plus text-xs"></i>
                                                     </button>
                                                 </div>
-                                                <p
+                                                <p id="stock-info-{{ $item->id }}-d"
                                                     class="text-xs text-orange-500 {{ $item->quantity < $item->book->stock ? 'hidden' : '' }}">
                                                     <i class="fas fa-info-circle"></i> Stok tersisa:
                                                     {{ $item->book->stock }}
                                                 </p>
                                             </div>
                                             <div class="flex items-center gap-4">
-                                                <span class="font-bold text-lg text-gray-900">
+                                                <span id="subtotal-{{ $item->id }}-d"
+                                                    class="font-bold text-lg text-gray-900">
                                                     Rp
                                                     {{ number_format($item->quantity * $item->book->discounted_price, 0, ',', '.') }}
                                                 </span>
@@ -263,7 +349,9 @@
                                 <h2 class="text-xl font-bold text-gray-900 mb-5">Ringkasan Pesanan</h2>
                                 <div class="space-y-3 mb-6">
                                     <div class="flex justify-between text-gray-600 text-sm">
-                                        <span>Subtotal ({{ $cartItems->sum('quantity') }} item)</span>
+                                        <span>Subtotal (<span
+                                                id="selected-item-count">{{ $cartItems->sum('quantity') }}</span>
+                                            item)</span>
                                         <span id="cart-total" class="font-semibold">Rp
                                             {{ number_format($total, 0, ',', '.') }}</span>
                                     </div>
@@ -273,16 +361,18 @@
                                     </div>
                                     <div class="border-t pt-3 flex justify-between font-bold text-lg">
                                         <span>Total</span>
-                                        <span class="text-purple-600" id="cart-total-final">Rp
+                                        <span class="text-blue-600" id="cart-total-final">Rp
                                             {{ number_format($total, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
-                                <a href="{{ route('checkout.address') }}"
-                                    style="display:block; width:100%; text-align:center; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-weight:700; font-size:15px; padding:14px; border-radius:12px; text-decoration:none; box-sizing:border-box; margin-bottom:10px;">
+                                <button type="button" id="checkout-btn-desktop" onclick="proceedToCheckout()"
+                                    style="display:block; width:100%; text-align:center; background:linear-gradient(90deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; font-size:15px; padding:14px; border-radius:12px; text-decoration:none; box-sizing:border-box; margin-bottom:10px;">
                                     Lanjut ke Checkout <i class="fas fa-arrow-right ml-2"></i>
-                                </a>
+                                </button>
+                                <p id="selection-warning" class="text-xs text-red-500 mb-2 hidden">Pilih minimal satu item
+                                    untuk checkout.</p>
                                 <a href="{{ route('books.index') }}"
-                                    class="block w-full text-center text-gray-600 hover:text-purple-600 text-sm transition-colors">
+                                    class="block w-full text-center text-gray-600 hover:text-blue-600 text-sm transition-colors">
                                     <i class="fas fa-arrow-left mr-2"></i> Lanjut Belanja
                                 </a>
                             </div>
@@ -294,7 +384,7 @@
             {{-- ===== MOBILE EMPTY STATE ===== --}}
             <div class="md:hidden" style="padding:56px 24px; text-align:center;">
                 <div
-                    style="width:80px; height:80px; background:linear-gradient(135deg,#f3f0ff,#fce7f3); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                    style="width:80px; height:80px; background:linear-gradient(135deg,#dbeafe,#eff6ff); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
                     <i class="fas fa-shopping-cart" style="font-size:36px; color:#d1d5db;"></i>
                 </div>
                 <div style="font-size:16px; font-weight:700; color:#374151; margin-bottom:8px;">Keranjang Masih Kosong
@@ -302,7 +392,7 @@
                 <div style="font-size:13px; color:#6b7280; margin-bottom:24px;">Belum ada buku dalam keranjang belanja Anda
                 </div>
                 <a href="{{ route('books.index') }}"
-                    style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:14px; font-weight:700; padding:12px 28px; border-radius:20px; text-decoration:none;">
+                    style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg,#2563eb,#1d4ed8); color:#fff; font-size:14px; font-weight:700; padding:12px 28px; border-radius:20px; text-decoration:none;">
                     <i class="fas fa-book"></i> Mulai Belanja
                 </a>
             </div>
@@ -315,7 +405,7 @@
                         <h2 class="text-2xl font-semibold text-gray-600 mb-2">Keranjang Belanja Kosong</h2>
                         <p class="text-gray-500 mb-6">Belum ada buku dalam keranjang belanja Anda</p>
                         <a href="{{ route('books.index') }}"
-                            style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg,#7c3aed,#ec4899); color:#fff; font-size:15px; font-weight:700; padding:12px 32px; border-radius:12px; text-decoration:none;">
+                            style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg,#2563eb,#1d4ed8); color:#fff; font-size:15px; font-weight:700; padding:12px 32px; border-radius:12px; text-decoration:none;">
                             <i class="fas fa-book"></i> Mulai Belanja
                         </a>
                     </div>
@@ -368,6 +458,117 @@
     @push('scripts')
         <script>
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const checkoutAddressUrl = @json(route('checkout.address'));
+
+            function formatCurrency(value) {
+                return 'Rp ' + value.toLocaleString('id-ID');
+            }
+
+            function getItemQuantity(itemId) {
+                const qtyEl = document.getElementById(`qty-${itemId}`) || document.getElementById(`qty-${itemId}-d`);
+                return qtyEl ? parseInt(qtyEl.textContent, 10) || 0 : 0;
+            }
+
+            function getItemPrice(itemId) {
+                const itemEl = document.getElementById(`cart-item-${itemId}`) || document.getElementById(
+                    `cart-item-${itemId}-d`);
+                return itemEl ? parseFloat(itemEl.dataset.price) || 0 : 0;
+            }
+
+            function getUniqueItemSelections() {
+                const selectionMap = new Map();
+
+                document.querySelectorAll('.cart-item-checkbox').forEach((checkbox) => {
+                    const itemId = String(checkbox.dataset.itemId || '').trim();
+                    if (!itemId) return;
+
+                    if (!selectionMap.has(itemId)) {
+                        selectionMap.set(itemId, false);
+                    }
+
+                    if (checkbox.checked) {
+                        selectionMap.set(itemId, true);
+                    }
+                });
+
+                return selectionMap;
+            }
+
+            function syncItemCheckboxes(itemId, checked) {
+                document.querySelectorAll(`.cart-item-checkbox[data-item-id="${itemId}"]`).forEach((checkbox) => {
+                    checkbox.checked = checked;
+                });
+            }
+
+            function updateSelectAllState() {
+                const selectionMap = getUniqueItemSelections();
+                const totalItems = selectionMap.size;
+                const selectedItems = Array.from(selectionMap.values()).filter(Boolean).length;
+                const allChecked = totalItems > 0 && selectedItems === totalItems;
+
+                document.querySelectorAll('.cart-select-all').forEach((checkbox) => {
+                    checkbox.checked = allChecked;
+                });
+            }
+
+            function recalculateSelectedTotals() {
+                const selectionMap = getUniqueItemSelections();
+                let selectedQuantity = 0;
+                let selectedTotal = 0;
+
+                selectionMap.forEach((isChecked, itemId) => {
+                    if (!isChecked) return;
+                    const qty = getItemQuantity(itemId);
+                    const price = getItemPrice(itemId);
+                    selectedQuantity += qty;
+                    selectedTotal += (qty * price);
+                });
+
+                const formattedTotal = formatCurrency(selectedTotal);
+                ['cart-total', 'cart-total-final', 'mobile-cart-total'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formattedTotal;
+                });
+
+                ['selected-item-count', 'mobile-selected-count'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = selectedQuantity;
+                });
+
+                const hasSelection = selectedQuantity > 0;
+                ['checkout-btn-mobile', 'checkout-btn-desktop'].forEach((id) => {
+                    const button = document.getElementById(id);
+                    if (!button) return;
+                    button.disabled = !hasSelection;
+                    button.style.opacity = hasSelection ? '1' : '0.55';
+                    button.style.cursor = hasSelection ? 'pointer' : 'not-allowed';
+                });
+
+                const warning = document.getElementById('selection-warning');
+                if (warning) {
+                    warning.classList.toggle('hidden', hasSelection);
+                }
+
+                updateSelectAllState();
+            }
+
+            function proceedToCheckout() {
+                const selectedItemIds = [];
+                getUniqueItemSelections().forEach((isChecked, itemId) => {
+                    if (isChecked) {
+                        selectedItemIds.push(itemId);
+                    }
+                });
+
+                if (selectedItemIds.length === 0) {
+                    recalculateSelectedTotals();
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                selectedItemIds.forEach((itemId) => params.append('selected_items[]', itemId));
+                window.location.href = `${checkoutAddressUrl}?${params.toString()}`;
+            }
 
             function deleteModal() {
                 return {
@@ -398,8 +599,10 @@
             }
 
             function updateQuantity(itemId, delta) {
-                const qtyEl = document.getElementById(`qty-${itemId}`);
-                const itemEl = document.getElementById(`cart-item-${itemId}`);
+                const qtyEl = document.getElementById(`qty-${itemId}`) || document.getElementById(`qty-${itemId}-d`);
+                const itemEl = document.getElementById(`cart-item-${itemId}`) || document.getElementById(
+                    `cart-item-${itemId}-d`);
+                if (!qtyEl || !itemEl) return;
                 const stock = parseInt(itemEl.dataset.stock);
                 const price = parseFloat(itemEl.dataset.price);
                 const current = parseInt(qtyEl.textContent);
@@ -430,7 +633,8 @@
                         if (!data || !data.success) return;
 
                         // Update quantity display (mobile + desktop)
-                        document.querySelectorAll(`#qty-${itemId}`).forEach(el => el.textContent = newQty);
+                        document.querySelectorAll(`#qty-${itemId}, #qty-${itemId}-d`).forEach(el => el.textContent =
+                            newQty);
 
                         // Update minus button (mobile + desktop)
                         document.querySelectorAll(`#btn-minus-${itemId}, #btn-minus-${itemId}-d`).forEach(btn => btn
@@ -439,24 +643,20 @@
                         // Update plus button & stock info (mobile + desktop)
                         document.querySelectorAll(`#btn-plus-${itemId}, #btn-plus-${itemId}-d`).forEach(btn => btn
                             .disabled = newQty >= stock);
-                        const stockInfo = document.getElementById(`stock-info-${itemId}`);
-                        if (stockInfo) stockInfo.style.display = newQty < stock ? 'none' : '';
+                        const stockInfoMobile = document.getElementById(`stock-info-${itemId}`);
+                        if (stockInfoMobile) stockInfoMobile.style.display = newQty < stock ? 'none' : '';
+                        const stockInfoDesktop = document.getElementById(`stock-info-${itemId}-d`);
+                        if (stockInfoDesktop) stockInfoDesktop.classList.toggle('hidden', newQty < stock);
 
                         // Update subtotal for this item
-                        const subtotal = newQty * price;
-                        document.getElementById(`subtotal-${itemId}`).textContent =
-                            'Rp ' + subtotal.toLocaleString('id-ID');
+                        const subtotal = data.subtotal ?? (newQty * price);
+                        const subtotalFormatted = 'Rp ' + subtotal.toLocaleString('id-ID');
+                        const subtotalMobile = document.getElementById(`subtotal-${itemId}`);
+                        if (subtotalMobile) subtotalMobile.textContent = subtotalFormatted;
+                        const subtotalDesktop = document.getElementById(`subtotal-${itemId}-d`);
+                        if (subtotalDesktop) subtotalDesktop.textContent = subtotalFormatted;
 
-                        // Recalculate grand total from all subtotals
-                        let grandTotal = 0;
-                        document.querySelectorAll('[id^="subtotal-"]').forEach(el => {
-                            grandTotal += parseFloat(el.textContent.replace(/[^0-9]/g, ''));
-                        });
-                        const formatted = 'Rp ' + grandTotal.toLocaleString('id-ID');
-                        ['cart-total', 'cart-total-final', 'mobile-cart-total'].forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = formatted;
-                        });
+                        recalculateSelectedTotals();
 
                         // Update cart badge in navbar
                         window.dispatchEvent(new CustomEvent('cart-updated'));
@@ -487,19 +687,12 @@
                     .then(data => {
                         if (!data || !data.success) return;
                         if (onSuccess) onSuccess();
-                        const itemEl = document.getElementById(`cart-item-${itemId}`);
-                        itemEl.remove();
+                        const itemElMobile = document.getElementById(`cart-item-${itemId}`);
+                        if (itemElMobile) itemElMobile.remove();
+                        const itemElDesktop = document.getElementById(`cart-item-${itemId}-d`);
+                        if (itemElDesktop) itemElDesktop.remove();
 
-                        // Recalculate total
-                        let grandTotal = 0;
-                        document.querySelectorAll('[id^="subtotal-"]').forEach(el => {
-                            grandTotal += parseFloat(el.textContent.replace(/[^0-9]/g, ''));
-                        });
-                        const formatted = 'Rp ' + grandTotal.toLocaleString('id-ID');
-                        ['cart-total', 'cart-total-final', 'mobile-cart-total'].forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = formatted;
-                        });
+                        recalculateSelectedTotals();
 
                         window.dispatchEvent(new CustomEvent('cart-updated'));
 
@@ -520,6 +713,28 @@
                     }
                 }));
             }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.cart-item-checkbox').forEach((checkbox) => {
+                    checkbox.addEventListener('change', (event) => {
+                        const itemId = event.target.dataset.itemId;
+                        syncItemCheckboxes(itemId, event.target.checked);
+                        recalculateSelectedTotals();
+                    });
+                });
+
+                document.querySelectorAll('.cart-select-all').forEach((checkbox) => {
+                    checkbox.addEventListener('change', (event) => {
+                        const checked = event.target.checked;
+                        document.querySelectorAll('.cart-item-checkbox').forEach((itemCheckbox) => {
+                            itemCheckbox.checked = checked;
+                        });
+                        recalculateSelectedTotals();
+                    });
+                });
+
+                recalculateSelectedTotals();
+            });
         </script>
     @endpush
 @endsection

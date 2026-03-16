@@ -32,12 +32,17 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'birth_date' => ['required', 'date', 'before_or_equal:' . now()->subYears(17)->toDateString()],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'birth_date.before_or_equal' => 'Usia minimal untuk mendaftar adalah 17 tahun.',
+            'birth_date.required' => 'Tanggal lahir wajib diisi.',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'birth_date' => $request->birth_date,
             'password' => Hash::make($request->password),
         ]);
 
@@ -45,6 +50,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('profile.setup'));
+        return redirect()->route('home')->with('welcome_after_register', true);
     }
 }

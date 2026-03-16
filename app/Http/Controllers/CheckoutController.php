@@ -15,27 +15,78 @@ use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
-    // Step 1: Show address selection/form
-    public function address()
+    private function parseSelectedItemIds(Request $request): array
     {
-        $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
+        $selected = $request->input('selected_items', []);
+
+        if (is_string($selected)) {
+            $selected = explode(',', $selected);
+        }
+
+        if (!is_array($selected)) {
+            return [];
+        }
+
+        return collect($selected)
+            ->map(fn($id) => (int) $id)
+            ->filter(fn($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function resolveCheckoutSelection(Request $request): array
+    {
+        $allUserCartIds = Cart::where('user_id', Auth::id())->pluck('id')->all();
+        $hasSelectionInput = $request->has('selected_items');
+        $requestedIds = $this->parseSelectedItemIds($request);
+
+        if (!$hasSelectionInput) {
+            $selectedItemIds = $allUserCartIds;
+        } else {
+            $selectedItemIds = collect($requestedIds)
+                ->filter(fn($id) => in_array($id, $allUserCartIds))
+                ->values()
+                ->all();
+        }
+
+        $cartItems = Cart::with('book')
+            ->where('user_id', Auth::id())
+            ->whereIn('id', $selectedItemIds)
+            ->get();
+
+        return [$cartItems, $selectedItemIds, $hasSelectionInput];
+    }
+
+    // Step 1: Show address selection/form
+    public function address(Request $request)
+    {
+        [$cartItems, $selectedItemIds, $hasSelectionInput] = $this->resolveCheckoutSelection($request);
 
         if ($cartItems->isEmpty()) {
+            if ($hasSelectionInput) {
+                return redirect()->route('cart.index')->with('error', 'Pilih minimal satu item untuk checkout.');
+            }
+
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong');
         }
 
         $addresses = Address::where('user_id', Auth::id())->get();
         $defaultAddress = $addresses->where('is_default', true)->first();
 
-        return view('checkout.address', compact('cartItems', 'addresses', 'defaultAddress'));
+        return view('checkout.address', compact('cartItems', 'addresses', 'defaultAddress', 'selectedItemIds'));
     }
 
     // Step 2: Show payment method selection
     public function payment(Request $request)
     {
-        $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
+        [$cartItems, $selectedItemIds, $hasSelectionInput] = $this->resolveCheckoutSelection($request);
 
         if ($cartItems->isEmpty()) {
+            if ($hasSelectionInput) {
+                return redirect()->route('cart.index')->with('error', 'Pilih minimal satu item untuk checkout.');
+            }
+
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong');
         }
 
@@ -66,13 +117,15 @@ class CheckoutController extends Controller
 
         $grandTotal = $subtotal + $shippingCost;
 
-        return view('checkout.payment', compact('cartItems', 'address', 'subtotal', 'shippingCost', 'grandTotal'));
+        return view('checkout.payment', compact('cartItems', 'address', 'subtotal', 'shippingCost', 'grandTotal', 'selectedItemIds'));
     }
 
     // Step 3: Process checkout and create order
     public function process(Request $request)
     {
         $request->validate([
+            'selected_items' => 'required|array|min:1',
+            'selected_items.*' => 'integer',
             'address_id' => 'nullable|exists:addresses,id',
             'recipient_name' => 'required_without:address_id|string|max:255',
             'phone' => 'required_without:address_id|string|max:20',
@@ -86,7 +139,7 @@ class CheckoutController extends Controller
         // Selalu gunakan Midtrans sebagai payment method
         $request->merge(['payment_method' => 'midtrans']);
 
-        $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();
+        [$cartItems, $selectedItemIds] = $this->resolveCheckoutSelection($request);
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong');
@@ -161,7 +214,9 @@ class CheckoutController extends Controller
             }
 
             // Clear cart
-            Cart::where('user_id', Auth::id())->delete();
+            Cart::where('user_id', Auth::id())
+                ->whereIn('id', $selectedItemIds)
+                ->delete();
 
             DB::commit();
 

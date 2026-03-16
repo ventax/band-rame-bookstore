@@ -1,6 +1,6 @@
 <!-- Toast Notification Component -->
 <div x-data="toastManager()" x-init="init()" @toast.window="show($event.detail)"
-    class="fixed top-4 right-4 z-50 space-y-2">
+    class="fixed top-16 md:top-20 left-3 right-3 md:left-auto md:right-4 z-[2000] space-y-2 pointer-events-none">
     <template x-for="toast in toasts" :key="toast.id">
         <div x-show="toast.visible" x-transition:enter="transform ease-out duration-300 transition"
             x-transition:enter-start="translate-x-full opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
@@ -12,7 +12,7 @@
                 'bg-blue-500': toast.type === 'info',
                 'bg-yellow-500': toast.type === 'warning'
             }"
-            class="flex items-center p-4 rounded-lg shadow-lg text-white min-w-[300px] max-w-md">
+            class="pointer-events-auto flex items-center p-4 rounded-lg shadow-lg text-white w-full md:min-w-[320px] md:max-w-md">
             <div class="flex-shrink-0">
                 <i :class="{
                     'fa-check-circle': toast.type === 'success',
@@ -65,17 +65,18 @@
 
                 this.toasts.push(toast);
 
+                const duration = Number(config.duration ?? 3000);
                 setTimeout(() => {
                     this.remove(id);
-                }, config.duration || 3000);
+                }, Number.isFinite(duration) && duration > 0 ? duration : 3000);
             },
 
             remove(id) {
-                const index = this.toasts.findIndex(t => t.id === id);
-                if (index > -1) {
-                    this.toasts[index].visible = false;
+                const toast = this.toasts.find(t => t.id === id);
+                if (toast) {
+                    toast.visible = false;
                     setTimeout(() => {
-                        this.toasts.splice(index, 1);
+                        this.toasts = this.toasts.filter(t => t.id !== id);
                     }, 200);
                 }
             }

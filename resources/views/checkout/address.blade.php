@@ -34,6 +34,9 @@
 
             <form action="{{ route('checkout.payment') }}" method="POST" x-data="{ useExisting: {{ $defaultAddress ? 'true' : 'false' }} }">
                 @csrf
+                @foreach ($selectedItemIds as $selectedItemId)
+                    <input type="hidden" name="selected_items[]" value="{{ $selectedItemId }}">
+                @endforeach
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Left: Address Selection -->
@@ -198,7 +201,7 @@
 
                             <div class="border-t border-gray-200 pt-4">
                                 <div class="flex justify-between text-sm mb-2">
-                                    <span class="text-gray-600">Subtotal ({{ $cartItems->count() }} item)</span>
+                                    <span class="text-gray-600">Subtotal ({{ $cartItems->sum('quantity') }} item)</span>
                                     <span class="font-semibold">Rp
                                         {{ number_format($cartItems->sum(function ($item) {return $item->quantity * $item->book->discounted_price;}),0,',','.') }}</span>
                                 </div>
