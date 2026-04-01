@@ -207,12 +207,29 @@
                                     class="fas fa-circle-exclamation"></i> {{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Galeri Gambar <span
+                                class="text-gray-400 font-normal text-xs">(opsional, bisa lebih dari satu)</span></label>
+                        <input type="file" name="gallery_images[]" accept="image/*" multiple
+                            class="block w-full text-sm text-gray-600 border-2 border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-400 mt-1.5">Maks. 8 gambar, tiap file maks. 2MB</p>
+                        @error('gallery_images')
+                            <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
+                                    class="fas fa-circle-exclamation"></i> {{ $message }}</p>
+                        @enderror
+                        @error('gallery_images.*')
+                            <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
+                                    class="fas fa-circle-exclamation"></i> {{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">File PDF <span
                                 class="text-gray-400 font-normal text-xs">(Sample/Preview, opsional)</span></label>
                         <input type="file" name="pdf_file" accept="application/pdf"
                             class="block w-full text-sm text-gray-600 border-2 border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                        <p class="text-xs text-gray-400 mt-1.5">Maks. 10MB</p>
+                        <p class="text-xs text-gray-400 mt-1.5">Maks. 5MB</p>
                         @error('pdf_file')
                             <p class="flex items-center gap-1 text-red-500 text-xs mt-1.5"><i
                                     class="fas fa-circle-exclamation"></i> {{ $message }}</p>
@@ -256,150 +273,4 @@
             </div>
         </form>
     </div>
-@endsection
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Penerbit</label>
-    <input type="text" name="publisher" value="{{ old('publisher') }}"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('publisher')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">ISBN</label>
-    <input type="text" name="isbn" value="{{ old('isbn') }}"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('isbn')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Harga *</label>
-    <input type="number" name="price" value="{{ old('price') }}" required min="0"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('price')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Diskon (%)</label>
-    <input type="number" name="discount" value="{{ old('discount', 0) }}" min="0" max="100"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-        placeholder="0 - 100">
-    <p class="text-xs text-gray-500 mt-1">Masukkan persentase diskon (0 = tidak ada diskon)</p>
-    @error('discount')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Stok *</label>
-    <input type="number" name="stock" value="{{ old('stock') }}" required min="0"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('stock')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Halaman</label>
-    <input type="number" name="pages" value="{{ old('pages') }}" min="1"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('pages')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Bahasa *</label>
-    <select name="language" required
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-        <option value="Indonesian" {{ old('language') == 'Indonesian' ? 'selected' : '' }}>Indonesian
-        </option>
-        <option value="English" {{ old('language') == 'English' ? 'selected' : '' }}>English</option>
-    </select>
-    @error('language')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div>
-    <label class="block text-sm font-medium text-gray-700 mb-2">Tahun Terbit</label>
-    <input type="number" name="published_year" value="{{ old('published_year') }}" min="1900"
-        max="{{ date('Y') }}"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('published_year')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div class="md:col-span-2">
-    <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
-    <input type="file" name="cover_image" accept="image/*"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    @error('cover_image')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div class="md:col-span-2">
-    <label class="block text-sm font-medium text-gray-700 mb-2">File PDF (Preview/Sample)</label>
-    <input type="file" name="pdf_file" accept="application/pdf"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
-    <p class="text-xs text-gray-500 mt-1">Upload file PDF untuk preview buku (opsional)</p>
-    @error('pdf_file')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div class="md:col-span-2">
-    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi *</label>
-    <textarea name="description" rows="4" required
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">{{ old('description') }}</textarea>
-    @error('description')
-        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-    @enderror
-</div>
-
-<div class="md:col-span-2">
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i class="fas fa-star text-yellow-500 text-xl"></i>
-            </div>
-            <div class="ml-3 flex-1">
-                <label class="flex items-center cursor-pointer">
-                    <input type="checkbox" name="is_featured" value="1"
-                        {{ old('is_featured') ? 'checked' : '' }}
-                        class="w-5 h-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer">
-                    <span class="ml-3">
-                        <span class="text-sm font-bold text-gray-900">Tampilkan di Halaman Utama
-                            (Landing Page)</span>
-                        <span class="block text-xs text-gray-600 mt-1">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Centang untuk menampilkan buku ini di section "Buku Pilihan Editor" pada
-                            halaman utama website
-                        </span>
-                    </span>
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-
-<div class="mt-6 flex justify-end space-x-3">
-    <a href="{{ route('admin.books.index') }}" class="btn-secondary">Batal</a>
-    <button type="submit" class="btn-primary">
-        <i class="fas fa-save mr-2"></i> Simpan
-    </button>
-</div>
-</form>
-</div>
-</div>
 @endsection

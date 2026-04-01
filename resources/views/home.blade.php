@@ -406,14 +406,14 @@
                             'text' => 'text-orange-600',
                         ],
                         [
-                            'value' => '10.000+',
+                            'value' => number_format($totalCustomers, 0, ',', '.') . '+',
                             'label' => 'Pelanggan',
                             'icon' => 'fas fa-users',
                             'bg' => 'bg-blue-100',
                             'text' => 'text-blue-600',
                         ],
                         [
-                            'value' => '4.9',
+                            'value' => $storeRating > 0 ? number_format($storeRating, 1, '.', '') : '0.0',
                             'label' => 'Rating Toko',
                             'icon' => 'fas fa-star',
                             'bg' => 'bg-orange-100',

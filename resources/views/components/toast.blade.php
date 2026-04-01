@@ -37,6 +37,7 @@
         return {
             toasts: [],
             nextId: 1,
+            recentToasts: {},
 
             init() {
                 // Listen for Laravel flash messages
@@ -55,11 +56,24 @@
             },
 
             show(config) {
+                const type = config.type || 'info';
+                const message = config.message || 'Notification';
+                const signature = `${type}::${message}`;
+                const now = Date.now();
+                const lastShownAt = this.recentToasts[signature] || 0;
+
+                // Ignore duplicated toast payloads fired almost at the same time.
+                if (now - lastShownAt < 900) {
+                    return;
+                }
+
+                this.recentToasts[signature] = now;
+
                 const id = this.nextId++;
                 const toast = {
                     id,
-                    message: config.message || 'Notification',
-                    type: config.type || 'info',
+                    message,
+                    type,
                     visible: true
                 };
 

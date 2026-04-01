@@ -26,59 +26,51 @@
 <nav class="flex-1 overflow-y-auto mt-4 px-3 pb-4">
 
     <a href="{{ route('admin.dashboard') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.dashboard') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-home w-6 text-center text-lg"></i>
-        <span class="ml-3">Dashboard</span>
+        class="admin-nav-item {{ request()->routeIs('admin.dashboard') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-home text-sm"></i></span>
+        <span>Dashboard</span>
     </a>
 
     <a href="{{ route('admin.books.index') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.books.*') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-book w-6 text-center text-lg"></i>
-        <span class="ml-3">Kelola Buku</span>
+        class="admin-nav-item {{ request()->routeIs('admin.books.*') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-book text-sm"></i></span>
+        <span>Kelola Buku</span>
     </a>
 
     <a href="{{ route('admin.categories.index') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.categories.*') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-tags w-6 text-center text-lg"></i>
-        <span class="ml-3">Kategori</span>
+        class="admin-nav-item {{ request()->routeIs('admin.categories.*') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-tags text-sm"></i></span>
+        <span>Kategori</span>
     </a>
 
     <a href="{{ route('admin.orders.index') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.orders.*') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-shopping-cart w-6 text-center text-lg"></i>
-        <span class="ml-3 flex-1">Pesanan</span>
+        class="admin-nav-item {{ request()->routeIs('admin.orders.*') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-shopping-cart text-sm"></i></span>
+        <span class="flex-1">Pesanan</span>
         @if (!empty($pendingOrdersCount) && $pendingOrdersCount > 0)
-            <span
-                class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+            <span class="admin-nav-badge">
                 {{ $pendingOrdersCount > 99 ? '99+' : $pendingOrdersCount }}
             </span>
         @endif
     </a>
 
     <a href="{{ route('admin.settings.logo') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.settings.logo') || request()->routeIs('admin.settings.site-name*') || request()->routeIs('admin.settings.favicon*') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-palette w-6 text-center text-lg"></i>
-        <span class="ml-3">Pengaturan Logo</span>
+        class="admin-nav-item {{ request()->routeIs('admin.settings.logo') || request()->routeIs('admin.settings.site-name*') || request()->routeIs('admin.settings.favicon*') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-palette text-sm"></i></span>
+        <span>Pengaturan Logo</span>
     </a>
 
     <a href="{{ route('admin.settings.content', 'hero') }}"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white font-bold
-               {{ request()->routeIs('admin.settings.content*') ? 'nav-active' : 'hover:bg-white/20 hover:translate-x-1' }}">
-        <i class="fas fa-edit w-6 text-center text-lg"></i>
-        <span class="ml-3">Konten Website</span>
+        class="admin-nav-item {{ request()->routeIs('admin.settings.content*') ? 'nav-active' : '' }}">
+        <span class="admin-nav-icon"><i class="fas fa-edit text-sm"></i></span>
+        <span>Konten Website</span>
     </a>
 
     <div class="border-t border-white/10 my-4 mx-2"></div>
     <p class="px-4 mb-2 text-[10px] font-bold tracking-widest text-orange-300/60 uppercase">Lainnya</p>
 
-    <a href="{{ route('home') }}" target="_blank"
-        class="flex items-center px-4 py-3 mb-1 rounded-2xl transition-all duration-200 text-white/80 font-bold hover:text-white hover:bg-white/20">
-        <i class="fas fa-external-link-alt w-6 text-center text-lg"></i>
-        <span class="ml-3">Lihat Website</span>
+    <a href="{{ route('home') }}" target="_blank" class="admin-nav-item text-white/85 hover:text-white">
+        <span class="admin-nav-icon"><i class="fas fa-external-link-alt text-sm"></i></span>
+        <span>Lihat Website</span>
     </a>
 </nav>

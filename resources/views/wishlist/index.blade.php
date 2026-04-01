@@ -8,6 +8,66 @@
         $wishlistCount = method_exists($wishlists, 'total') ? $wishlists->total() : $wishlists->count();
     @endphp
 
+    <style>
+        .wishlist-check-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .wishlist-check-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 9999px;
+            border: 2px solid #d1d5db;
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .wishlist-check-dot.square {
+            border-radius: 6px;
+        }
+
+        .wishlist-check-dot.card {
+            width: 16px;
+            height: 16px;
+            border-width: 1.5px;
+            font-size: 9px;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.16);
+        }
+
+        .wishlist-check-control input:checked+.wishlist-check-dot {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .wishlist-check-control input:focus-visible+.wishlist-check-dot {
+            outline: 2px solid rgba(37, 99, 235, 0.32);
+            outline-offset: 2px;
+        }
+
+        .wishlist-check-control input:not(:checked)+.wishlist-check-dot i {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .wishlist-check-control input:checked+.wishlist-check-dot i {
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.18s ease;
+        }
+    </style>
+
     <div style="background:#f3f4f6; min-height:100vh;">
 
         {{-- ===== MOBILE STICKY HEADER ===== --}}
@@ -48,42 +108,71 @@
         @if ($wishlists->count() > 0)
             <div id="wishlist-results-anchor"></div>
 
+            <form id="wishlist-bulk-delete-form" method="POST" action="{{ route('wishlist.bulk-destroy') }}"
+                class="hidden">
+                @csrf
+                @method('DELETE')
+                <div id="wishlist-bulk-delete-inputs"></div>
+            </form>
+
             {{-- MOBILE: compact responsive grid --}}
             <div class="md:hidden" style="padding:12px 12px 8px;">
+                <label
+                    style="display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; margin-bottom:10px;">
+                    <span class="wishlist-check-control">
+                        <input type="checkbox" class="wishlist-select-all sr-only" checked>
+                        <span class="wishlist-check-dot square"><i class="fas fa-check"></i></span>
+                        <span style="font-size:12px; font-weight:700; color:#374151;">Pilih semua item</span>
+                    </span>
+                    <button type="button" id="wishlist-bulk-delete-btn-mobile"
+                        style="font-size:11px; font-weight:700; color:#dc2626; background:#fff1f2; border:1px solid #fecdd3; border-radius:9999px; padding:5px 10px; cursor:pointer;">
+                        <i class="fas fa-trash-alt" style="margin-right:4px;"></i> Hapus Terpilih
+                    </button>
+                </label>
+
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
                     @foreach ($wishlists as $wishlist)
                         <div style="background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 1px 8px rgba(0,0,0,0.08);"
                             ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
                             {{-- Cover --}}
-                            <a href="{{ route('books.show', $wishlist->book->slug) }}"
-                                style="display:block; position:relative;">
-                                @if ($wishlist->book->cover_image)
-                                    <img src="{{ asset('storage/' . $wishlist->book->cover_image) }}"
-                                        alt="{{ $wishlist->book->title }}"
-                                        style="width:100%; height:155px; object-fit:cover; object-position:center top; display:block;">
-                                @else
-                                    <div
-                                        style="width:100%; height:155px; background:linear-gradient(135deg,#dbeafe,#eff6ff); display:flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-book" style="color:#93c5fd; font-size:36px;"></i>
-                                    </div>
-                                @endif
+                            <div style="position:relative;">
+                                <label class="wishlist-check-control"
+                                    style="position:absolute; top:8px; left:8px; z-index:12; padding:0;">
+                                    <input type="checkbox" class="wishlist-item-checkbox sr-only"
+                                        data-item-id="{{ $wishlist->id }}" checked>
+                                    <span class="wishlist-check-dot square card"><i class="fas fa-check"></i></span>
+                                </label>
 
-                                {{-- Discount badge --}}
-                                @if ($wishlist->book->discount > 0)
-                                    <div
-                                        style="position:absolute; top:6px; left:6px; background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:8px; line-height:1.4;">
-                                        -{{ $wishlist->book->discount }}%
-                                    </div>
-                                @endif
+                                <a href="{{ route('books.show', $wishlist->book->slug) }}"
+                                    style="display:block; position:relative;">
+                                    @if ($wishlist->book->cover_image)
+                                        <img src="{{ asset('storage/' . $wishlist->book->cover_image) }}"
+                                            alt="{{ $wishlist->book->title }}"
+                                            style="width:100%; height:155px; object-fit:cover; object-position:center top; display:block;">
+                                    @else
+                                        <div
+                                            style="width:100%; height:155px; background:linear-gradient(135deg,#dbeafe,#eff6ff); display:flex; align-items:center; justify-content:center;">
+                                            <i class="fas fa-book" style="color:#93c5fd; font-size:36px;"></i>
+                                        </div>
+                                    @endif
 
-                                {{-- Stock badge --}}
-                                @if ($wishlist->book->stock <= 0)
-                                    <div
-                                        style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.55); color:#fff; font-size:10px; font-weight:600; text-align:center; padding:3px 0;">
-                                        Stok Habis
-                                    </div>
-                                @endif
-                            </a>
+                                    {{-- Discount badge --}}
+                                    @if ($wishlist->book->discount > 0)
+                                        <div
+                                            style="position:absolute; top:8px; left:32px; background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:8px; line-height:1.4;">
+                                            -{{ $wishlist->book->discount }}%
+                                        </div>
+                                    @endif
+
+                                    {{-- Stock badge --}}
+                                    @if ($wishlist->book->stock <= 0)
+                                        <div
+                                            style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.55); color:#fff; font-size:10px; font-weight:600; text-align:center; padding:3px 0;">
+                                            Stok Habis
+                                        </div>
+                                    @endif
+                                </a>
+                            </div>
 
                             {{-- Remove button --}}
                             <div style="position:relative;">
@@ -142,6 +231,19 @@
             {{-- DESKTOP: compact grid like catalog --}}
             <div class="hidden md:block" style="padding:0 32px 40px;">
                 <div class="max-w-7xl mx-auto">
+                    <label
+                        style="display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid #e5e7eb; border-radius:9999px; background:#fff; margin-bottom:14px;">
+                        <span class="wishlist-check-control">
+                            <input type="checkbox" class="wishlist-select-all sr-only" checked>
+                            <span class="wishlist-check-dot square"><i class="fas fa-check"></i></span>
+                            <span class="text-sm font-semibold text-gray-700">Pilih semua item</span>
+                        </span>
+                        <button type="button" id="wishlist-bulk-delete-btn-desktop"
+                            style="font-size:12px; font-weight:700; color:#dc2626; background:#fff1f2; border:1px solid #fecdd3; border-radius:9999px; padding:6px 12px; cursor:pointer; margin-left:6px;">
+                            <i class="fas fa-trash-alt" style="margin-right:5px;"></i> Hapus Terpilih
+                        </button>
+                    </label>
+
                     <div
                         style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:16px; margin-bottom:24px;">
                         @foreach ($wishlists as $wishlist)
@@ -150,6 +252,13 @@
                                 onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.07)';">
 
                                 <div style="position:relative; overflow:hidden;">
+                                    <label class="wishlist-check-control"
+                                        style="position:absolute; top:8px; left:8px; z-index:4; padding:0;">
+                                        <input type="checkbox" class="wishlist-item-checkbox sr-only"
+                                            data-item-id="{{ $wishlist->id }}" checked>
+                                        <span class="wishlist-check-dot square card"><i class="fas fa-check"></i></span>
+                                    </label>
+
                                     @if ($wishlist->book->cover_image)
                                         <img src="{{ asset('storage/' . $wishlist->book->cover_image) }}"
                                             alt="{{ $wishlist->book->title }}"
@@ -165,7 +274,7 @@
 
                                     @if ($wishlist->book->discount > 0)
                                         <div
-                                            style="position:absolute; top:8px; left:8px; background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; z-index:2;">
+                                            style="position:absolute; top:8px; left:32px; background:linear-gradient(135deg,#ef4444,#f97316); color:#fff; font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; z-index:2;">
                                             <span style="display:inline-flex; align-items:center; gap:4px;">
                                                 <i class="fas fa-bolt" style="font-size:9px; color:#fde68a;"></i>
                                                 -{{ $wishlist->book->discount }}%
@@ -377,6 +486,93 @@
                     }, 120);
                 });
             });
+
+            const itemCheckboxes = document.querySelectorAll('.wishlist-item-checkbox');
+            const selectAllCheckboxes = document.querySelectorAll('.wishlist-select-all');
+            const bulkDeleteButtons = document.querySelectorAll(
+                '#wishlist-bulk-delete-btn-mobile, #wishlist-bulk-delete-btn-desktop');
+            const bulkDeleteForm = document.getElementById('wishlist-bulk-delete-form');
+            const bulkDeleteInputs = document.getElementById('wishlist-bulk-delete-inputs');
+
+            const getSelectedIds = () => {
+                return Array.from(itemCheckboxes)
+                    .filter((checkbox) => checkbox.checked)
+                    .map((checkbox) => checkbox.dataset.itemId)
+                    .filter((id) => !!id);
+            };
+
+            const syncBulkDeleteState = () => {
+                const selectedCount = getSelectedIds().length;
+
+                bulkDeleteButtons.forEach((button) => {
+                    const disabled = selectedCount < 1;
+                    button.disabled = disabled;
+                    button.style.opacity = disabled ? '0.45' : '1';
+                    button.style.cursor = disabled ? 'not-allowed' : 'pointer';
+                });
+            };
+
+            const syncSelectAll = () => {
+                const totalItems = itemCheckboxes.length;
+                const selectedItems = Array.from(itemCheckboxes).filter((checkbox) => checkbox.checked).length;
+                const allChecked = totalItems > 0 && selectedItems === totalItems;
+
+                selectAllCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = allChecked;
+                });
+
+                syncBulkDeleteState();
+            };
+
+            itemCheckboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', syncSelectAll);
+            });
+
+            selectAllCheckboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', (event) => {
+                    const checked = event.target.checked;
+
+                    itemCheckboxes.forEach((itemCheckbox) => {
+                        itemCheckbox.checked = checked;
+                    });
+
+                    selectAllCheckboxes.forEach((selectAllCheckbox) => {
+                        selectAllCheckbox.checked = checked;
+                    });
+
+                    syncBulkDeleteState();
+                });
+            });
+
+            bulkDeleteButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const selectedIds = getSelectedIds();
+
+                    if (selectedIds.length < 1) {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('error', 'Pilih minimal 1 item untuk dihapus.');
+                        }
+                        return;
+                    }
+
+                    if (!bulkDeleteForm || !bulkDeleteInputs) {
+                        return;
+                    }
+
+                    bulkDeleteInputs.innerHTML = '';
+                    selectedIds.forEach((id) => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'wishlist_ids[]';
+                        input.value = id;
+                        bulkDeleteInputs.appendChild(input);
+                    });
+
+                    bulkDeleteForm.submit();
+                });
+            });
+
+            syncSelectAll();
         });
     </script>
 @endsection

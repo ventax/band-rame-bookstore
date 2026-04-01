@@ -9,6 +9,7 @@ use App\Models\Review;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -93,6 +94,16 @@ class BookController extends Controller
     {
         $book->load('category');
 
+        $imageUrls = collect([$book->cover_image])
+            ->merge($book->gallery_images ?? [])
+            ->filter()
+            ->unique()
+            ->map(fn($path) => asset('storage/' . $path))
+            ->values()
+            ->all();
+
+        $primaryImage = $imageUrls[0] ?? asset('images/book-placeholder.png');
+
         $inWishlist = false;
         if (Auth::check()) {
             $inWishlist = Wishlist::where('user_id', Auth::id())
@@ -112,7 +123,8 @@ class BookController extends Controller
             'stock' => $book->stock,
             'description' => $book->description,
             'category' => $book->category->name,
-            'image' => $book->cover_image ? asset('storage/' . $book->cover_image) : asset('images/book-placeholder.png'),
+            'image' => $primaryImage,
+            'images' => $imageUrls,
             'slug' => $book->slug,
             'in_wishlist' => $inWishlist,
             'has_pdf' => !empty($book->pdf_file),
@@ -126,6 +138,21 @@ class BookController extends Controller
         }
 
         return view('books.pdf', compact('book'));
+    }
+
+    public function pdfFile(Book $book)
+    {
+        if (!$book->pdf_file || !Storage::disk('public')->exists($book->pdf_file)) {
+            abort(404, 'File PDF tidak ditemukan.');
+        }
+
+        $path = Storage::disk('public')->path($book->pdf_file);
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'public, max-age=86400',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 
     public function search(Request $request)

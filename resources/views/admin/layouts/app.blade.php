@@ -29,15 +29,76 @@
         }
 
         .sidebar-gradient {
-            background: linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%);
+            background:
+                radial-gradient(circle at 100% -10%, rgba(147, 197, 253, 0.28), transparent 38%),
+                linear-gradient(165deg, #1e3a8a 0%, #1d4ed8 48%, #2563eb 100%);
         }
 
-        /* Orange accent bar on active nav item */
+        .admin-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.62rem 0.8rem;
+            margin-bottom: 0.35rem;
+            border-radius: 0.95rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 800;
+            letter-spacing: 0.1px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .admin-nav-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        .admin-nav-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.72rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .admin-nav-item:hover .admin-nav-icon {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
         .nav-active {
-            background: rgba(249, 115, 22, .22) !important;
-            border-left: 3px solid #f97316;
-            padding-left: calc(1rem - 3px) !important;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, .25);
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.24), rgba(245, 158, 11, 0.2)) !important;
+            border: 1px solid rgba(253, 186, 116, 0.45);
+            box-shadow: 0 8px 18px rgba(29, 78, 216, 0.24);
+            transform: translateX(0);
+        }
+
+        .nav-active .admin-nav-icon {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            box-shadow: 0 6px 14px rgba(249, 115, 22, 0.38);
+        }
+
+        .admin-nav-badge {
+            margin-left: auto;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            line-height: 1;
+            font-weight: 800;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
         }
 
         /* Sidebar bottom section separator */

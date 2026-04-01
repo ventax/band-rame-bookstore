@@ -440,9 +440,13 @@
                                                 <div class="flex gap-3 sm:gap-4 pb-3 border-b items-start">
                                                     <div class="w-16 h-24 sm:w-20 sm:h-28 flex-shrink-0">
                                                         @if ($item->book->cover_image)
-                                                            <img src="{{ asset('storage/' . $item->book->cover_image) }}"
-                                                                alt="{{ $item->book->title }}"
-                                                                class="w-full h-full object-cover rounded">
+                                                            <a href="{{ route('books.show', $item->book->slug) }}"
+                                                                class="block rounded overflow-hidden hover:opacity-90 transition-opacity"
+                                                                title="Lihat detail buku {{ $item->book->title }}">
+                                                                <img src="{{ asset('storage/' . $item->book->cover_image) }}"
+                                                                    alt="{{ $item->book->title }}"
+                                                                    class="w-full h-full object-cover rounded">
+                                                            </a>
                                                         @else
                                                             <div
                                                                 class="w-full h-full bg-gray-300 flex items-center justify-center rounded">
@@ -451,8 +455,11 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-1">
-                                                        <h3 class="font-semibold mb-1 text-sm sm:text-base leading-snug">
-                                                            {{ $item->book->title }}</h3>
+                                                        <a href="{{ route('books.show', $item->book->slug) }}"
+                                                            class="font-semibold mb-1 text-sm sm:text-base leading-snug text-gray-900 hover:text-primary-600 transition-colors block"
+                                                            title="Lihat detail buku {{ $item->book->title }}">
+                                                            {{ $item->book->title }}
+                                                        </a>
                                                         <p class="text-sm text-gray-600 mb-1">{{ $item->book->author }}
                                                         </p>
                                                         <p class="text-sm text-gray-600">Jumlah: {{ $item->quantity }}</p>

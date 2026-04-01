@@ -48,10 +48,14 @@ class WishlistController extends Controller
         if ($wishlist) {
             $wishlist->delete();
             Log::info('Wishlist removed', ['book_id' => $bookId]);
+
+            $count = Wishlist::where('user_id', $user->id)->count();
+
             return response()->json([
                 'success' => true,
                 'action' => 'removed',
-                'message' => 'Buku dihapus dari wishlist'
+                'message' => 'Buku dihapus dari wishlist',
+                'count' => $count,
             ]);
         } else {
             $created = Wishlist::create([
@@ -59,10 +63,14 @@ class WishlistController extends Controller
                 'book_id' => $bookId,
             ]);
             Log::info('Wishlist added', ['wishlist_id' => $created->id]);
+
+            $count = Wishlist::where('user_id', $user->id)->count();
+
             return response()->json([
                 'success' => true,
                 'action' => 'added',
-                'message' => 'Buku ditambahkan ke wishlist'
+                'message' => 'Buku ditambahkan ke wishlist',
+                'count' => $count,
             ]);
         }
     }
@@ -78,6 +86,32 @@ class WishlistController extends Controller
 
         $wishlist->delete();
         return redirect()->route('wishlist.index')->with('success', 'Buku dihapus dari wishlist');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $user = Auth::user();
+        abort_unless($user instanceof User, 401);
+
+        $validated = $request->validate([
+            'wishlist_ids' => ['required', 'array', 'min:1'],
+            'wishlist_ids.*' => ['integer', 'exists:wishlists,id'],
+        ]);
+
+        $ids = collect($validated['wishlist_ids'])
+            ->map(fn($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $deleted = Wishlist::where('user_id', $user->id)
+            ->whereIn('id', $ids)
+            ->delete();
+
+        if ($deleted < 1) {
+            return redirect()->route('wishlist.index')->with('error', 'Tidak ada item wishlist yang dipilih.');
+        }
+
+        return redirect()->route('wishlist.index')->with('success', $deleted . ' item berhasil dihapus dari wishlist.');
     }
 
     public function count()

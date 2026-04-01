@@ -38,9 +38,10 @@ return [
     'midtrans' => [
         'server_key'    => env('MIDTRANS_SERVER_KEY'),
         'client_key'    => env('MIDTRANS_CLIENT_KEY'),
-        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
-        'sanitize'      => env('MIDTRANS_SANITIZE', true),
-        'enable_3ds'    => env('MIDTRANS_3DS', true),
+        'is_production' => filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN),
+        'sanitize'      => filter_var(env('MIDTRANS_SANITIZE', true), FILTER_VALIDATE_BOOLEAN),
+        'enable_3ds'    => filter_var(env('MIDTRANS_3DS', true), FILTER_VALIDATE_BOOLEAN),
+        'environment'   => filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN) ? 'production' : 'sandbox',
     ],
 
 ];

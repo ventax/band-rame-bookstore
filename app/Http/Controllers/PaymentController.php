@@ -67,9 +67,9 @@ class PaymentController extends Controller
     public function callback(Request $request)
     {
         MidtransConfig::$serverKey    = config('services.midtrans.server_key');
-        MidtransConfig::$isProduction = config('services.midtrans.is_production');
-        MidtransConfig::$isSanitized  = config('services.midtrans.sanitize');
-        MidtransConfig::$is3ds        = config('services.midtrans.enable_3ds');
+        MidtransConfig::$isProduction = (bool) config('services.midtrans.is_production');
+        MidtransConfig::$isSanitized  = (bool) config('services.midtrans.sanitize');
+        MidtransConfig::$is3ds        = (bool) config('services.midtrans.enable_3ds');
 
         try {
             $notification = new Notification();

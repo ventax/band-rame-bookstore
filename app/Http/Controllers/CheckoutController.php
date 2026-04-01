@@ -113,9 +113,8 @@ class CheckoutController extends Controller
             return $item->quantity * $item->book->discounted_price;
         });
 
-        $shippingCost = 15000; // Flat rate, bisa diubah sesuai kebutuhan
-
-        $grandTotal = $subtotal + $shippingCost;
+        $shippingCost = 0;
+        $grandTotal = $subtotal;
 
         return view('checkout.payment', compact('cartItems', 'address', 'subtotal', 'shippingCost', 'grandTotal', 'selectedItemIds'));
     }
@@ -174,8 +173,8 @@ class CheckoutController extends Controller
                 return $item->quantity * $item->book->discounted_price;
             });
 
-            $shippingCost = 15000;
-            $grandTotal = $subtotal + $shippingCost;
+            $shippingCost = 0;
+            $grandTotal = $subtotal;
 
             $paymentStatus = Order::PAYMENT_UNPAID;
             $orderStatus   = Order::STATUS_PENDING;
@@ -222,15 +221,28 @@ class CheckoutController extends Controller
 
             // Generate Midtrans Snap URL
             MidtransConfig::$serverKey    = config('services.midtrans.server_key');
-            MidtransConfig::$isProduction = config('services.midtrans.is_production');
-            MidtransConfig::$isSanitized  = config('services.midtrans.sanitize');
-            MidtransConfig::$is3ds        = config('services.midtrans.enable_3ds');
+            MidtransConfig::$isProduction = (bool) config('services.midtrans.is_production');
+            MidtransConfig::$isSanitized  = (bool) config('services.midtrans.sanitize');
+            MidtransConfig::$is3ds        = (bool) config('services.midtrans.enable_3ds');
 
             $user = Auth::user();
+            $midtransItems = $order->items->map(fn($item) => [
+                'id'       => (string) $item->book_id,
+                'price'    => max(1, (int) round((float) $item->price)),
+                'quantity' => (int) $item->quantity,
+                'name'     => mb_substr($item->book->title, 0, 50),
+            ])->toArray();
+
+            $grossAmount = collect($midtransItems)->sum(fn($item) => $item['price'] * $item['quantity']);
+
+            if ($grossAmount < 1) {
+                throw new \Exception('Total transaksi Midtrans minimal Rp 1.');
+            }
+
             $snapParams = [
                 'transaction_details' => [
                     'order_id'     => $order->order_number,
-                    'gross_amount' => (int) $order->grand_total,
+                    'gross_amount' => (int) $grossAmount,
                 ],
                 'customer_details' => [
                     'first_name' => $order->shipping_name,
@@ -255,17 +267,7 @@ class CheckoutController extends Controller
                         'country_code' => 'IDN',
                     ],
                 ],
-                'item_details' => $order->items->map(fn($item) => [
-                    'id'       => (string) $item->book_id,
-                    'price'    => (int) $item->price,
-                    'quantity' => $item->quantity,
-                    'name'     => mb_substr($item->book->title, 0, 50),
-                ])->concat([[
-                    'id'       => 'SHIPPING',
-                    'price'    => (int) $order->shipping_cost,
-                    'quantity' => 1,
-                    'name'     => 'Ongkos Kirim',
-                ]])->toArray(),
+                'item_details' => $midtransItems,
                 'callbacks' => [
                     'finish' => route('checkout.midtrans.finish'),
                 ],

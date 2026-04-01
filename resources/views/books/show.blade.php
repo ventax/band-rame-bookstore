@@ -19,11 +19,21 @@
                 </ol>
             </nav>
 
+            @php
+                $bookImages = collect([$book->cover_image])
+                    ->merge($book->gallery_images ?? [])
+                    ->filter()
+                    ->unique()
+                    ->map(fn($path) => asset('storage/' . $path))
+                    ->values()
+                    ->all();
+            @endphp
+
             <!-- Book Detail -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="grid md:grid-cols-2 gap-8 p-8">
                     <!-- Book Image -->
-                    <div class="relative">
+                    <div class="relative" x-data="{ images: @js($bookImages), current: 0 }">
                         @if ($book->discount > 0)
                             <div class="absolute top-4 left-4 z-10">
                                 <span
@@ -32,9 +42,36 @@
                                 </span>
                             </div>
                         @endif
-                        @if ($book->cover_image)
-                            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}"
-                                class="w-full rounded-lg shadow-lg">
+
+                        @if (count($bookImages) > 0)
+                            <div class="relative overflow-hidden rounded-lg shadow-lg">
+                                <img :src="images[current]" alt="{{ $book->title }}" class="w-full rounded-lg">
+
+                                @if (count($bookImages) > 1)
+                                    <button @click="current = (current - 1 + images.length) % images.length"
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-gray-700 shadow flex items-center justify-center">
+                                        <i class="fas fa-chevron-left text-sm"></i>
+                                    </button>
+                                    <button @click="current = (current + 1) % images.length"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-gray-700 shadow flex items-center justify-center">
+                                        <i class="fas fa-chevron-right text-sm"></i>
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if (count($bookImages) > 1)
+                                <div class="mt-3 grid grid-cols-5 gap-2">
+                                    @foreach ($bookImages as $index => $imageUrl)
+                                        <button @click="current = {{ $index }}"
+                                            :class="current === {{ $index }} ? 'ring-2 ring-blue-500 border-blue-500' :
+                                                'border-gray-200'"
+                                            class="rounded-lg overflow-hidden border transition-all">
+                                            <img src="{{ $imageUrl }}" alt="Thumbnail {{ $index + 1 }}"
+                                                class="w-full h-16 object-cover">
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
                         @else
                             <div class="w-full h-96 bg-gray-300 flex items-center justify-center rounded-lg">
                                 <i class="fas fa-book text-gray-500 text-8xl"></i>
@@ -480,22 +517,35 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             },
                             body: JSON.stringify({
                                 quantity: quantity
                             })
                         })
-                        .then(response => response.json())
+                        .then(async response => {
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(data.message || `HTTP ${response.status}`);
+                            }
+
+                            return data;
+                        })
                         .then(data => {
                             if (data.success) {
                                 window.dispatchEvent(new CustomEvent('cart-updated'));
                                 window.showToast('success', data.message || 'Produk berhasil ditambahkan ke keranjang');
+                                return;
                             }
+
+                            window.showToast('error', data.message || 'Terjadi kesalahan. Silakan coba lagi.');
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            window.showToast('error', 'Terjadi kesalahan. Silakan coba lagi.');
+                            window.showToast('error', error.message || 'Terjadi kesalahan. Silakan coba lagi.');
                         });
                 }
             </script>

@@ -43,6 +43,7 @@ Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::get('/books/{slug}', [BookController::class, 'show'])->name('books.show');
 Route::get('/books/{book}/quick-view', [BookController::class, 'quickView'])->name('books.quick-view');
 Route::get('/books/{book}/pdf', [BookController::class, 'viewPdf'])->name('books.pdf');
+Route::get('/books/{book}/pdf/file', [BookController::class, 'pdfFile'])->name('books.pdf.file');
 Route::get('/search', [BookController::class, 'search'])->name('books.search');
 
 // Cart
@@ -58,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/bulk-delete', [WishlistController::class, 'bulkDestroy'])->name('wishlist.bulk-destroy');
     Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
     // Reviews
@@ -127,6 +129,7 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Books Management
+    Route::delete('/books/bulk-delete', [AdminBookController::class, 'bulkDestroy'])->name('books.bulk-destroy');
     Route::resource('books', AdminBookController::class);
 
     // Categories Management

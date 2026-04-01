@@ -21,6 +21,7 @@ class Book extends Model
         'discount',
         'stock',
         'cover_image',
+        'gallery_images',
         'pdf_file',
         'pages',
         'language',
@@ -31,6 +32,7 @@ class Book extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'discount' => 'integer',
+        'gallery_images' => 'array',
         'is_featured' => 'boolean',
     ];
 

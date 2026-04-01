@@ -124,11 +124,39 @@
         @endif
     </p>
 
+    <form id="bulk-delete-form" action="{{ route('admin.books.bulk-destroy') }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+        <div id="bulk-delete-inputs"></div>
+    </form>
+
+    <div id="bulk-action-bar" class="hidden mb-3 bg-red-50 border border-red-100 rounded-xl p-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p class="text-sm text-red-700 font-semibold">
+                <span id="selected-books-count">0</span> buku dipilih
+            </p>
+            <div class="flex items-center gap-2">
+                <button type="button" id="clear-selection"
+                    class="px-3 py-2 text-xs font-semibold rounded-lg text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+                    Batal Pilih
+                </button>
+                <button type="button" id="bulk-delete-trigger"
+                    class="px-3 py-2 text-xs font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors">
+                    <i class="fas fa-trash mr-1"></i> Hapus Terpilih
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- ── Desktop Table ── --}}
     <div class="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table class="min-w-full">
             <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
+                    <th class="px-4 py-3.5 text-center">
+                        <input type="checkbox" id="select-all-books"
+                            class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    </th>
                     <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Buku</th>
                     <th class="px-6 py-3.5 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">Kategori
                     </th>
@@ -145,6 +173,11 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($books as $book)
                     <tr class="hover:bg-blue-50/30 transition-colors group">
+                        <td class="px-4 py-3.5 text-center align-top">
+                            <input type="checkbox"
+                                class="js-book-checkbox w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                value="{{ $book->id }}" aria-label="Pilih buku {{ $book->title }}">
+                        </td>
                         <td class="px-6 py-3.5">
                             <div class="flex items-center gap-3">
                                 <div
@@ -206,8 +239,8 @@
                                     class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
-                                <form action="{{ route('admin.books.destroy', $book) }}" method="POST" class="inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus buku \'{{ addslashes($book->title) }}\'?')">
+                                <form action="{{ route('admin.books.destroy', $book) }}" method="POST"
+                                    class="inline js-delete-book-form" data-book-title="{{ $book->title }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
@@ -220,7 +253,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-16 text-center">
+                        <td colspan="7" class="px-6 py-16 text-center">
                             <i class="fas fa-book text-4xl text-gray-200 mb-3 block"></i>
                             <p class="text-gray-400 font-medium">Tidak ada buku ditemukan</p>
                         </td>
@@ -289,8 +322,8 @@
                             class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <form action="{{ route('admin.books.destroy', $book) }}" method="POST" class="inline"
-                            onsubmit="return confirm('Yakin ingin menghapus buku \'{{ addslashes($book->title) }}\'?')">
+                        <form action="{{ route('admin.books.destroy', $book) }}" method="POST"
+                            class="inline js-delete-book-form" data-book-title="{{ $book->title }}">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
@@ -369,4 +402,198 @@
             </div>
         </div>
     @endif
+
+    {{-- Delete confirmation modal --}}
+    <div id="delete-book-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-slate-900/60"></div>
+        <div class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 id="delete-book-heading" class="text-base font-bold text-slate-800">Konfirmasi Hapus Buku</h3>
+                <button type="button" id="delete-book-close"
+                    class="w-8 h-8 inline-flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    aria-label="Tutup modal hapus buku">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="px-5 py-4">
+                <p id="delete-book-message" class="text-sm text-slate-600 leading-relaxed"></p>
+            </div>
+            <div class="px-5 pb-5 flex items-center justify-end gap-2.5">
+                <button type="button" id="delete-book-cancel"
+                    class="px-4 py-2 text-sm font-semibold rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    Batal
+                </button>
+                <button type="button" id="delete-book-confirm"
+                    class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-red-600 hover:bg-red-700 transition-colors">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('delete-book-modal');
+            const headingText = document.getElementById('delete-book-heading');
+            const messageText = document.getElementById('delete-book-message');
+            const closeButton = document.getElementById('delete-book-close');
+            const cancelButton = document.getElementById('delete-book-cancel');
+            const confirmButton = document.getElementById('delete-book-confirm');
+            const singleDeleteForms = document.querySelectorAll('.js-delete-book-form');
+            const selectAllBooks = document.getElementById('select-all-books');
+            const bookCheckboxes = Array.from(document.querySelectorAll('.js-book-checkbox'));
+            const bulkActionBar = document.getElementById('bulk-action-bar');
+            const selectedBooksCount = document.getElementById('selected-books-count');
+            const clearSelectionButton = document.getElementById('clear-selection');
+            const bulkDeleteTrigger = document.getElementById('bulk-delete-trigger');
+            const bulkDeleteForm = document.getElementById('bulk-delete-form');
+            const bulkDeleteInputs = document.getElementById('bulk-delete-inputs');
+            let pendingForm = null;
+            let pendingAction = null;
+
+            if (!modal || !headingText || !messageText || !closeButton || !cancelButton || !confirmButton) {
+                return;
+            }
+
+            const openModal = function(config) {
+                pendingForm = config.form || null;
+                pendingAction = typeof config.onConfirm === 'function' ? config.onConfirm : null;
+                headingText.textContent = config.heading;
+                messageText.textContent = config.message;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            const closeModal = function() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+                pendingForm = null;
+                pendingAction = null;
+            };
+
+            singleDeleteForms.forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const title = form.dataset.bookTitle || 'ini';
+                    openModal({
+                        form,
+                        heading: 'Konfirmasi Hapus Buku',
+                        message: 'Buku "' + title +
+                            '" akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.'
+                    });
+                });
+            });
+
+            const updateBulkSelection = function() {
+                if (!bookCheckboxes.length || !bulkActionBar || !selectedBooksCount) {
+                    return;
+                }
+
+                const checkedCount = bookCheckboxes.filter(function(checkbox) {
+                    return checkbox.checked;
+                }).length;
+
+                selectedBooksCount.textContent = checkedCount;
+                bulkActionBar.classList.toggle('hidden', checkedCount === 0);
+
+                if (selectAllBooks) {
+                    selectAllBooks.checked = checkedCount > 0 && checkedCount === bookCheckboxes.length;
+                    selectAllBooks.indeterminate = checkedCount > 0 && checkedCount < bookCheckboxes.length;
+                }
+            };
+
+            if (selectAllBooks) {
+                selectAllBooks.addEventListener('change', function() {
+                    bookCheckboxes.forEach(function(checkbox) {
+                        checkbox.checked = selectAllBooks.checked;
+                    });
+                    updateBulkSelection();
+                });
+            }
+
+            bookCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', updateBulkSelection);
+            });
+
+            if (clearSelectionButton) {
+                clearSelectionButton.addEventListener('click', function() {
+                    bookCheckboxes.forEach(function(checkbox) {
+                        checkbox.checked = false;
+                    });
+                    updateBulkSelection();
+                });
+            }
+
+            if (bulkDeleteTrigger && bulkDeleteForm && bulkDeleteInputs) {
+                bulkDeleteTrigger.addEventListener('click', function() {
+                    const selectedBookIds = bookCheckboxes.filter(function(checkbox) {
+                        return checkbox.checked;
+                    }).map(function(checkbox) {
+                        return checkbox.value;
+                    });
+
+                    if (!selectedBookIds.length) {
+                        return;
+                    }
+
+                    openModal({
+                        heading: 'Konfirmasi Hapus Buku Terpilih',
+                        message: selectedBookIds.length +
+                            ' buku akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.',
+                        onConfirm: function() {
+                            bulkDeleteInputs.innerHTML = '';
+
+                            selectedBookIds.forEach(function(bookId) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'book_ids[]';
+                                input.value = bookId;
+                                bulkDeleteInputs.appendChild(input);
+                            });
+
+                            bulkDeleteForm.submit();
+                        }
+                    });
+                });
+            }
+
+            updateBulkSelection();
+
+            closeButton.addEventListener('click', closeModal);
+            cancelButton.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal || event.target.classList.contains('bg-slate-900/60')) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            confirmButton.addEventListener('click', function() {
+                if (pendingAction) {
+                    const action = pendingAction;
+                    closeModal();
+                    action();
+                    return;
+                }
+
+                if (!pendingForm) {
+                    return;
+                }
+
+                const formToSubmit = pendingForm;
+                closeModal();
+                formToSubmit.submit();
+            });
+        });
+    </script>
+@endpush

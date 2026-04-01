@@ -4,6 +4,36 @@
 @section('page-title', 'Kelola Pesanan')
 
 @section('content')
+    @php
+        $orderPageQuery = [
+            'search' => request('search'),
+            'status' => request('status'),
+            'payment_status' => request('payment_status'),
+        ];
+        $orderCurrent = $orders->currentPage();
+        $orderLast = $orders->lastPage();
+        $orderStart = max(1, $orderCurrent - 2);
+        $orderEnd = min($orderLast, $orderCurrent + 2);
+        $orderPages = [];
+
+        if ($orderStart > 1) {
+            $orderPages[] = 1;
+            if ($orderStart > 2) {
+                $orderPages[] = '...';
+            }
+        }
+
+        for ($i = $orderStart; $i <= $orderEnd; $i++) {
+            $orderPages[] = $i;
+        }
+
+        if ($orderEnd < $orderLast) {
+            if ($orderEnd < $orderLast - 1) {
+                $orderPages[] = '...';
+            }
+            $orderPages[] = $orderLast;
+        }
+    @endphp
 
     {{-- Filter bar --}}
     <div class="mb-5">
@@ -195,7 +225,54 @@
         @endforelse
     </div>
 
-    <div class="mt-6">
-        {{ $orders->withQueryString()->links() }}
-    </div>
+    @if ($orders->hasPages())
+        <div class="mt-6">
+            <p class="text-center text-xs text-gray-500 mb-2">Halaman {{ $orderCurrent }} dari {{ $orderLast }}</p>
+            <div style="display:flex; justify-content:center;">
+                <nav aria-label="Pagination"
+                    style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; background:#fff; border:1px solid #dbeafe; border-radius:14px; padding:6px; box-shadow:0 6px 20px rgba(37,99,235,0.12);">
+                    @if ($orders->onFirstPage())
+                        <span
+                            style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                            <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                        </span>
+                    @else
+                        <a href="{{ $orders->appends($orderPageQuery)->previousPageUrl() }}"
+                            style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                            <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+                        </a>
+                    @endif
+
+                    @foreach ($orderPages as $page)
+                        @if ($page === '...')
+                            <span
+                                style="min-width:28px; height:36px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-weight:700;">...</span>
+                        @elseif ($page == $orderCurrent)
+                            <span
+                                style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#fff; font-weight:700; font-size:13px; background:linear-gradient(90deg,#2563eb,#1d4ed8);">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $orders->appends($orderPageQuery)->url($page) }}"
+                                style="min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#334155; font-weight:600; font-size:13px; text-decoration:none; background:#f8fafc;">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    @if ($orders->hasMorePages())
+                        <a href="{{ $orders->appends($orderPageQuery)->nextPageUrl() }}"
+                            style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#2563eb; text-decoration:none; background:#eff6ff;">
+                            <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                        </a>
+                    @else
+                        <span
+                            style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; color:#cbd5e1; background:#f8fafc; cursor:not-allowed;">
+                            <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+                        </span>
+                    @endif
+                </nav>
+            </div>
+        </div>
+    @endif
 @endsection

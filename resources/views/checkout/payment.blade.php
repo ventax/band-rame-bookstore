@@ -66,7 +66,9 @@
                                 </div>
                                 <div>
                                     <p class="text-white font-bold text-sm leading-tight">Pembayaran Aman via Midtrans</p>
-                                    <p class="text-white/70 text-xs">Enkripsi SSL 256-bit</p>
+                                    <p class="text-white/70 text-xs">Enkripsi SSL 256-bit • Mode
+                                        {{ config('services.midtrans.environment', 'sandbox') === 'production' ? 'Production' : 'Sandbox' }}
+                                    </p>
                                 </div>
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Midtrans.svg/320px-Midtrans.svg.png"
                                     alt="Midtrans" class="ml-auto h-6 opacity-90" onerror="this.style.display='none'">
@@ -204,10 +206,6 @@
                                 <div class="flex justify-between text-sm text-gray-600">
                                     <span>Subtotal</span>
                                     <span class="font-medium">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex justify-between text-sm text-gray-600">
-                                    <span>Ongkos Kirim</span>
-                                    <span class="font-medium">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
                                 </div>
                                 <div class="border-t border-dashed border-gray-200 pt-3 flex justify-between items-center">
                                     <span class="font-bold text-gray-900">Total Bayar</span>

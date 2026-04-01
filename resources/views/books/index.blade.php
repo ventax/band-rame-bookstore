@@ -114,29 +114,29 @@
                     <div
                         style="background:#fff; border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); padding:20px; position:sticky; top:90px;">
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
-                            <i class="fas fa-layer-group" style="color:#7c3aed; font-size:14px;"></i>
+                            <i class="fas fa-layer-group" style="color:#2563eb; font-size:14px;"></i>
                             <span style="font-size:14px; font-weight:700; color:#111827;">Kategori</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:2px;">
                             <a href="{{ route('books.index', ['search' => request('search'), 'sort' => request('sort')]) }}"
                                 style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; font-size:13px; font-weight:{{ !request('category') ? '700' : '500' }}; text-decoration:none; transition:background 0.15s;
-                               {{ !request('category') ? 'background:linear-gradient(90deg,#ede9fe,#fce7f3); color:#6d28d9;' : 'color:#374151;' }}"
+                               {{ !request('category') ? 'background:#dbeafe; color:#1d4ed8;' : 'color:#374151;' }}"
                                 onmouseover="{{ !request('category') ? '' : "this.style.background='#f9fafb'" }}"
                                 onmouseout="{{ !request('category') ? '' : "this.style.background=''" }}">
                                 <span>Semua</span>
                                 <span
-                                    style="font-size:11px; padding:2px 8px; border-radius:20px; {{ !request('category') ? 'background:#ddd6fe; color:#6d28d9;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $categories->sum('books_count') }}</span>
+                                    style="font-size:11px; padding:2px 8px; border-radius:20px; {{ !request('category') ? 'background:#bfdbfe; color:#1e40af;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $categories->sum('books_count') }}</span>
                             </a>
                             @foreach ($categories as $category)
                                 @php $isActive = request('category') == $category->id; @endphp
                                 <a href="{{ route('books.index', ['category' => $category->id, 'search' => request('search'), 'sort' => request('sort')]) }}"
                                     style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; font-size:13px; font-weight:{{ $isActive ? '700' : '500' }}; text-decoration:none; transition:background 0.15s;
-                               {{ $isActive ? 'background:linear-gradient(90deg,#ede9fe,#fce7f3); color:#6d28d9;' : 'color:#374151;' }}"
+                               {{ $isActive ? 'background:#dbeafe; color:#1d4ed8;' : 'color:#374151;' }}"
                                     onmouseover="{{ $isActive ? '' : "this.style.background='#f9fafb'" }}"
                                     onmouseout="{{ $isActive ? '' : "this.style.background=''" }}">
                                     <span>{{ $category->name }}</span>
                                     <span
-                                        style="font-size:11px; padding:2px 8px; border-radius:20px; {{ $isActive ? 'background:#ddd6fe; color:#6d28d9;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $category->books_count }}</span>
+                                        style="font-size:11px; padding:2px 8px; border-radius:20px; {{ $isActive ? 'background:#bfdbfe; color:#1e40af;' : 'background:#f3f4f6; color:#6b7280;' }}">{{ $category->books_count }}</span>
                                 </a>
                             @endforeach
                         </div>
@@ -587,29 +587,47 @@
         </div>
 
         {{-- ───────── QUICK VIEW MODAL (shared) ───────── --}}
-        <div x-show="showQuickView" x-cloak @click.self="showQuickView = false"
-            class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+        <div x-show="showQuickView" x-cloak @click.self="closeQuickView()"
+            class="fixed inset-0 bg-black bg-opacity-50 z-[1200] flex items-end sm:items-center justify-center p-0 sm:p-4 lg:p-6"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
             <div @click.stop
-                class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto"
+                class="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-3xl w-full max-h-[calc(100vh-16px)] sm:max-h-[calc(100vh-48px)] overflow-hidden"
                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4"
                 x-transition:enter-end="opacity-100 translate-y-0">
                 <template x-if="quickViewBook">
                     <div>
-                        <div class="flex justify-between items-center p-5 border-b border-gray-200">
+                        <div class="flex justify-between items-center p-4 border-b border-gray-200">
                             <h2 class="text-lg font-bold text-gray-900">Detail Buku</h2>
-                            <button @click="showQuickView = false"
+                            <button @click="closeQuickView()"
                                 class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        <div class="p-5">
-                            <div class="grid md:grid-cols-2 gap-6">
+                        <div class="p-4 sm:p-5 overflow-y-auto max-h-[calc(100vh-80px)] sm:max-h-[calc(100vh-128px)]">
+                            <div class="grid md:grid-cols-2 gap-5">
                                 <div>
-                                    <img :src="quickViewBook.image" :alt="quickViewBook.title"
-                                        class="w-full rounded-xl shadow-lg">
+                                    <div class="relative">
+                                        <img :src="quickViewImages()[quickViewImageIndex] || quickViewBook.image"
+                                            :alt="quickViewBook.title"
+                                            :class="quickViewImageVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.985]'"
+                                            class="w-full h-[260px] sm:h-[300px] md:h-[330px] object-cover rounded-xl shadow-lg transition-all duration-500 ease-out will-change-transform">
+
+                                        <template x-if="quickViewImages().length > 1">
+                                            <div>
+                                                <button @click="prevQuickViewImage()"
+                                                    class="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-gray-700 shadow flex items-center justify-center">
+                                                    <i class="fas fa-chevron-left text-sm"></i>
+                                                </button>
+                                                <button @click="nextQuickViewImage()"
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-gray-700 shadow flex items-center justify-center">
+                                                    <i class="fas fa-chevron-right text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+
                                     @auth
                                         <button @click="toggleWishlist(quickViewBook.id, $event)"
                                             :class="quickViewBook.in_wishlist ? 'bg-red-500 text-white' :
@@ -629,7 +647,8 @@
                                 <div>
                                     <span class="text-sm text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full"
                                         x-text="quickViewBook.category"></span>
-                                    <h3 class="text-2xl font-bold text-gray-900 mt-3 mb-2" x-text="quickViewBook.title">
+                                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mt-3 mb-2"
+                                        x-text="quickViewBook.title">
                                     </h3>
                                     <p class="text-gray-600 mb-1 text-sm"><i class="fas fa-user mr-2"></i><span
                                             x-text="quickViewBook.author"></span></p>
@@ -784,7 +803,85 @@
             return {
                 showQuickView: false,
                 quickViewBook: null,
+                quickViewImageIndex: 0,
+                quickViewImageVisible: true,
+                quickViewAutoSlideTimer: null,
                 wishlistBooks: @json(auth()->check() ? auth()->user()->wishlists()->pluck('book_id')->toArray() : []),
+
+                quickViewImages() {
+                    if (!this.quickViewBook) {
+                        return [];
+                    }
+
+                    if (Array.isArray(this.quickViewBook.images) && this.quickViewBook.images.length > 0) {
+                        return this.quickViewBook.images;
+                    }
+
+                    return this.quickViewBook.image ? [this.quickViewBook.image] : [];
+                },
+
+                nextQuickViewImage() {
+                    const images = this.quickViewImages();
+                    if (images.length < 2) {
+                        return;
+                    }
+                    this.changeQuickViewImage((this.quickViewImageIndex + 1) % images.length);
+                },
+
+                prevQuickViewImage() {
+                    const images = this.quickViewImages();
+                    if (images.length < 2) {
+                        return;
+                    }
+                    this.changeQuickViewImage((this.quickViewImageIndex - 1 + images.length) % images.length);
+                },
+
+                setQuickViewImage(index) {
+                    this.changeQuickViewImage(index);
+                },
+
+                changeQuickViewImage(nextIndex) {
+                    const images = this.quickViewImages();
+                    if (images.length === 0 || nextIndex === this.quickViewImageIndex) {
+                        return;
+                    }
+
+                    const normalizedIndex = ((nextIndex % images.length) + images.length) % images.length;
+
+                    this.quickViewImageVisible = false;
+                    setTimeout(() => {
+                        this.quickViewImageIndex = normalizedIndex;
+                        this.quickViewImageVisible = true;
+                    }, 150);
+                },
+
+                startQuickViewAutoSlide() {
+                    this.stopQuickViewAutoSlide();
+
+                    if (this.quickViewImages().length < 2) {
+                        return;
+                    }
+
+                    this.quickViewAutoSlideTimer = setInterval(() => {
+                        if (!this.showQuickView) {
+                            return;
+                        }
+
+                        this.nextQuickViewImage();
+                    }, 3000);
+                },
+
+                stopQuickViewAutoSlide() {
+                    if (this.quickViewAutoSlideTimer) {
+                        clearInterval(this.quickViewAutoSlideTimer);
+                        this.quickViewAutoSlideTimer = null;
+                    }
+                },
+
+                closeQuickView() {
+                    this.showQuickView = false;
+                    this.stopQuickViewAutoSlide();
+                },
 
                 async quickView(bookId) {
                     try {
@@ -794,7 +891,10 @@
                             }
                         });
                         this.quickViewBook = await response.json();
+                        this.quickViewImageIndex = 0;
+                        this.quickViewImageVisible = true;
                         this.showQuickView = true;
+                        this.$nextTick(() => this.startQuickViewAutoSlide());
                     } catch (error) {
                         console.error('Error loading quick view:', error);
                         window.dispatchEvent(new CustomEvent('toast', {
@@ -823,7 +923,8 @@
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
                             body: JSON.stringify({
                                 quantity: 1
@@ -831,10 +932,19 @@
                         });
 
                         const data = await response.json();
+
+                        if (!response.ok) {
+                            window.showToast('error', data.message || 'Gagal menambahkan ke keranjang');
+                            return;
+                        }
+
                         if (data.success) {
                             window.dispatchEvent(new CustomEvent('cart-updated'));
                             window.showToast('success', data.message || 'Produk berhasil ditambahkan ke keranjang');
+                            return;
                         }
+
+                        window.showToast('error', data.message || 'Gagal menambahkan ke keranjang');
                     } catch (error) {
                         console.error('Error adding to cart:', error);
                         window.showToast('error', 'Gagal menambahkan ke keranjang');
@@ -880,6 +990,13 @@
                                     console.log('➖ Removed from wishlist');
                                 }
                             }
+
+                            window.dispatchEvent(new CustomEvent('wishlist-updated', {
+                                detail: {
+                                    count: Number.isFinite(Number(data.count)) ? Number(data.count) : this
+                                        .wishlistBooks.length
+                                }
+                            }));
 
                             // Update quick view if open
                             if (this.quickViewBook && this.quickViewBook.id === bookId) {

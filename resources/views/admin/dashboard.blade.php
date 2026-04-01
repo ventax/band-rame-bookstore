@@ -13,6 +13,12 @@
                 <h2 class="text-white text-2xl sm:text-3xl font-extrabold mt-1 tracking-tight">{{ Auth::user()->name }} 👋
                 </h2>
                 <p class="text-blue-300 text-xs mt-2">{{ now()->format('l, d F Y') }}</p>
+                <div
+                    class="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border
+                    {{ $midtransMode === 'production' ? 'bg-emerald-500/20 text-emerald-100 border-emerald-300/40' : 'bg-red-500/20 text-red-100 border-red-300/40' }}">
+                    <i class="fas {{ $midtransMode === 'production' ? 'fa-circle-check' : 'fa-triangle-exclamation' }}"></i>
+                    Midtrans {{ $midtransMode === 'production' ? 'Production' : 'Sandbox' }} Mode
+                </div>
             </div>
             <div class="flex gap-3 flex-shrink-0">
                 <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}"
@@ -334,19 +340,19 @@
 
             {{-- Table header (desktop only) --}}
             <div
-                class="hidden sm:grid grid-cols-12 px-6 py-2.5 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                <span class="col-span-4">Customer</span>
-                <span class="col-span-3">No. Pesanan</span>
-                <span class="col-span-2">Waktu</span>
-                <span class="col-span-2 text-right">Total</span>
-                <span class="col-span-1 text-right">Status</span>
+                class="hidden sm:grid sm:grid-cols-[23fr_14fr_10fr_8fr_9fr] gap-3 px-6 py-2.5 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <span class="min-w-0">Customer</span>
+                <span class="min-w-0">No. Pesanan</span>
+                <span class="min-w-0">Waktu</span>
+                <span class="text-right whitespace-nowrap">Total</span>
+                <span class="text-right whitespace-nowrap">Status</span>
             </div>
 
             <div class="flex-1 divide-y divide-gray-50">
                 @forelse ($recent_orders as $order)
                     <a href="{{ route('admin.orders.show', $order) }}"
-                        class="grid grid-cols-12 items-center px-6 py-3.5 hover:bg-blue-50/40 transition-colors group">
-                        <div class="col-span-7 sm:col-span-4 flex items-center gap-3 min-w-0">
+                        class="grid grid-cols-12 sm:grid-cols-[23fr_14fr_10fr_8fr_9fr] gap-3 items-center px-6 py-3.5 hover:bg-blue-50/40 transition-colors group">
+                        <div class="col-span-8 sm:col-span-1 flex items-center gap-3 min-w-0">
                             <div
                                 class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <span
@@ -359,19 +365,19 @@
                                 <p class="text-xs text-gray-400 truncate sm:hidden">#{{ $order->order_number }}</p>
                             </div>
                         </div>
-                        <div class="hidden sm:block col-span-3">
+                        <div class="hidden sm:block sm:col-span-1 min-w-0">
                             <p class="text-xs font-mono text-gray-600 truncate">#{{ $order->order_number }}</p>
                         </div>
-                        <div class="hidden sm:block col-span-2">
-                            <p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</p>
+                        <div class="hidden sm:block sm:col-span-1 min-w-0">
+                            <p class="text-xs text-gray-400 truncate">{{ $order->created_at->diffForHumans() }}</p>
                         </div>
-                        <div class="col-span-5 sm:col-span-2 text-right">
-                            <p class="text-sm font-bold text-gray-800">Rp
+                        <div class="col-span-4 sm:col-span-1 text-right sm:pr-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-800 whitespace-nowrap">Rp
                                 {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                         </div>
-                        <div class="hidden sm:flex col-span-1 justify-end">
+                        <div class="hidden sm:flex sm:col-span-1 justify-end pl-1">
                             <span
-                                class="inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold
+                                class="inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap
                                 @if ($order->status === 'pending') bg-yellow-100 text-yellow-700
                                 @elseif($order->status === 'processing') bg-blue-100 text-blue-700
                                 @elseif($order->status === 'shipped') bg-purple-100 text-purple-700

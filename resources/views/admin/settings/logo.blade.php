@@ -6,22 +6,6 @@
 @section('content')
     <div class="max-w-3xl mx-auto space-y-6">
 
-        {{-- Flash messages --}}
-        @if (session('success'))
-            <div
-                class="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 rounded-2xl px-5 py-4 text-sm font-medium shadow-sm">
-                <i class="fas fa-circle-check text-green-500 text-base flex-shrink-0"></i>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session('error'))
-            <div
-                class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 text-sm font-medium shadow-sm">
-                <i class="fas fa-circle-exclamation text-red-500 text-base flex-shrink-0"></i>
-                {{ session('error') }}
-            </div>
-        @endif
-
         {{-- ═══════════════════════════════
          1. NAMA WEBSITE
     ═══════════════════════════════ --}}

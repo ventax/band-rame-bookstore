@@ -622,15 +622,30 @@
                             quantity: newQty
                         })
                     })
-                    .then(response => {
+                    .then(async response => {
                         if (response.status === 401 || response.status === 419) {
                             window.location.href = '/login';
                             return null;
                         }
-                        return response.json();
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            return {
+                                success: false,
+                                message: data.message || 'Terjadi kesalahan. Silakan coba lagi.'
+                            };
+                        }
+
+                        return data;
                     })
                     .then(data => {
-                        if (!data || !data.success) return;
+                        if (!data) return;
+
+                        if (!data.success) {
+                            window.showToast('error', data.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                            return;
+                        }
 
                         // Update quantity display (mobile + desktop)
                         document.querySelectorAll(`#qty-${itemId}, #qty-${itemId}-d`).forEach(el => el.textContent =
@@ -663,7 +678,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Terjadi kesalahan. Silakan coba lagi.');
+                        window.showToast('error', 'Terjadi kesalahan. Silakan coba lagi.');
                     });
             }
 

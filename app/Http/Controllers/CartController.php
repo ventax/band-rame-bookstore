@@ -22,19 +22,43 @@ class CartController extends Controller
     public function add(Request $request, $bookId)
     {
         $book = Book::findOrFail($bookId);
+        $requestedQty = max((int) $request->input('quantity', 1), 1);
 
         $cartItem = Cart::where('user_id', Auth::id())
             ->where('book_id', $bookId)
             ->first();
 
+        $currentQty = $cartItem ? (int) $cartItem->quantity : 0;
+        $targetQty = $currentQty + $requestedQty;
+
+        if ((int) $book->stock < 1) {
+            $message = 'Stok buku habis.';
+
+            if ($request->expectsJson() || $request->ajax() || $request->isJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return redirect()->back()->with('error', $message);
+        }
+
+        if ($targetQty > (int) $book->stock) {
+            $message = 'Jumlah melebihi stok tersedia. Sisa stok: ' . (int) $book->stock . '.';
+
+            if ($request->expectsJson() || $request->ajax() || $request->isJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return redirect()->back()->with('error', $message);
+        }
+
         if ($cartItem) {
-            $cartItem->quantity += $request->input('quantity', 1);
+            $cartItem->quantity = $targetQty;
             $cartItem->save();
         } else {
             Cart::create([
                 'user_id' => Auth::id(),
                 'book_id' => $bookId,
-                'quantity' => $request->input('quantity', 1),
+                'quantity' => $requestedQty,
             ]);
         }
 
@@ -44,7 +68,7 @@ class CartController extends Controller
             'cart_count' => Cart::where('user_id', Auth::id())->sum('quantity')
         ];
 
-        if ($request->expectsJson() || $request->ajax()) {
+        if ($request->expectsJson() || $request->ajax() || $request->isJson()) {
             return response()->json($payload);
         }
 
@@ -53,8 +77,29 @@ class CartController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
         $cartItem = Cart::where('user_id', Auth::id())->findOrFail($id);
-        $cartItem->quantity = $request->quantity;
+        $newQty = (int) $request->quantity;
+        $bookStock = (int) $cartItem->book->stock;
+
+        if ($bookStock < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stok buku habis.',
+            ], 422);
+        }
+
+        if ($newQty > $bookStock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jumlah melebihi stok tersedia. Sisa stok: ' . $bookStock . '.',
+            ], 422);
+        }
+
+        $cartItem->quantity = $newQty;
         $cartItem->save();
 
         $cartItems = Cart::with('book')->where('user_id', Auth::id())->get();

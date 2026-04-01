@@ -906,6 +906,24 @@
 
         // Update cart & wishlist counts on page load
         @auth
+        const applyWishlistCount = (count) => {
+            const wCount = Number(count) || 0;
+            const desktopEl = document.getElementById('wishlist-count');
+            const mobileEl = document.getElementById('mobile-wishlist-count');
+
+            if (desktopEl) {
+                desktopEl.textContent = wCount;
+                desktopEl.style.display = wCount > 0 ? 'flex' : 'none';
+            }
+
+            if (mobileEl) {
+                mobileEl.textContent = wCount;
+                mobileEl.style.display = wCount > 0 ? 'flex' : 'none';
+            }
+        };
+
+        window.applyWishlistCount = applyWishlistCount;
+
         fetch('{{ route('cart.count') }}')
             .then(response => response.json())
             .then(data => {
@@ -919,18 +937,21 @@
         fetch('{{ route('wishlist.count') }}')
             .then(response => response.json())
             .then(data => {
-                const wCount = data.count;
-                const desktopEl = document.getElementById('wishlist-count');
-                const mobileEl = document.getElementById('mobile-wishlist-count');
-                if (desktopEl) {
-                    desktopEl.textContent = wCount;
-                    desktopEl.style.display = wCount > 0 ? 'flex' : 'none';
-                }
-                if (mobileEl) {
-                    mobileEl.textContent = wCount;
-                    mobileEl.style.display = wCount > 0 ? 'flex' : 'none';
-                }
+                applyWishlistCount(data.count);
             });
+
+        window.addEventListener('wishlist-updated', (event) => {
+            const incomingCount = Number(event?.detail?.count);
+
+            if (Number.isFinite(incomingCount)) {
+                applyWishlistCount(incomingCount);
+                return;
+            }
+
+            fetch('{{ route('wishlist.count') }}')
+                .then(response => response.json())
+                .then(data => applyWishlistCount(data.count));
+        });
         @endauth
     </script>
 
